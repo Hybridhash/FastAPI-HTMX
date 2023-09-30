@@ -1,0 +1,16 @@
+
+{
+    "cSpell.words": [
+        "fastapi",
+        "passlib",
+        "pydantic",
+        "sqlmodel",
+        "uvicorn"
+    ],
+    "[python]": {
+      "editor.codeActionsOnSave": {
+        "source.fixAll": true,
+        "source.organizeImports": true
+      }
+    }
+  }

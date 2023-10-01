@@ -2,16 +2,14 @@ from typing import Annotated, AsyncGenerator
 
 from fastapi import Depends
 from fastapi_users.db import SQLAlchemyUserDatabase
+from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
-from sqlalchemy.orm import DeclarativeBase
 
+from app.database.base import Base
 from app.models.users import User
 
-DATABASE_URL = "sqlite+aiosqlite:///./test.db"
+DATABASE_URL = "sqlite+aiosqlite:///./users.db"
 
-
-class Base(DeclarativeBase):
-    pass
 
 
 
@@ -22,6 +20,7 @@ async_session_maker = async_sessionmaker(engine, expire_on_commit=False)
 
 async def create_db_and_tables():
     async with engine.begin() as conn:
+        logger.info("Creating database tables...")
         await conn.run_sync(Base.metadata.create_all)
 
 

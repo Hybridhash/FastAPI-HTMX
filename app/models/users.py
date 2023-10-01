@@ -3,17 +3,18 @@ from datetime import datetime
 # from fastapi import Depends
 from fastapi_users.db import SQLAlchemyBaseUserTableUUID
 from sqlalchemy import DateTime
-
 # from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql.functions import func
+
+from app.database.base import Base
 
 # from app.database.db import get_async_session
 
 
-# Declarating the base class for all models
-class Base(DeclarativeBase):
-    pass
+# # Declarating the base class for all models
+# class Base(DeclarativeBase):
+#     pass
 
 # # Creating a base user using the SQLAlchemyBaseUserTableUUID class from FASTAPI-USERS
 # class User(SQLAlchemyBaseUserTableUUID, Base):

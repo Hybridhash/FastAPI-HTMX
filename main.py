@@ -7,7 +7,7 @@ app = FastAPI()
 if __name__ == "__main__":
     import uvicorn
 
-    logger.add("Starting uvicorn in reload mode")
+    logger.info("Starting uvicorn in reload mode")
     uvicorn.run(
         "app.app:app",
         host="127.0.0.1",

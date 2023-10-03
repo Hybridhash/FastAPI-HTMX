@@ -3,7 +3,8 @@ from typing import Annotated, AsyncGenerator
 from fastapi import Depends
 from fastapi_users.db import SQLAlchemyUserDatabase
 from loguru import logger
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.ext.asyncio import (AsyncSession, async_sessionmaker,
+                                    create_async_engine)
 
 from app.database.base import Base
 from app.models.users import User

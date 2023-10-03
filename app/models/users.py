@@ -4,7 +4,6 @@ from datetime import datetime
 from fastapi_users.db import SQLAlchemyBaseUserTableUUID
 from fastapi_users_db_sqlalchemy import GUID
 from sqlalchemy import UUID, DateTime, String
-
 # from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql.functions import func
@@ -33,6 +32,6 @@ class User(SQLAlchemyBaseUserTableUUID, Base):
 class Role (BaseSQLModel):
     __tablename__ = "roles"
     role_name: Mapped[str] = mapped_column(String(length=200), nullable=False)
-    role_name: Mapped[str] = mapped_column(String(length=1024), nullable=False)
+    role_desc: Mapped[str] = mapped_column(String(length=1024), nullable=False)
     user_id: Mapped[UUID] = mapped_column(GUID, ForeignKey("users.id"))
     user: Mapped["User"] = relationship("User", back_populates="roles")

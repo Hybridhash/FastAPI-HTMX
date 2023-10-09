@@ -34,7 +34,16 @@ class UserCreate(schemas.BaseUserCreate):
 
 
 class UserUpdate(schemas.BaseUserUpdate):
-    pass
+    # Applying constrains on the new user created with minimum length of password
+    password: PasswordStr
+ 
+    class Config:
+    # Exclude the unwanted fields from the schema
+        json_schema_extra = {
+            "example": {
+                "password": "strings"
+            }
+        }
 
 
 class RoleBase(BaseModel):

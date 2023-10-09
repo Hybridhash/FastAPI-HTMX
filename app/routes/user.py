@@ -28,3 +28,22 @@ async def create_roles(role: RoleCreate, db: CurrentAsyncSession,
     await db.commit()
     await db.refresh(db_role)
     return db_role
+
+# Creating a superuser using the UserModel defined in database
+# This is without exposing to external routes
+# async def create_superuser():
+#     # defining a session using asyncsession imported from DB
+#     async with CurrentAsyncSession() as db:
+#         # Querying using SQLAlchemy 2.0 methodology
+#         superuser = await db.execute(select(UserModel)
+#                                     .where(UserModel.email == 'superuser@admin.com'))
+#         if not superuser.first():
+#             db_user = UserModel(email="superuser@admin.com", password="password123", 
+#                                 is_superuser=True, is_active=True)
+#             db.add(db_user)
+#             await db.commit()
+#             await db.refresh(db_user)
+#             logger.info("Superuser created")
+#         else:
+#             logger.info("Superuser already exists")
+    

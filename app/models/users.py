@@ -2,7 +2,6 @@ from datetime import datetime
 
 # from fastapi import Depends
 from fastapi_users.db import SQLAlchemyBaseUserTableUUID
-from fastapi_users_db_sqlalchemy import GUID
 from sqlalchemy import UUID, DateTime, String
 # from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -20,9 +19,11 @@ class User(SQLAlchemyBaseUserTableUUID, Base):
                                               server_default=func.now(),
                                               onupdate=func.now()
     )
-    # add 1 to 1 relationship with the role class
+    # add 1 to 1 relationship with the role model keeping default as None
+    # Default value on creating user is None and updated later
+    role_id: Mapped[UUID] = mapped_column(ForeignKey("roles.id"), nullable=True, default=None)
     # Role is defined in quotes to avoid type errors
-    roles: Mapped["Role"] = relationship("Role", uselist=False, back_populates="users")
+    role: Mapped["Role"] = relationship("Role", uselist=False, back_populates="user", )
     # items: Mapped["Item"] = relationship(back_populates="user", cascade="all, delete")
 
     # string representation of an object
@@ -31,7 +32,8 @@ class User(SQLAlchemyBaseUserTableUUID, Base):
     
 class Role (BaseSQLModel):
     __tablename__ = "roles"
-    role_name: Mapped[str] = mapped_column(String(length=200), nullable=False)
+    role_name: Mapped[str] = mapped_column(String(length=200), nullable=False, 
+                                           unique=True)
     role_desc: Mapped[str] = mapped_column(String(length=1024), nullable=False)
-    user_id: Mapped[UUID] = mapped_column(GUID, ForeignKey("users.id"))
-    user: Mapped["User"] = relationship("User", back_populates="roles")
+    # user_id: Mapped[UUID] = mapped_column(GUID, ForeignKey("users.id"))
+    user: Mapped["User"] = relationship("User", back_populates="role")

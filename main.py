@@ -1,8 +1,5 @@
 
-from fastapi import FastAPI
 from loguru import logger
-
-app = FastAPI()
 
 if __name__ == "__main__":
     import uvicorn

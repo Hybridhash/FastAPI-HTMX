@@ -1,9 +1,9 @@
 from fastapi import Depends, FastAPI
 
 from app.database.db import User, create_db_and_tables
-from app.database.security import (auth_backend, current_active_user,
-                                   fastapi_users)
-# importing the user role route 
+from app.database.security import auth_backend, current_active_user, fastapi_users
+
+# importing the user role route
 from app.routes.user import role_router
 from app.schema.users import UserCreate, UserRead, UserUpdate
 

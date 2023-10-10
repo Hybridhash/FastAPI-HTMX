@@ -1,6 +1,7 @@
 from typing import Generic, Type, TypeVar
 
 from pydantic import BaseModel
+from sqlalchemy import select
 
 # from sqlalchemy.orm import Session
 from app.database.base import Base
@@ -20,6 +21,18 @@ class BaseCRUD(Generic[ModelType, PydanticModelType]):
         await db.commit()
         await db.refresh(db_item)
         return db_item
+    
+    async def read_all(self, db: CurrentAsyncSession, skip: int, limit: int):
+        # Querying the database model using SQLAlchemy select()
+        stmt = select(self.db_model).offset(skip).limit(limit)
+        query = await db.execute(stmt)
+        return query.scalars().all()
+    
+        # return db.query(self.db_model).offset(skip).limit(limit).all()
+
+
+    # def read(self, db: Session, id: int):
+    #     return db.query(self.db_model).filter(self.db_model.id == id).first()
 
     # async def create(self, data: Dict[str, Any]) -> Any:
     #     obj = self.model(**data)

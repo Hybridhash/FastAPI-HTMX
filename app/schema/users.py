@@ -2,7 +2,7 @@ import uuid
 from typing import Annotated
 
 from fastapi_users import schemas
-from pydantic import BaseModel, EmailStr, StringConstraints
+from pydantic import UUID4, BaseModel, EmailStr, Field, StringConstraints
 
 PasswordStr = Annotated[str, StringConstraints(strip_whitespace=True, min_length=8)]
 class UserRead(schemas.BaseUser[uuid.UUID]):
@@ -47,12 +47,15 @@ class UserUpdate(schemas.BaseUserUpdate):
 
 
 class RoleBase(BaseModel):
-    role_name: str
-    role_desc: str
+    role_name: str = Field(..., title="Role Name", description="Role Name", min_length=3, max_length=50)
+    role_desc: str = Field(..., title="Role Description", description="Role Description", min_length=5, max_length=200)
 
+class RoleRead(RoleBase):
+    role_id: UUID4 = Field(default_factory=uuid.uuid4, title="Role ID", description="Role ID")
 
 class RoleCreate(RoleBase):
     pass
+
 
 class RoleUpdate(RoleBase):
     pass

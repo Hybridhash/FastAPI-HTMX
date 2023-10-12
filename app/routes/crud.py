@@ -1,5 +1,7 @@
+import uuid
 from typing import Generic, Type, TypeVar
 
+from fastapi import HTTPException
 from pydantic import BaseModel
 from sqlalchemy import select
 
@@ -9,6 +11,7 @@ from app.database.db import CurrentAsyncSession
 
 ModelType = TypeVar("ModelType", bound=Base)
 PydanticModelType = TypeVar("PydanticModelType", bound=BaseModel)
+IdentifierType = TypeVar("IdentifierType")
 
 class BaseCRUD(Generic[ModelType, PydanticModelType]):
     def __init__(self, db_model: Type[ModelType], pydantic_model: Type[PydanticModelType]):
@@ -26,13 +29,32 @@ class BaseCRUD(Generic[ModelType, PydanticModelType]):
         # Querying the database model using SQLAlchemy select()
         stmt = select(self.db_model).offset(skip).limit(limit)
         query = await db.execute(stmt)
+        # Adding a exception to be raised in case if record not exists
+        if not query:
+            raise HTTPException(status_code=404, detail="Record not found")
         return query.scalars().all()
     
         # return db.query(self.db_model).offset(skip).limit(limit).all()
 
-
-    # def read(self, db: Session, id: int):
-    #     return db.query(self.db_model).filter(self.db_model.id == id).first()
+    # Reading the one record only from the database model
+    async def read(self, db: CurrentAsyncSession, id: uuid.UUID) -> ModelType | None:
+        stmt = select(self.db_model).where(self.db_model.id == id)
+        query = await db.execute(stmt)
+        if not query:
+            raise HTTPException(status_code=404, detail=f"Record with {id} not found")
+        return query.scalar_one_or_none()
+    
+    # Adding a route to update the record
+#    async def update(self, db: CurrentAsyncSession, id: uuid.UUID, item: PydanticModelType):
+#         db_item = db.query(self.db_model).filter(self.db_model.id == id).first()
+#         if db_item:
+#             for key, value in item.dict().items():
+#                 setattr(db_item, key, value)
+#             db.commit()
+#             db.refresh(db_item)
+#             return db_item
+#         else:
+#             raise HTTPException(status_code=404, detail="Item not found")
 
     # async def create(self, data: Dict[str, Any]) -> Any:
     #     obj = self.model(**data)

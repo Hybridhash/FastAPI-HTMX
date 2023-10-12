@@ -10,15 +10,20 @@ from app.database.base import Base
 from app.database.db import CurrentAsyncSession
 
 ModelType = TypeVar("ModelType", bound=Base)
-PydanticModelType = TypeVar("PydanticModelType", bound=BaseModel)
+PydanticCreateModelType = TypeVar("PydanticCreateModelType", bound=BaseModel)
+PydanticUpdateModelType = TypeVar("PydanticUpdateModelType", bound=BaseModel)
 IdentifierType = TypeVar("IdentifierType")
 
-class BaseCRUD(Generic[ModelType, PydanticModelType]):
-    def __init__(self, db_model: Type[ModelType], pydantic_model: Type[PydanticModelType]):
+class BaseCRUD(Generic[ModelType, PydanticCreateModelType, PydanticUpdateModelType]):
+    def __init__(self, db_model: Type[ModelType], 
+                 pydantic_create_model: Type[PydanticCreateModelType], 
+                 pydantic_update_model: Type[PydanticUpdateModelType]):
         self.db_model = db_model
-        self.pydantic_model = pydantic_model
+        self.pydantic_create_model = pydantic_create_model
+        self.pydantic_update_model = pydantic_update_model
 
-    async def create(self,  item: PydanticModelType, db: CurrentAsyncSession,) -> ModelType:
+    async def create(self,  item: PydanticCreateModelType, 
+                     db: CurrentAsyncSession,) -> ModelType:
         db_item = self.db_model(**item.dict())
         db.add(db_item)
         await db.commit()
@@ -44,17 +49,42 @@ class BaseCRUD(Generic[ModelType, PydanticModelType]):
             raise HTTPException(status_code=404, detail=f"Record with {id} not found")
         return query.scalar_one_or_none()
     
-    # Adding a route to update the record
-#    async def update(self, db: CurrentAsyncSession, id: uuid.UUID, item: PydanticModelType):
-#         db_item = db.query(self.db_model).filter(self.db_model.id == id).first()
-#         if db_item:
-#             for key, value in item.dict().items():
-#                 setattr(db_item, key, value)
-#             db.commit()
-#             db.refresh(db_item)
-#             return db_item
-#         else:
-#             raise HTTPException(status_code=404, detail="Item not found")
+    # Adding a database operation function to update the record
+    async def update(self, db: CurrentAsyncSession, id: uuid.UUID, 
+                    item: PydanticUpdateModelType) -> ModelType | None:
+        stmt = select(self.db_model).where(self.db_model.id == id)
+        query = await db.execute(stmt)
+        if not query:
+             raise HTTPException(status_code=404, detail=f"Record with {id} not found")
+        db_item = query.scalar_one()
+        if db_item:
+            for key, value in item.dict().items():
+                setattr(db_item, key, value)
+            await db.commit()
+            await db.refresh(db_item)
+            return db_item
+
+    # Adding a database model to delete a record
+    async def delete(self,db:CurrentAsyncSession, id: uuid.UUID, ):
+        stmt = select(self.db_model).where(self.db_model.id == id)
+        query = await db.execute(stmt)
+        if not query:
+            raise HTTPException(status_code=404, detail=f"Record with {id} not found")
+        db_item = query.scalar_one()
+        if db_item:
+            await db.delete(db_item)
+            await db.commit()
+            return db_item
+
+    # def delete(self, db: Session, id: int):
+    #     db_item = db.query(self.db_model).filter(self.db_model.id == id).first()
+    #     if db_item:
+    #         db.delete(db_item)
+    #         db.commit()
+    #         return db_item
+    #     else:
+    #         raise HTTPException(status_code=404, detail="Item not found")
+
 
     # async def create(self, data: Dict[str, Any]) -> Any:
     #     obj = self.model(**data)

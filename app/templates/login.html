@@ -1,0 +1,44 @@
+<html>
+<head>
+    <title>Login | Bulldoggy reminders app</title>
+    <link rel="stylesheet" type="text/css" href="/static/css/shared.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/login.css">
+</head>
+<body>
+    <div class="login-page">
+        <div class="paper-card form">
+            <div class="login-form-top">
+                <h1 class="login-form-top-title">Bulldoggy</h1>
+                <p class="login-form-top-subtitle">The reminders app</p>
+                <img id="bulldoggy-logo" src="/static/img/logos/bulldoggy-100px.png" />
+            </div>
+            <form action="/auth/jwt/login" method="post" class="login-form">
+                <div>
+                    <label for="email">Username</label>
+                    <input type="text" placeholder="Enter username" name="username" required />
+                </div>
+                <div>
+                    <label for="password">Password</label>
+                    <input type="password" placeholder="Enter password" name="password" required />
+                </div>
+                <div>
+                    <button type="submit" data-testid="login-button">Login</button>
+                </div>
+                {% if invalid %}
+                <div class="invalid-login-warning">
+                    <p>Invalid login! Please retry.</p>
+                </div>
+                {% elif logged_out %}
+                <div class="invalid-login-warning">
+                    <p>Successfully logged out.</p>
+                </div>
+                {% elif unauthorized %}
+                <div class="invalid-login-warning">
+                    <p>Please login first.</p>
+                </div>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+</body>
+</html>

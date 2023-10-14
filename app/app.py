@@ -1,11 +1,12 @@
 from fastapi import Depends, FastAPI
+from loguru import logger
 
 from app.database.db import User, create_db_and_tables
-from app.database.security import (auth_backend, current_active_user,
-                                   fastapi_users)
+from app.database.security import auth_backend, current_active_user, fastapi_users
+
 # importing the user role route
 from app.routes.user import role_router
-from app.routes.view.users import html_view_router
+from app.routes.view.login import login_view_route
 from app.schema.users import UserCreate, UserRead, UserUpdate
 
 app = FastAPI()
@@ -13,6 +14,7 @@ app = FastAPI()
 app.include_router(
     fastapi_users.get_auth_router(auth_backend), prefix="/auth/jwt", tags=["auth"]
 )
+
 app.include_router(
     fastapi_users.get_register_router(UserRead, UserCreate),
     prefix="/auth",
@@ -37,10 +39,11 @@ app.include_router(
 # User 
 app.include_router(role_router)
 
-app.include_router(html_view_router)
+app.include_router(login_view_route, tags=["Pages", "Authentication"])
 
 @app.get("/authenticated-route")
 async def authenticated_route(user: User = Depends(current_active_user)):
+    logger.info(user.id)
     return {"message": f"Hello {user.email}!"}
 
 

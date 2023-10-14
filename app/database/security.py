@@ -84,18 +84,16 @@ async def verify_jwt(jwt_token: str, user_db: SQLAlchemyUserDatabase = Depends(g
         bool: True if the token is valid, False otherwise.
     """
     isTokenValid: bool = False
-    payload = None
     try:
         async for user_manager in get_user_manager(user_db=user_db):
             payload = user_manager.on_decode_jwt(jwt_token)
             logger.debug(payload)
             # Add your verification logic here
+            if payload:
+                isTokenValid = True
     except InvalidTokenError:
-        logger.debug(payload)
-    if payload:
-        isTokenValid = True
+        logger.debug(None)
     return isTokenValid
-
 
 
 fastapi_users = FastAPIUsers[User, uuid.UUID](get_user_manager, [auth_backend])

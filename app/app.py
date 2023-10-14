@@ -1,5 +1,8 @@
-from fastapi import Depends, FastAPI
+from fastapi import Depends, FastAPI, Request
+from fastapi.exceptions import HTTPException
+from fastapi.responses import RedirectResponse
 from loguru import logger
+from starlette.status import HTTP_401_UNAUTHORIZED
 
 from app.database.db import User, create_db_and_tables
 from app.database.security import auth_backend, current_active_user, fastapi_users
@@ -52,3 +55,9 @@ async def on_startup():
     # Not needed if you setup a migration system like Alembic
     await create_db_and_tables()
     # await create_superuser()
+
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException):
+    if exc.status_code == HTTP_401_UNAUTHORIZED:
+        return RedirectResponse('/login')
+    return exc

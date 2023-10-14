@@ -18,6 +18,7 @@ login_view_route = APIRouter()
 @login_view_route.get("/dashboard", response_class=HTMLResponse)
 async def get_dashboard(request: Request, user: UserModelDB = Depends(current_active_user)):
       # Access the cookies using the Request object
+    logger.debug(user)
     cookies = request.cookies
     cookie_value = cookies.get('fastapiusersauth')
     return templates.TemplateResponse(
@@ -31,6 +32,7 @@ async def get_index(request:Request):
         logger.debug(request.cookies)
         cookies = request.cookies
         cookie_value = cookies.get('fastapiusersauth')
+        logger.debug(cookie_value)
         if cookie_value is not None:
             if await verify_jwt(cookie_value):
                 return RedirectResponse('/dashboard', status_code=302)

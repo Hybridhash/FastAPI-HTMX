@@ -5,8 +5,8 @@ from loguru import logger
 from starlette.status import HTTP_401_UNAUTHORIZED
 
 from app.database.db import User, create_db_and_tables
-from app.database.security import auth_backend, current_active_user, fastapi_users
-
+from app.database.security import (auth_backend, current_active_user,
+                                   fastapi_users)
 # importing the user role route
 from app.routes.user import role_router
 from app.routes.view.login import login_view_route

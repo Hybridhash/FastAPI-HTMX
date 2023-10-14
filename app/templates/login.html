@@ -15,11 +15,11 @@
             <form action="/auth/jwt/login" method="post" class="login-form">
                 <div>
                     <label for="email">Username</label>
-                    <input type="text" placeholder="Enter username" name="username" required />
+                    <input type="text" placeholder="Enter username" name="username" autocomplete="off" required />
                 </div>
                 <div>
                     <label for="password">Password</label>
-                    <input type="password" placeholder="Enter password" name="password" required />
+                    <input type="password" placeholder="Enter password" name="password" autocomplete="new-password" required />
                 </div>
                 <div>
                     <button type="submit" data-testid="login-button">Login</button>

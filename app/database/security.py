@@ -1,14 +1,13 @@
+import os
 import uuid
 from typing import Optional
 
+from dotenv import load_dotenv
 from fastapi import Depends, Request
 from fastapi_users import BaseUserManager, FastAPIUsers, UUIDIDMixin
-from fastapi_users.authentication import (
-    AuthenticationBackend,
-    BearerTransport,
-    CookieTransport,
-    JWTStrategy,
-)
+from fastapi_users.authentication import (AuthenticationBackend,
+                                          BearerTransport, CookieTransport,
+                                          JWTStrategy)
 from fastapi_users.db import SQLAlchemyUserDatabase
 from fastapi_users.jwt import decode_jwt
 from jwt.exceptions import InvalidTokenError
@@ -16,7 +15,12 @@ from loguru import logger
 
 from app.database.db import User, get_user_db
 
-SECRET = "SECRET"
+load_dotenv()
+
+SECRET: str = os.getenv("AUTH_SECRET", "my_default_secret_key")
+
+logger.critical("The SECRET key is being logged! Remove this before deploying to production.")
+logger.critical(SECRET)
 
 
 class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):

@@ -1,3 +1,4 @@
+
 import os
 import uuid
 from typing import Optional
@@ -5,9 +6,12 @@ from typing import Optional
 from dotenv import load_dotenv
 from fastapi import Depends, Request
 from fastapi_users import BaseUserManager, FastAPIUsers, UUIDIDMixin
-from fastapi_users.authentication import (AuthenticationBackend,
-                                          BearerTransport, CookieTransport,
-                                          JWTStrategy)
+from fastapi_users.authentication import (
+    AuthenticationBackend,
+    BearerTransport,
+    CookieTransport,
+    JWTStrategy,
+)
 from fastapi_users.db import SQLAlchemyUserDatabase
 from fastapi_users.jwt import decode_jwt
 from jwt.exceptions import InvalidTokenError
@@ -40,6 +44,13 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
     ):
         print(f"Verification requested for user {user.id}. Verification token: {token}")
 
+    
+    async def on_after_login(
+        self, user: User,token: str, request: Request | None = None
+    ) -> None:
+        print(f"User {user.id} has logged in.")
+        
+
     # Decoding the JWT token using the inheritance of the BaseUserManager
     async def on_decode_jwt(self, jwt_token: str):
         """
@@ -60,7 +71,7 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
 async def get_user_manager(user_db: SQLAlchemyUserDatabase = Depends(get_user_db)):
     yield UserManager(user_db)
 
-cookie_transport = CookieTransport(cookie_max_age=3600)
+cookie_transport = CookieTransport(cookie_max_age=300)
 bearer_transport = BearerTransport(tokenUrl="auth/jwt/login")
 
 
@@ -88,9 +99,12 @@ async def verify_jwt(jwt_token: str, user_db: SQLAlchemyUserDatabase = Depends(g
         bool: True if the token is valid, False otherwise.
     """
     isTokenValid: bool = False
-    try:
+    try: 
         async for user_manager in get_user_manager(user_db=user_db):
+            logger.debug("JWT function called")
+            logger.debug(jwt_token)
             payload = user_manager.on_decode_jwt(jwt_token)
+            logger.debug("JWT function after user_manager.on_decode_jwt(jwt_token)")
             logger.debug(payload)
             # Add your verification logic here
             if payload:

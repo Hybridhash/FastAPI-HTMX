@@ -22,7 +22,7 @@ async def get_dashboard(request: Request, user: UserModelDB = Depends(current_ac
     cookies = request.cookies
     cookie_value = cookies.get('fastapiusersauth')
     return templates.TemplateResponse(
-        "dashboard.html",
+        "pages/dashboard.html",
         {"request": request, "title": "My Web Page", "message": f"Welcome to my web page!{user.email}", "cookie_value": cookie_value},
     )
 
@@ -47,7 +47,7 @@ async def get_login(request: Request, invalid: Optional[bool] = None, logged_out
       # Access the cookies using the Request object
     context = {'request': request, 'invalid': invalid, 'logged_out': logged_out, 'unauthorized': unauthorized}
     return templates.TemplateResponse(
-        "login.html",
+        "pages/login.html",
         context
     )
 

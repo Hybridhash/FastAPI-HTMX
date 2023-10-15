@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>
+        {% block title %}Your Page Title{% endblock %}
+    </title>
+    <!-- Add any other head elements here -->
+
+    <!-- Include the CSS for Flowbite -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.8.1/flowbite.min.css" rel="stylesheet">
+    
+    {% block additional_head %}{% endblock %}
+</head>
+<body>
+    <!-- Your page content goes here -->
+    {% block content %}{% endblock %}
+
+    <!-- Include the HTMX script -->
+    <script src="https://unpkg.com/htmx.org@1.9.6" integrity="sha384-FhXw7b6AlE/jyjlZH5iHa/tTe9EpJ1Y55RjcgPbjeWMskSxZt1v9qkxLJWNJaGni" crossorigin="anonymous"></script>
+    
+    <!-- Include the hyperscript script -->
+    <script src="https://unpkg.com/hyperscript.org@0.9.11"></script>
+
+    <!-- Include the Flowbite JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.8.1/flowbite.min.js"></script>
+    
+    {% block additional_scripts %}{% endblock %}
+</body>
+</html>

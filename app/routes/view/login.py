@@ -14,7 +14,7 @@ from app.templates import templates
 login_view_route = APIRouter()
 
 
-
+# Defining a route to navigate to the dashboard page using the current_active_user dependency
 @login_view_route.get("/dashboard", response_class=HTMLResponse)
 async def get_dashboard(request: Request, user: UserModelDB = Depends(current_active_user)):
       # Access the cookies using the Request object
@@ -50,3 +50,13 @@ async def get_login(request: Request, invalid: Optional[bool] = None, logged_out
         context
     )
 
+# Defining a route for the login post request
+@login_view_route.post("/login", summary="Logs in a user", tags=["Pages","Authentication"])
+async def post_login(request: Request):
+    logger.info(request)
+    form = await request.form()
+    username = form.get("username")
+    password = form.get("password")
+    logger.info(username)
+    logger.info(password)
+    return RedirectResponse('/dashboard', status_code=302)

@@ -6,7 +6,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.routing import APIRouter
 from loguru import logger
 
-from app.database.security import current_active_user
+from app.database.security import current_active_user, verify_jwt
 from app.models.users import User as UserModelDB
 from app.templates import templates
 
@@ -18,7 +18,6 @@ login_view_route = APIRouter()
 @login_view_route.get("/dashboard", response_class=HTMLResponse)
 async def get_dashboard(request: Request, user: UserModelDB = Depends(current_active_user)):
       # Access the cookies using the Request object
-    logger.debug(user)
     cookies = request.cookies
     cookie_value = cookies.get('fastapiusersauth')
     return templates.TemplateResponse(
@@ -34,12 +33,12 @@ async def get_index(request:Request):
         cookie_value = cookies.get('fastapiusersauth')
         logger.debug(cookie_value)
         if cookie_value is not None:
-            # if await verify_jwt(cookie_value):
+            if await verify_jwt(cookie_value):
                 return RedirectResponse('/dashboard', status_code=302)
+            else:
+                return RedirectResponse('/login', status_code=302)
         else:
                 return RedirectResponse('/login', status_code=302)
-        # else:
-        #         return RedirectResponse('/login', status_code=302)
 
 @login_view_route.get("/login",summary="Gets the login page", 
                       tags=["Pages", "Authentication"], response_class=HTMLResponse)

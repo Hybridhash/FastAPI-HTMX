@@ -6,9 +6,12 @@ from typing import Optional
 from dotenv import load_dotenv
 from fastapi import Depends, Request
 from fastapi_users import BaseUserManager, FastAPIUsers, UUIDIDMixin
-from fastapi_users.authentication import (AuthenticationBackend,
-                                          BearerTransport, CookieTransport,
-                                          JWTStrategy)
+from fastapi_users.authentication import (
+    AuthenticationBackend,
+    BearerTransport,
+    CookieTransport,
+    JWTStrategy,
+)
 from fastapi_users.db import SQLAlchemyUserDatabase
 from fastapi_users.jwt import decode_jwt
 from jwt.exceptions import InvalidTokenError
@@ -105,6 +108,16 @@ async def verify_jwt(jwt_token: str, user_db: SQLAlchemyUserDatabase = Depends(g
 
 fastapi_users = FastAPIUsers[User, uuid.UUID](get_user_manager, [auth_backend])
 
-logger.info(fastapi_users)
-
 current_active_user = fastapi_users.current_user(active=True)
+
+# try:
+#     logger.info ("Trying to access the protected route")    
+#     user = Depends(current_active_user)
+#     if user.status_code == 401:
+#         logger.info("Unauthorized access attempt")
+#         logger.error("Unauthorized access attempt")
+# except HTTPException as e:
+#     logger.info("Unauthorized access attempt")
+#     if e.status_code == 401:
+#         logger.error("Unauthorized access attempt")
+

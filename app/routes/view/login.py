@@ -2,7 +2,7 @@
 import http
 from typing import Optional
 
-from fastapi import Depends, Request
+from fastapi import Depends, HTTPException, Request
 from fastapi.responses import HTMLResponse, RedirectResponse, Response
 from fastapi.routing import APIRouter
 from loguru import logger
@@ -20,6 +20,7 @@ login_view_route = APIRouter()
 @login_view_route.get("/dashboard", response_class=HTMLResponse)
 async def get_dashboard(request: Request, user: UserModelDB = Depends(current_active_user)):
       # Access the cookies using the Request object
+    logger.debug(current_active_user)
     cookies = request.cookies
     cookie_value = cookies.get('fastapiusersauth')
     return templates.TemplateResponse(
@@ -53,50 +54,53 @@ async def get_login(request: Request, invalid: Optional[bool] = None, logged_out
     )
 
 # Defining a route for the login post request
-@login_view_route.post("/login", summary="Logs in a user", tags=["Pages","Authentication"])
-async def post_login(request: Request, response:Response) -> RedirectResponse:
-    logger.info(request)
+@login_view_route.post("/login", summary="Logs in a user", tags=["Pages","Authentication"], response_class=HTMLResponse)
+async def post_login(request: Request, response: Response):
     form = await request.form()
-    username = form.get("username")
-    password = form.get("password")
-    logger.debug(username)
-    logger.debug(password)
-    response = RedirectResponse("/", status_code=302)
-    await set_cookie(str(form.get("username")), str(form.get("password")),response)
-    return response
+    username = str(form.get("username"))
+    password = str(form.get("password"))
+    try:
+        httpx_response = await get_login_http(username, password)
+        if httpx_response.status_code == 204:
+            response = RedirectResponse("/", status_code=302)
+            await LoginView.set_cookie(username, password, response)
+            return response
+        else:
+            raise HTTPException(status_code=401, detail="Incorrect username or password")
+    except HTTPException as e:
+        return templates.TemplateResponse("pages/login.html", {"request": request, "error": e.detail})
 
         
-async def set_cookie(username:str, password:str, response:Response) -> None:
-    # logger.info(request)
-    # form = await request.form()
-    # username = form.get("username")
-    # password = form.get("password")
-    # logger.debug(username)
-    # logger.debug(password)
+class LoginView:
+    @staticmethod
+    async def set_cookie(username:str, password:str, response:Response) -> None:
+        """
+        Sets a cookie for the user's authentication information.
 
-    response.set_cookie("fastapiusersauth", "test", max_age=3600)
-    httpx_response = await get_login_http(username, password)
-    if httpx_response is not None:
-        cookie = http.cookies.SimpleCookie(httpx_response.headers["set-cookie"])["fastapiusersauth"]
-        logger.debug(cookie)
-        cookie_value = cookie.value
-        logger.debug(cookie_value)
-        cookie_httponly = cookie["httponly"]
-        logger.debug(cookie_httponly)
-        cookie_max_age = cookie["max-age"]
-        logger.debug(cookie_max_age)
-        cookie_path = cookie["path"]
-        logger.debug(cookie_path)
-        cookie_samesite = cookie["samesite"]
-        logger.debug(cookie_samesite)
-        
-        response.set_cookie(
-        key="fastapiusersauth",
-        value=cookie_value,
-        httponly=cookie_httponly,
-        max_age=cookie_max_age,
-        path=cookie_path,
-        samesite=cookie_samesite,
-        secure=True)
-        logger.debug(response.headers)
+        Args:
+        - username (str): The user's username.
+        - password (str): The user's password.
+        - response (Response): The response object to set the cookie on.
 
+        Returns:
+        - None
+        """
+        httpx_response = await get_login_http(username, password)
+        if httpx_response.status_code == 204:
+            cookie = http.cookies.SimpleCookie(httpx_response.headers["set-cookie"])["fastapiusersauth"]
+            cookie_value = cookie.value
+            cookie_httponly = cookie["httponly"]
+            cookie_max_age = cookie["max-age"]
+            cookie_path = cookie["path"]
+            cookie_samesite = cookie["samesite"]
+
+            response.set_cookie(
+            key="fastapiusersauth",
+            value=cookie_value,
+            httponly=cookie_httponly,
+            max_age=cookie_max_age,
+            path=cookie_path,
+            samesite=cookie_samesite,
+            secure=True)
+        else:
+            raise HTTPException(status_code=401, detail="Incorrect username or password")

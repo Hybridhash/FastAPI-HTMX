@@ -1,10 +1,10 @@
-from fastapi import Depends, FastAPI
+from fastapi import Depends, FastAPI, HTTPException, Request, Response
+from fastapi.responses import RedirectResponse
 from loguru import logger
 
-
 from app.database.db import User, create_db_and_tables
-from app.database.security import auth_backend, current_active_user, fastapi_users
-
+from app.database.security import (auth_backend, current_active_user,
+                                   fastapi_users)
 # importing the user role route
 from app.routes.api.role import role_router
 from app.routes.view.login import login_view_route
@@ -59,3 +59,22 @@ async def on_startup():
 #     if exc.status_code == HTTP_401_UNAUTHORIZED:
 #         return RedirectResponse('/login')
 #     return exc
+
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException):
+    if exc and exc.status_code == 401:
+        return RedirectResponse("/login")
+    # elif exc:
+    #     # return await templates.TemplateResponse("error.html", {"request": request, "error": exc})
+    #     pass
+    else:
+        route = request.scope.get("path")
+        method = request.scope.get("method")
+        logger.error(f"Error in route {method} {route}: {exc.detail} : {exc.status_code}")
+        return Response(status_code=200)
+    # Check that exc object is empty or not
+    # elif exc.detail == {}:
+    #     return
+    # else:
+    #     logger.error(exc.detail)
+    # return await templates.TemplateResponse("error.html", {"request": request, "error": exc})

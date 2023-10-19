@@ -70,6 +70,12 @@ async def post_login(request: Request, response: Response):
     except HTTPException as e:
         return templates.TemplateResponse("pages/login.html", {"request": request, "error": e.detail})
 
+# Adding a logout view that sets the cookie to expire
+@login_view_route.get("/logout", summary="Logs out a user", tags=["Pages", "Authentication"])
+async def logout(response: Response):
+    response = RedirectResponse("/", status_code=302)
+    response.delete_cookie("fastapiusersauth")
+    return response
         
 class LoginView:
     @staticmethod

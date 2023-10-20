@@ -1,4 +1,5 @@
 from fastapi import Depends, FastAPI, HTTPException
+from fastapi.staticfiles import StaticFiles
 from loguru import logger
 
 from app.database.db import User, create_db_and_tables
@@ -11,6 +12,7 @@ from app.routes.view.login import login_view_route
 from app.schema.users import UserCreate, UserRead, UserUpdate
 
 app = FastAPI(exception_handlers={HTTPException: http_exception_handler})
+app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
 app.include_router(
     fastapi_users.get_auth_router(auth_backend), prefix="/auth/jwt", tags=["auth"]

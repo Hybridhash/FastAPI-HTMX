@@ -14,6 +14,7 @@ from app.schema.users import UserCreate, UserRead, UserUpdate
 app = FastAPI(exception_handlers={HTTPException: http_exception_handler})
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
+
 app.include_router(
     fastapi_users.get_auth_router(auth_backend), prefix="/auth/jwt", tags=["auth"]
 )

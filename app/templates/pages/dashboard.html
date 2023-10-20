@@ -3,9 +3,42 @@
 {% block title %}Dashboard | Sparrow App{% endblock %}
 
 {% block content %}
-    <div id="dashboard-div" hx-push-url="true">
+    <div id="dashboard-main" hx-push-url="true">
     <h1>{{ message }}</h1>
     <h1>{{ cookie_value }}</h1>
-        <button type="button"  hx-trigger="click" hx-get="/logout" hx-swap="outerHTML" hx-target="#dashboard-div"  class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Logout</button>
+        <!-- <button type="button"  hx-trigger="click" hx-get="/logout" hx-swap="outerHTML" hx-target="#dashboard-div"  class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Logout</button> -->
+        <button type="button" _='on click
+        add @disabled
+        fetch /auth/jwt/logout as JSON with method:"POST" log result
+        go to url http:/login' class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Logout</button>
+        
     </div>
+    <h4 id="result"></h4>
+<script>
+    function delCookie() {
+        console.log("Deleting cookie...");
+        fetch('/auth/jwt/logout', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: '',
+        })
+        .then(response => {
+            if (response.status === 200) {
+                console.log("Logout successful!");
+                // Successful logout, navigate to /login
+                window.location.href = '/login';
+            } 
+            else {
+                console.log("Error: " + response.status);
+                // Handle error response
+            }
+        })
+        .catch(error => {
+            console.log("Error: " + error);
+            // Handle network error
+        });
+    }
+</script>
 {% endblock %}

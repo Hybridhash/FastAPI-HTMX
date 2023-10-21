@@ -40,10 +40,11 @@ app.include_router(
     tags=["users"],
 )
 
-# User 
+# User
 app.include_router(role_router)
 
 app.include_router(login_view_route, tags=["Pages", "Authentication"])
+
 
 @app.get("/authenticated-route")
 async def authenticated_route(user: User = Depends(current_active_user)):
@@ -56,6 +57,7 @@ async def on_startup():
     # Not needed if you setup a migration system like Alembic
     await create_db_and_tables()
     # await create_superuser()
+
 
 # @app.exception_handler(HTTPException)
 # async def http_exception_handler(request: Request, exc: HTTPException):
@@ -75,4 +77,3 @@ async def on_startup():
 #         method = request.scope.get("method")
 #         logger.error(f"Error in route {method} {route}: {exc.detail} : {exc.status_code}")
 #         return Response(status_code=200)
-    

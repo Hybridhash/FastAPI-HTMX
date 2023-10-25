@@ -1,19 +1,31 @@
-
 {
-    "cSpell.words": [
-        "fastapi",
-        "passlib",
-        "pydantic",
-        "sqlmodel",
-        "uvicorn"
-    ],
-    "[python]": {
-      "editor.formatOnSave": true,
-      "editor.codeActionsOnSave": {
-        "source.fixAll": true
-      },
-      "editor.formatting.provider": "black"
+  "cSpell.words": ["fastapi", "passlib", "pydantic", "sqlmodel", "uvicorn"],
+  "[python]": {
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll": true,
+      "source.organizeImports": true
     },
-    "python.formatting.provider": "black"
-    
+    "editor.defaultFormatter": "ms-python.black-formatter"
+  },
+
+  "emmet.includeLanguages": {
+    "jinja-html": "html"
+  },
+
+  "material-icon-theme.languages.associations": {
+    "jinja-html": "html"
+  },
+
+  "files.associations": {
+    "*.html": "jinja-html"
+  },
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+
+  "[html]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[jinja]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   }
+}

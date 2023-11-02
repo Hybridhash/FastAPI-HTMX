@@ -18,7 +18,7 @@
   },
 
   "files.associations": {
-    "*.html": "jinja-html"
+    "*.html": "html"
   },
   "editor.defaultFormatter": "esbenp.prettier-vscode",
 

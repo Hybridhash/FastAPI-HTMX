@@ -9,6 +9,7 @@ from app.exception import http_exception_handler
 # importing the user role route
 from app.routes.api.role import role_router
 from app.routes.view.login import login_view_route
+from app.routes.view.role import role_view_route
 from app.schema.users import UserCreate, UserRead, UserUpdate
 
 app = FastAPI(exception_handlers={HTTPException: http_exception_handler})
@@ -41,9 +42,10 @@ app.include_router(
 )
 
 # User
-app.include_router(role_router)
+# app.include_router(role_router)
 
 app.include_router(login_view_route, tags=["Pages", "Authentication"])
+app.include_router(role_view_route, tags=["Pages", "Role"])
 
 
 @app.get("/authenticated-route")

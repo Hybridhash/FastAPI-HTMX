@@ -1,67 +1,63 @@
-<form>
+{% extends "base.html" %} {% block title %}Role Add | Admin Dashboard {%
+endblock %} {% block content %}
+
+<form
+  id="create-role-form"
+  hx-target="this"
+  hx-post="{{ url_for('post_create_roles') }}"
+  hx-swap="outerHTML"
+  hx-push-url="true"
+>
   <div class="mb-6">
     <label
-      for="email"
+      for="role-type"
       class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-      >Your email</label
+      >Role Type</label
     >
     <input
-      type="email"
-      id="email"
+      type="text"
+      id="role-type"
+      name="role_name"
       class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light"
-      placeholder="name@flowbite.com"
+      placeholder="Project Manager"
+      _="on htmx:validation:validate
+                if my.value == ''
+                    call me.setCustomValidity('Please enter the Role Type')
+                else
+                    call me.setCustomValidity('')"
       required
     />
   </div>
   <div class="mb-6">
     <label
-      for="password"
+      for="role-desc"
       class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-      >Your password</label
+      >Role Description</label
     >
     <input
-      type="password"
-      id="password"
+      type="text"
+      id="role-desc"
+      name="role_desc"
       class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light"
       required
     />
   </div>
-  <div class="mb-6">
-    <label
-      for="repeat-password"
-      class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-      >Repeat password</label
-    >
-    <input
-      type="password"
-      id="repeat-password"
-      class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light"
-      required
-    />
+  {% if error_messages %}
+  <div
+    id="error-message"
+    class="p-4 mb-4 text-sm text-yellow-800 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300"
+    role="alert"
+  >
+    {% for error in error_messages %}
+    <span class="font-medium">{{ error }}</span><br />
+    {% endfor %}
   </div>
-  <div class="flex items-start mb-6">
-    <div class="flex items-center h-5">
-      <input
-        id="terms"
-        type="checkbox"
-        value=""
-        class="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-blue-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800"
-        required
-      />
-    </div>
-    <label
-      for="terms"
-      class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-      >I agree with the
-      <a href="#" class="text-blue-600 hover:underline dark:text-blue-500"
-        >terms and conditions</a
-      ></label
-    >
-  </div>
+  {% endif %}
   <button
     type="submit"
     class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
   >
-    Register new account
+    Create New Role
   </button>
 </form>
+{% endblock %}

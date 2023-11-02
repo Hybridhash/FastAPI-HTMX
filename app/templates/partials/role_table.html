@@ -1,0 +1,353 @@
+<div id="dashboard-body" class="p-4 sm:ml-64">
+  <div
+    class="p-4 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700"
+  >
+    <div id="role-page">
+      <div class="grid grid-cols-3 gap-4 mb-4">
+        <div
+          class="flex items-center justify-center h-24 rounded bg-gray-50 dark:bg-gray-800"
+        >
+          <p class="text-2xl text-gray-400 dark:text-gray-500">
+            <svg
+              class="w-3.5 h-3.5"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 18 18"
+            >
+              <path stroke="currentColor" stroke-linecap="round"
+              stroke-linejoin="round" stroke-width="2" d="M9 1v16M1 9h16"/
+            </svg>
+          </p>
+        </div>
+        <div
+          class="flex items-center justify-center h-24 rounded bg-gray-50 dark:bg-gray-800"
+        >
+          <p class="text-2xl text-gray-400 dark:text-gray-500">
+            <svg
+              class="w-3.5 h-3.5"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 18 18"
+            >
+              <path
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 1v16M1 9h16"
+              />
+            </svg>
+          </p>
+        </div>
+        <div
+          class="flex items-center justify-center h-24 rounded bg-gray-50 dark:bg-gray-800"
+        >
+          <p class="text-2xl text-gray-400 dark:text-gray-500">
+            <svg
+              class="w-3.5 h-3.5"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 18 18"
+            >
+              <path
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 1v16M1 9h16"
+              />
+            </svg>
+          </p>
+        </div>
+      </div>
+
+      <!-- Table for the roles extracted from the back end -->
+      <div hx-ext="response-targets" class="mb-2">
+        <div id="create-role-form">
+          <button
+            type="submit"
+            id="login-button"
+            hx-get="{{ url_for('get_create_roles') }}"
+            hx-target="#role-page"
+            hx-swap="outerHTML"
+            hx-target-404="#error-message"
+            hx-push-url="true"
+            class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+          >
+            Add Role
+          </button>
+          {%if error_message%}
+          <div
+            id="error-message"
+            class="p-4 mb-4 text-sm text-yellow-800 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300"
+            role="alert"
+          >
+            <span class="font-medium">{{ error_message }}</span>
+          </div>
+          {% else %}
+          <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+            <table
+              class="w-full text-sm text-left text-gray-500 dark:text-gray-400"
+            >
+              <thead
+                class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"
+              >
+                <tr>
+                  <th scope="col" class="px-6 py-3">Role Name</th>
+                  <th scope="col" class="px-6 py-3">Role Description</th>
+                  <th scope="col" class="px-6 py-3">
+                    <span class="sr-only">Edit</span>
+                  </th>
+                </tr>
+              </thead>
+              {% for role in roles %}
+              <tbody hx-target="closest tr" hx-swap="outerHTML">
+                <tr
+                  class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
+                >
+                  <td
+                    scope="row"
+                    class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                  >
+                    {{ role.role_id }}
+                  </td>
+                  <td class="px-6 py-4">{{ role.role_desc}}</td>
+                    <a
+                      href="#"
+                      hx-get="{{ url_for('get_role_by_id', role_id=role.id) }}"
+                      hx-swap="outerHTML"
+                      hx-target="#role-page"
+                      class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                      >Edit</a
+                    >
+                  </td>
+                </tr>
+              </tbody>
+              {% endfor %}
+            </table>
+
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="flex items-center justify-center h-48 mt-4 mb-4 rounded bg-gray-50 dark:bg-gray-800"
+      >
+        <p class="text-2xl text-gray-400 dark:text-gray-500">
+          <svg
+            class="w-3.5 h-3.5"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 18 18"
+          >
+            <path
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9 1v16M1 9h16"
+            />
+          </svg>
+        </p>
+      </div>
+      <div class="grid grid-cols-2 gap-4 mb-4">
+        <div
+          class="flex items-center justify-center rounded bg-gray-50 h-28 dark:bg-gray-800"
+        >
+          <p class="text-2xl text-gray-400 dark:text-gray-500">
+            <svg
+              class="w-3.5 h-3.5"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 18 18"
+            >
+              <path
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 1v16M1 9h16"
+              />
+            </svg>
+          </p>
+        </div>
+        <div
+          class="flex items-center justify-center rounded bg-gray-50 h-28 dark:bg-gray-800"
+        >
+          <p class="text-2xl text-gray-400 dark:text-gray-500">
+            <svg
+              class="w-3.5 h-3.5"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 18 18"
+            >
+              <path
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 1v16M1 9h16"
+              />
+            </svg>
+          </p>
+        </div>
+        <div
+          class="flex items-center justify-center rounded bg-gray-50 h-28 dark:bg-gray-800"
+        >
+          <p class="text-2xl text-gray-400 dark:text-gray-500">
+            <svg
+              class="w-3.5 h-3.5"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 18 18"
+            >
+              <path
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 1v16M1 9h16"
+              />
+            </svg>
+          </p>
+        </div>
+        <div
+          class="flex items-center justify-center rounded bg-gray-50 h-28 dark:bg-gray-800"
+        >
+          <p class="text-2xl text-gray-400 dark:text-gray-500">
+            <svg
+              class="w-3.5 h-3.5"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 18 18"
+            >
+              <path
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 1v16M1 9h16"
+              />
+            </svg>
+          </p>
+        </div>
+      </div>
+      <div
+        class="flex items-center justify-center h-48 mb-4 rounded bg-gray-50 dark:bg-gray-800"
+      >
+        <p class="text-2xl text-gray-400 dark:text-gray-500">
+          <svg
+            class="w-3.5 h-3.5"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 18 18"
+          >
+            <path
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9 1v16M1 9h16"
+            />
+          </svg>
+        </p>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div
+          class="flex items-center justify-center rounded bg-gray-50 h-28 dark:bg-gray-800"
+        >
+          <p class="text-2xl text-gray-400 dark:text-gray-500">
+            <svg
+              class="w-3.5 h-3.5"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 18 18"
+            >
+              <path
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 1v16M1 9h16"
+              />
+            </svg>
+          </p>
+        </div>
+        <div
+          class="flex items-center justify-center rounded bg-gray-50 h-28 dark:bg-gray-800"
+        >
+          <p class="text-2xl text-gray-400 dark:text-gray-500">
+            <svg
+              class="w-3.5 h-3.5"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 18 18"
+            >
+              <path
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 1v16M1 9h16"
+              />
+            </svg>
+          </p>
+        </div>
+        <div
+          class="flex items-center justify-center rounded bg-gray-50 h-28 dark:bg-gray-800"
+        >
+          <p class="text-2xl text-gray-400 dark:text-gray-500">
+            <svg
+              class="w-3.5 h-3.5"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 18 18"
+            >
+              <path
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 1v16M1 9h16"
+              />
+            </svg>
+          </p>
+        </div>
+        <div
+          class="flex items-center justify-center rounded bg-gray-50 h-28 dark:bg-gray-800"
+        >
+          <p class="text-2xl text-gray-400 dark:text-gray-500">
+            <svg
+              class="w-3.5 h-3.5"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 18 18"
+            >
+              <path
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 1v16M1 9h16"
+              />
+            </svg>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

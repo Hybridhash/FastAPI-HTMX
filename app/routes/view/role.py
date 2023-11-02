@@ -89,7 +89,11 @@ async def post_create_roles(
         await role_crud.create(dict(role_create), db)
 
         # Redirecting to the add role page upon successful role creation
-        headers = {"HX-Location": "/role"}
+        headers = {
+            "HX-Location": "/role",
+            "HX-Trigger": "roleAdded",
+        }
+
         return HTMLResponse(content="", headers=headers)
 
     except ValidationError as e:
@@ -168,7 +172,7 @@ async def post_update_role(
         # Redirecting to the add role page upon successful role creation
         headers = {
             "HX-Location": "/role",
-            "HX-Trigger": "membershipsChanged",
+            "HX-Trigger": "roleUpdated",
         }
         return HTMLResponse(content="", headers=headers)
     except ValidationError as e:
@@ -213,6 +217,6 @@ async def delete_role(
     await role_crud.delete(db, role_id)
     headers = {
         "HX-Location": "/role",
-        "HX-Trigger": "membershipsChanged",
+        "HX-Trigger": "roleDeleted",
     }
     return HTMLResponse(content="", headers=headers)

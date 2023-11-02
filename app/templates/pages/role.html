@@ -83,12 +83,27 @@
             Add Role
           </button>
           <div
-            id="alert-success"
+            id="role-updated"
             class="hidden p-4 mb-4 text-sm text-yellow-800 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300"
-            hx-trigger="load, membershipsChanged from:body"
             role="alert"
           >
             <span class="font-medium">Memberships updated successfully</span>
+          </div>
+
+          <div
+            id="role-added"
+            class="hidden p-4 mb-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400"
+            role="alert"
+          >
+            <span class="font-medium">Role added successfully</span>
+          </div>
+
+          <div
+            id="role-deleted"
+            class="hidden p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400"
+            role="alert"
+          >
+            <span class="font-medium">Role deleted successfully</span>
           </div>
 
           {%if error_message%}
@@ -132,6 +147,7 @@
                   <td class="px-6 py-4">{{ role.role_desc}}</td>
                   <td class="px-2 py-4 text-right">
                     <a
+                      href="#"
                       hx-get="{{ url_for('get_role_by_id', role_id=role.id) }}"
                       hx-swap="outerHTML"
                       hx-target="#role-page"
@@ -376,21 +392,33 @@
     </div>
   </div>
 </div>
-<script>
-  if (document.getElementById("alert-success")) {
-    console.log("Element exists in the DOM");
-  } else {
-    console.log("Element does not exist in the DOM");
-  }
-</script>
 <script type="text/hyperscript">
-  on membershipsChanged
-    log "memberships"
+  on roleUpdated
     wait for load or 1s
-    remove .hidden from #alert-success
+    remove .hidden from #role-updated
     wait 3s
-    transition #alert-success opacity to 0
-    add .hidden to #alert-success
+    transition #role-updated opacity to 0
+    add .hidden to #role-updated
+  end
+</script>
+
+<script type="text/hyperscript">
+  on roleAdded
+    wait for load or 1s
+    remove .hidden from #role-added
+    wait 3s
+    transition #role-added opacity to 0
+    add .hidden to #role-added
+  end
+</script>
+
+<script type="text/hyperscript">
+  on roleDeleted
+    wait for load or 1s
+    remove .hidden from #role-deleted
+    wait 3s
+    transition #role-deleted opacity to 0
+    add .hidden to #role-deleted
   end
 </script>
 {% endblock %}

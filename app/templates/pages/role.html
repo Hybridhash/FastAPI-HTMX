@@ -161,6 +161,7 @@
                       hx-delete="{{ url_for('delete_role', role_id=role.id) }}"
                       hx-swap="outerHTML"
                       hx-target="#role-page"
+                      hx-confirm="Are you sure you want to delete this role? "
                       class="font-medium text-red-600 dark:text-red-500 hover:underline"
                       >Delete</a
                     >

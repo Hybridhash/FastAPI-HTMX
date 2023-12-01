@@ -2,6 +2,8 @@ from datetime import datetime
 
 # from fastapi import Depends
 from fastapi_users.db import SQLAlchemyBaseUserTableUUID
+
+# from fastapi_users_db_sqlalchemy import GUID
 from sqlalchemy import UUID, DateTime, String
 
 # from sqlalchemy.ext.asyncio import AsyncSession
@@ -10,6 +12,7 @@ from sqlalchemy.sql.functions import func
 from sqlalchemy.sql.schema import ForeignKey
 
 from app.models.base import Base, BaseSQLModel
+from app.models.groups import UserGroupLink
 
 
 class User(SQLAlchemyBaseUserTableUUID, Base):
@@ -32,6 +35,11 @@ class User(SQLAlchemyBaseUserTableUUID, Base):
         back_populates="user",
     )
     # items: Mapped["Item"] = relationship(back_populates="user", cascade="all, delete")
+    # Creating a relationship with the group user link model
+    group_users: Mapped["UserGroupLink"] = relationship(
+        "UserGroupLink",
+        back_populates="user",
+    )
 
     # string representation of an object
     def __repr__(self):

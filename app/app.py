@@ -5,9 +5,9 @@ from loguru import logger
 from app.database.db import User, create_db_and_tables
 from app.database.security import auth_backend, current_active_user, fastapi_users
 from app.exception import http_exception_handler
+from app.routes.view.group import group_view_route
 
 # importing the user role route
-from app.routes.api.role import role_router
 from app.routes.view.login import login_view_route
 from app.routes.view.role import role_view_route
 from app.schema.users import UserCreate, UserRead, UserUpdate
@@ -46,6 +46,7 @@ app.include_router(
 
 app.include_router(login_view_route, tags=["Pages", "Authentication"])
 app.include_router(role_view_route, tags=["Pages", "Role"])
+app.include_router(group_view_route, tags=["Pages", "Group"])
 
 
 @app.get("/authenticated-route")

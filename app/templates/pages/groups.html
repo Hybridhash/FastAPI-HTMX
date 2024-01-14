@@ -69,11 +69,11 @@
 
       <!-- Table for the roles extracted from the back end -->
       <div hx-ext="response-targets">
-        <div id="create-role-form">
+        <div id="create-group-form">
           <button
             type="submit"
-            id="login-button"
-            hx-get="{{ url_for('get_create_roles') }}"
+            id="group-button"
+            hx-get="{{ url_for('get_create_group') }}"
             hx-target="#group-page"
             hx-swap="outerHTML"
             hx-target-404="#error-message"
@@ -396,7 +396,7 @@
   </div>
 </div>
 <script type="text/hyperscript">
-  on roleUpdated
+  on groupUpdated
     wait for load or 1s
     remove .hidden from #role-updated
     wait 3s
@@ -406,7 +406,7 @@
 </script>
 
 <script type="text/hyperscript">
-  on roleAdded
+  on groupAdded
     wait for load or 1s
     remove .hidden from #role-added
     wait 3s
@@ -416,7 +416,7 @@
 </script>
 
 <script type="text/hyperscript">
-  on roleDeleted
+  on groupDeleted
     wait for load or 1s
     remove .hidden from #role-deleted
     wait 3s

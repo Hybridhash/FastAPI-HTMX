@@ -26,7 +26,7 @@ class Group(BaseSQLModel):
     group_desc: Mapped[str | None] = mapped_column(String(length=1024), nullable=True)
 
     # Creating enum for the permission to be given to the group
-    permission: Mapped[Permission] = mapped_column(Permission, nullable=False)
+    permission: Mapped[Permission] = mapped_column(Permission, nullable=True)
 
     group_users: Mapped["UserGroupLink"] = relationship(
         "UserGroupLink", back_populates="group"

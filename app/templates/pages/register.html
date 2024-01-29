@@ -1,7 +1,6 @@
-{% extends "base.html" %} {% block title %}Login | Sparrow App{% endblock %} {%
-block content %}
+{% extends "base.html" %} {% block title %} Register User | Sparrow App{%
+endblock %} {% block content %}
 <div
-  id="login-page"
   x-data="{  message: '', showError: false }"
   class="bg-gray-100 dark:bg-gray-900 flex justify-center items-center h-screen"
 >
@@ -10,11 +9,11 @@ block content %}
       class="text-2xl font-bold mb-6 text-center"
       style="min-width: 300px; color: #1a56db"
     >
-      Admin Dashboard
+      Create New User
     </h1>
     <img
       id="login-logo"
-      src="/static/img/logo/undraw_login.png"
+      src="/static/img/logo/undraw_register.png"
       alt="Login Logo"
       class="max-w-xs rounded-full opacity-50 shadow-md mb-6"
     />
@@ -74,10 +73,6 @@ block content %}
     >
       <span class="font-medium"></span>
     </p>
-    <a
-      class="text-sm font-medium text-gray-900 dark:text-gray-300 text-center align-middle"
-      >Forgot Username/Password</a
-    >
     <div class="mt-2">
       <button
         type="submit"
@@ -89,63 +84,50 @@ block content %}
       </button>
     </div>
     <!-- </form> -->
-
-    <div class="mt-2">
-      <button
-        type="submit"
-        id="create-user-button"
-        hx-get="{{ url_for('get_register') }}"
-        hx-target="#login-page"
-        hx-swap="outerHTML"
-        hx-push-url="true"
-        class="text-white bg-green-500 hover:bg-green-600 focus-ring-4 focus-outline-none focus-ring-green-300 font-medium rounded-lg text-sm w-full sm-w-auto px-5 py-2.5 text-center dark-bg-green-600 dark-hover-bg-green-700 dark-focus-ring-green-800"
-      >
-        Create User
-      </button>
-    </div>
-    <script>
-      function setCookie() {
-        // Get the username and password from the form
-        const username = document.getElementById("email").value;
-        const password = document.getElementById("password").value;
-
-        const formData = new URLSearchParams();
-        formData.append("grant_type", "");
-        formData.append("username", username);
-        formData.append("password", password);
-        formData.append("scope", "");
-        formData.append("client_id", "");
-        formData.append("client_secret", "");
-
-        fetch("/auth/jwt/login", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-          body: formData,
-        })
-          .then((response) => {
-            if (response.status === 204) {
-              // Successful login, navigate to /dashboard
-              window.location.href = "/dashboard";
-            } else if (response.status === 400) {
-              // Incorrect username or password
-              this.message = "Incorrect username or password";
-              this.showError = true;
-            }
-          })
-          .then((errorMessage) => {
-            if (errorMessage) {
-              Alpine.store("message", "Error: Incorrect username or password");
-              console.log(errorMessage);
-            }
-          });
-
-        Alpine.data("login", () => ({
-          setCookie,
-        }));
-      }
-    </script>
-    {% endblock %}
   </div>
 </div>
+
+<script>
+  function setCookie() {
+    // Get the username and password from the form
+    const username = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+
+    const formData = new URLSearchParams();
+    formData.append("grant_type", "");
+    formData.append("username", username);
+    formData.append("password", password);
+    formData.append("scope", "");
+    formData.append("client_id", "");
+    formData.append("client_secret", "");
+
+    fetch("/auth/jwt/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: formData,
+    })
+      .then((response) => {
+        if (response.status === 204) {
+          // Successful login, navigate to /dashboard
+          window.location.href = "/dashboard";
+        } else if (response.status === 400) {
+          // Incorrect username or password
+          this.message = "Incorrect username or password";
+          this.showError = true;
+        }
+      })
+      .then((errorMessage) => {
+        if (errorMessage) {
+          Alpine.store("message", "Error: Incorrect username or password");
+          console.log(errorMessage);
+        }
+      });
+
+    Alpine.data("login", () => ({
+      setCookie,
+    }));
+  }
+</script>
+{% endblock %}

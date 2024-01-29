@@ -99,6 +99,10 @@
       <li>
         <a
           href="#"
+          hx-get="{{ url_for('get_users') }}"
+          hx-target="#dashboard-body"
+          hx-swap="outerHTML"
+          hx-push-url="true"
           class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
         >
           <svg

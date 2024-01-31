@@ -1,24 +1,43 @@
 {% extends "base.html" %} {% block title %} Register User | Sparrow App{%
 endblock %} {% block content %}
 <div
-  x-data="{  message: '', showError: false }"
-  class="bg-gray-100 dark:bg-gray-900 flex justify-center items-center h-screen"
+  x-data="{  message: '', showError: false, showPassword: false, showServerError:false }"
+  class="bg-gray-100 dark:bg-gray-900 flex justify-center items-center h-screen my-auto"
 >
-  <div class="bg-indigo-100 shadow-lg rounded-lg p-8">
-    <h1
-      class="text-2xl font-bold mb-6 text-center"
-      style="min-width: 300px; color: #1a56db"
-    >
-      Create New User
+  <div class="bg-indigo-100 shadow-lg rounded-lg p-8 max-w-md mx-auto w-96">
+    <h1 class="text-2xl font-bold mb-4 text-center" style="color: #1a56db">
+      Register User
     </h1>
     <img
       id="login-logo"
       src="/static/img/logo/undraw_register.png"
       alt="Login Logo"
-      class="max-w-xs rounded-full opacity-50 shadow-md mb-6"
+      class="max-w-xs rounded-full opacity-50 shadow-md mb-4 mx-auto"
     />
-    <!-- <form @submit.prevent="setCookie" action="/login" method="post" class="login-form" id="login-form"></form> -->
-    <div class="mb-6">
+    <div
+      class="mb-4"
+      x-data="{ 
+          username: '', 
+          pattern: /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/, 
+          checkUsername() {
+            console.log('checkUsername() called!');
+        
+            if (!this.username) {
+              console.log('Username is empty!'); // Log for empty username
+              this.showError = false;
+            } else if (!this.pattern.test(this.username)) {
+              console.log('Invalid email format!'); // Log for invalid email
+              this.showError = true;
+              this.showPassword = false;
+            } else {
+              console.log('Username is valid!'); // Log for valid username
+              this.showError = false;
+              this.showPassword = true;
+            }
+          }
+        }"
+      x-init="$watch('username', () => checkUsername())"
+    >
       <label
         for="email"
         class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
@@ -28,59 +47,92 @@ endblock %} {% block content %}
         type="email"
         id="email"
         name="username"
-        _="on change if my.value is '' 
-                add @disabled to #password
-                remove .hidden from #UsernameError
-            else
-                js return /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/ end
-                set pattern to it
-                if (pattern.test(my value)) == false
-                remove .hidden from #UsernameError
-            else
-                add .hidden to #UsernameError 
-                remove .hidden from #password 
-                remove .hidden from #password-label"
+        x-model="username"
+        @change="checkUsername()"
         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
         placeholder="john.doe@company.com"
         autocomplete="off"
         required
       />
-      <p id="UsernameError" class="hidden mb-2 text-red-600 dark:text-red-500">
+
+      <p
+        id="username-error"
+        class="hidden mb-2 text-red-600 dark:text-red-500"
+        :class="{ 'hidden': !showError }"
+        x-show="showError"
+        x-transition.delay.100ms
+      >
         <span class="font-medium">Please enter a valid email address</span>
       </p>
     </div>
-    <div class="mb-4">
+    <div class="mb-2 max-w-md">
       <label
         for="password"
         id="password-label"
+        :class="{ 'hidden': !showPassword }"
         class="hidden block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+        x-show="showPassword"
+        x-transition.delay.200ms
         >Password</label
       >
       <input
         type="password"
         id="password"
         name="password"
-        class="hidden bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+        :class="{ 'hidden': !showPassword }"
+        x-show="showPassword"
+        x-transition.delay.200ms
+        class="hidden bg-gray-50 mb-4 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
         autocomplete="new-password"
         placeholder="•••••••••"
         required
       />
+      <div class="mb-2">
+        <label
+          for="repeat-password"
+          class="hidden block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+          x-show="showPassword"
+          :class="{ 'hidden': !showPassword }"
+          x-transition.delay.200ms
+          >Repeat password</label
+        >
+        <input
+          type="password"
+          id="repeat-password"
+          :class="{ 'hidden': !showPassword }"
+          x-show="showPassword"
+          x-transition.delay.200ms
+          class="hidden shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light"
+          placeholder="•••••••••"
+          required
+        />
+      </div>
+
+      <label
+        id="password-message"
+        :class="{ 'hidden': !showPassword }"
+        x-show="showPassword"
+        x-transition.delay.200ms
+        class="mt-1 text-sm text-gray-500 dark:text-gray-300 min-w-2xl"
+      >
+        Your password should be at least 8 characters long and include at least
+        one numerical digit, one character, and one capital letter.
+      </label>
     </div>
     <p
       x-text="message"
-      x-show="showError"
+      x-show="showServerError"
       class="mb-2 text-red-600 dark:text-red-500"
     >
       <span class="font-medium"></span>
     </p>
-    <div class="mt-2">
+    <div class="mt-4">
       <button
         type="submit"
         id="login-button"
-        @click="setCookie"
         class="text-white bg-blue-700 hover-bg-blue-800 focus-ring-4 focus-outline-none focus-ring-blue-300 font-medium rounded-lg text-sm w-full sm-w-auto px-5 py-2.5 text-center dark-bg-blue-600 dark-hover-bg-blue-700 dark-focus-ring-blue-800"
       >
-        Submit
+        Register new account
       </button>
     </div>
     <!-- </form> -->
@@ -88,46 +140,46 @@ endblock %} {% block content %}
 </div>
 
 <script>
-  function setCookie() {
-    // Get the username and password from the form
-    const username = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
+  // function setCookie() {
+  //   // Get the username and password from the form
+  //   const username = document.getElementById("email").value;
+  //   const password = document.getElementById("password").value;
 
-    const formData = new URLSearchParams();
-    formData.append("grant_type", "");
-    formData.append("username", username);
-    formData.append("password", password);
-    formData.append("scope", "");
-    formData.append("client_id", "");
-    formData.append("client_secret", "");
+  //   const formData = new URLSearchParams();
+  //   formData.append("grant_type", "");
+  //   formData.append("username", username);
+  //   formData.append("password", password);
+  //   formData.append("scope", "");
+  //   formData.append("client_id", "");
+  //   formData.append("client_secret", "");
 
-    fetch("/auth/jwt/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: formData,
-    })
-      .then((response) => {
-        if (response.status === 204) {
-          // Successful login, navigate to /dashboard
-          window.location.href = "/dashboard";
-        } else if (response.status === 400) {
-          // Incorrect username or password
-          this.message = "Incorrect username or password";
-          this.showError = true;
-        }
-      })
-      .then((errorMessage) => {
-        if (errorMessage) {
-          Alpine.store("message", "Error: Incorrect username or password");
-          console.log(errorMessage);
-        }
-      });
+  //   fetch("/auth/jwt/login", {
+  //     method: "POST",
+  //     headers: {
+  //       "Content-Type": "application/x-www-form-urlencoded",
+  //     },
+  //     body: formData,
+  //   })
+  //     .then((response) => {
+  //       if (response.status === 204) {
+  //         // Successful login, navigate to /dashboard
+  //         window.location.href = "/dashboard";
+  //       } else if (response.status === 400) {
+  //         // Incorrect username or password
+  //         this.message = "Incorrect username or password";
+  //         this.showError = true;
+  //       }
+  //     })
+  //     .then((errorMessage) => {
+  //       if (errorMessage) {
+  //         Alpine.store("message", "Error: Incorrect username or password");
+  //         console.log(errorMessage);
+  //       }
+  //     });
 
-    Alpine.data("login", () => ({
-      setCookie,
-    }));
-  }
+  //   Alpine.data("login", () => ({
+  //     setCookie,
+  //   }));
+  // }
 </script>
 {% endblock %}

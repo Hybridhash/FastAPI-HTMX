@@ -5,7 +5,7 @@ block content %}
   x-data="{  message: '', showError: false }"
   class="bg-gray-100 dark:bg-gray-900 flex justify-center items-center h-screen"
 >
-  <div class="bg-indigo-100 shadow-lg rounded-lg p-8">
+  <div class="bg-indigo-100 shadow-lg rounded-lg p-8 max-w-md mx-auto w-96">
     <h1
       class="text-2xl font-bold mb-6 text-center"
       style="min-width: 300px; color: #1a56db"
@@ -100,7 +100,7 @@ block content %}
         hx-push-url="true"
         class="text-white bg-green-500 hover:bg-green-600 focus-ring-4 focus-outline-none focus-ring-green-300 font-medium rounded-lg text-sm w-full sm-w-auto px-5 py-2.5 text-center dark-bg-green-600 dark-hover-bg-green-700 dark-focus-ring-green-800"
       >
-        Create User
+        Register User
       </button>
     </div>
     <script>
@@ -116,6 +116,8 @@ block content %}
         formData.append("scope", "");
         formData.append("client_id", "");
         formData.append("client_secret", "");
+
+        console.log(formData);
 
         fetch("/auth/jwt/login", {
           method: "POST",

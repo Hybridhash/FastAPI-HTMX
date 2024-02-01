@@ -134,6 +134,7 @@ block content %}
               // Incorrect username or password
               this.message = "Incorrect username or password";
               this.showError = true;
+              return response.text();
             }
           })
           .then((errorMessage) => {

@@ -1,7 +1,84 @@
 {% extends "base.html" %} {% block title %} Register User | Sparrow App{%
 endblock %} {% block content %}
 <div
-  x-data="{  message: '', showError: false, showPassword: false, showServerError:false }"
+  x-data="{  message: '', 
+            showUsernameError: false, 
+            showRepeatPasswordError: false,
+            showPasswordError: false,
+            showPassword: false,
+            showSubmitButton: false, 
+            showServerError:false,
+            username: '',
+            password:'',
+            repeatPassword:'',
+            emailPattern: /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/,
+            passwordPattern: /^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*]).{8,}$/, 
+            checkUsername() {
+              console.log('checkUsername() called!');
+          
+              if (!this.username) {
+                this.showUsernameError = false;
+              } else if (!this.emailPattern.test(this.username)) {
+                this.showUsernameError = true;
+                this.showPassword = false;
+              } else {
+                this.showUsernameError = false;
+                this.showPassword = true;
+              }
+            },
+            // Method that is used to check if the password and the confirmation password match.
+            passwordsMatch() {
+              console.log('passwordsMatch() called!');
+              if (!this.repeatPassword)
+              {
+                this.showRepeatPasswordError = false;
+                this.showSubmitButton = true;
+              }
+              else if (this.password !== this.repeatPassword)
+              {
+                this.showRepeatPasswordError = true;
+              }
+              else{
+                this.showRepeatPasswordError = false;
+                this.showSubmitButton = false;
+              }
+            },
+            
+            // Method to check that password entered meets the criteria
+            validatePassword() {
+              console.log('validatePassword() called!');
+              if (!this.password) {
+                this.showPasswordError = false;
+                console.log('Password is not provided');
+              } else if (!this.passwordPattern.test(this.password)) {
+                this.showPasswordError = true;
+                console.log('Password does not match the pattern');
+              } else {
+                this.showPasswordError = false;
+                console.log('Password is valid');
+              }
+            },
+
+            // Method to disable button on initial load
+            disableButton() {
+              console.log('disableButton() called!');
+              this.showSubmitButton = true;
+            },
+            //Method to check the server error and make it invisible after 3 seconds
+            checkServerError() {
+              console.log('checkServerError() called!');
+              if (this.showServerError) {
+                setTimeout(() => {
+                  this.showServerError = false;
+                }, 3000);
+              }
+            },
+          }"
+  x-init="$watch('username', () => checkUsername());
+          $watch('password', () => validatePassword());
+          $watch('message', () => checkServerError());
+          $watch('repeatPassword', () => passwordsMatch())
+          disableButton();"
   class="bg-gray-100 dark:bg-gray-900 flex justify-center items-center h-screen my-auto"
 >
   <div class="bg-indigo-100 shadow-lg rounded-lg p-8 max-w-md mx-auto w-96">
@@ -14,30 +91,7 @@ endblock %} {% block content %}
       alt="Login Logo"
       class="max-w-xs rounded-full opacity-50 shadow-md mb-4 mx-auto"
     />
-    <div
-      class="mb-4"
-      x-data="{ 
-          username: '', 
-          pattern: /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/, 
-          checkUsername() {
-            console.log('checkUsername() called!');
-        
-            if (!this.username) {
-              console.log('Username is empty!'); // Log for empty username
-              this.showError = false;
-            } else if (!this.pattern.test(this.username)) {
-              console.log('Invalid email format!'); // Log for invalid email
-              this.showError = true;
-              this.showPassword = false;
-            } else {
-              console.log('Username is valid!'); // Log for valid username
-              this.showError = false;
-              this.showPassword = true;
-            }
-          }
-        }"
-      x-init="$watch('username', () => checkUsername())"
-    >
+    <div class="mb-4">
       <label
         for="email"
         class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
@@ -54,17 +108,18 @@ endblock %} {% block content %}
         autocomplete="off"
         required
       />
-
+      <!-- Email Regrex Pattern checked and Error displayed-->
       <p
         id="username-error"
         class="hidden mb-2 text-red-600 dark:text-red-500"
-        :class="{ 'hidden': !showError }"
-        x-show="showError"
+        :class="{ 'hidden': !showUsernameError }"
+        x-show="showUsernameError"
         x-transition.delay.100ms
       >
         <span class="font-medium">Please enter a valid email address</span>
       </p>
     </div>
+    <!-- Password Div-->
     <div class="mb-2 max-w-md">
       <label
         for="password"
@@ -81,15 +136,30 @@ endblock %} {% block content %}
         name="password"
         :class="{ 'hidden': !showPassword }"
         x-show="showPassword"
+        x-model="password"
         x-transition.delay.200ms
-        class="hidden bg-gray-50 mb-4 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+        class="hidden bg-gray-50 mb-2 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
         autocomplete="new-password"
-        placeholder="•••••••••"
+        placeholder="Enter password matching criteria"
         required
       />
+      <!-- Password Regrex Pattern checked and Error displayed-->
+      <p
+        x-cloak
+        id="showPasswordError"
+        class="hidden mb-2 text-red-600 dark:text-red-500"
+        :class="{ 'hidden': !showPasswordError }"
+        x-show="showPasswordError"
+        x-transition.delay.100ms
+      >
+        <span class="font-medium"
+          >Your password is not matching criteria. Example: Password123!</span
+        >
+      </p>
+      <!-- Repeat password Div -->
       <div class="mb-2">
         <label
-          for="repeat-password"
+          for="repeatPassword"
           class="hidden block mb-2 text-sm font-medium text-gray-900 dark:text-white"
           x-show="showPassword"
           :class="{ 'hidden': !showPassword }"
@@ -98,14 +168,25 @@ endblock %} {% block content %}
         >
         <input
           type="password"
-          id="repeat-password"
+          id="repeatPassword"
           :class="{ 'hidden': !showPassword }"
           x-show="showPassword"
+          x-model="repeatPassword"
           x-transition.delay.200ms
           class="hidden shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light"
-          placeholder="•••••••••"
+          placeholder="Enter password matching criteria"
           required
         />
+        <!-- Repeat Password input is matched against password to display error-->
+        <p
+          id="repeat-password-error"
+          class="hidden mb-2 text-red-600 dark:text-red-500"
+          :class="{ 'hidden': !showRepeatPasswordError }"
+          x-show="showRepeatPasswordError"
+          x-transition.delay.100ms
+        >
+          <span class="font-medium">Password is not Matching</span>
+        </p>
       </div>
 
       <label
@@ -119,9 +200,12 @@ endblock %} {% block content %}
         one numerical digit, one character, and one capital letter.
       </label>
     </div>
+    <!-- Server Error Div -->
     <p
+      x-cloak
       x-text="message"
       x-show="showServerError"
+      role="alert"
       class="mb-2 text-red-600 dark:text-red-500"
     >
       <span class="font-medium"></span>
@@ -130,56 +214,63 @@ endblock %} {% block content %}
       <button
         type="submit"
         id="login-button"
-        class="text-white bg-blue-700 hover-bg-blue-800 focus-ring-4 focus-outline-none focus-ring-blue-300 font-medium rounded-lg text-sm w-full sm-w-auto px-5 py-2.5 text-center dark-bg-blue-600 dark-hover-bg-blue-700 dark-focus-ring-blue-800"
+        :class="{'text-white bg-blue-700 hover-bg-blue-800 focus-ring-4 focus-outline-none focus-ring-blue-300 font-medium rounded-lg text-sm w-full sm-w-auto px-5 py-2.5 text-center dark-bg-blue-600 dark-hover-bg-blue-700 dark-focus-ring-blue-800': !showSubmitButton,
+                'text-white bg-blue-400 dark:bg-blue-500 cursor-not-allowed font-medium rounded-lg text-sm px-5 py-2.5 text-center w-full sm-w-auto text-center': showSubmitButton}"
+        x-bind:disabled="showSubmitButton"
+        @click="regUser"
       >
         Register new account
       </button>
     </div>
-    <!-- </form> -->
+    <!-- </form> is not working for url redirect on successful response 200-->
   </div>
 </div>
 
 <script>
-  // function setCookie() {
-  //   // Get the username and password from the form
-  //   const username = document.getElementById("email").value;
-  //   const password = document.getElementById("password").value;
+  //Function to register the user on clicking the register user button
+  function regUser() {
+    // Get email and password from the input fields
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+    const repeatPassword = document.getElementById("repeatPassword").value;
 
-  //   const formData = new URLSearchParams();
-  //   formData.append("grant_type", "");
-  //   formData.append("username", username);
-  //   formData.append("password", password);
-  //   formData.append("scope", "");
-  //   formData.append("client_id", "");
-  //   formData.append("client_secret", "");
+    if (email === "" || password === "" || repeatPassword === "") {
+      alert("Please fill in all fields");
+      return;
+    }
+    // making and form data to submit to backend server
+    const formData = {
+      email: email,
+      password: password,
+    };
 
-  //   fetch("/auth/jwt/login", {
-  //     method: "POST",
-  //     headers: {
-  //       "Content-Type": "application/x-www-form-urlencoded",
-  //     },
-  //     body: formData,
-  //   })
-  //     .then((response) => {
-  //       if (response.status === 204) {
-  //         // Successful login, navigate to /dashboard
-  //         window.location.href = "/dashboard";
-  //       } else if (response.status === 400) {
-  //         // Incorrect username or password
-  //         this.message = "Incorrect username or password";
-  //         this.showError = true;
-  //       }
-  //     })
-  //     .then((errorMessage) => {
-  //       if (errorMessage) {
-  //         Alpine.store("message", "Error: Incorrect username or password");
-  //         console.log(errorMessage);
-  //       }
-  //     });
-
-  //   Alpine.data("login", () => ({
-  //     setCookie,
-  //   }));
-  // }
+    console.log(JSON.stringify(formData));
+    // Sending the form data to the backend server
+    fetch("/auth/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(formData),
+    })
+      .then((response) => {
+        if (response.status === 201) {
+          //adding a message that user is created successfully
+          this.message = "User created successfully";
+          this.showServerError = true;
+          //Adding a delay of 3 second before redirecting to index
+          setTimeout(() => {
+            window.location.href = "/";
+          }, 3000);
+        } else if (response.status === 400) {
+          this.message = "User already exists";
+          this.showServerError = true;
+          return response.text();
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  }
 </script>
 {% endblock %}

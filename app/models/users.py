@@ -55,3 +55,27 @@ class Role(BaseSQLModel):
 
     # user_id: Mapped[UUID] = mapped_column(GUID, ForeignKey("users.id"))
     user: Mapped["User"] = relationship("User", back_populates="role")
+
+
+# Sql alchemy model to track and save user activity
+class UserActivity(BaseSQLModel):
+    """
+    Tracks user activities such as sign-ins, sign-ups, and other events.
+
+    Parameters:
+        user_id (UUID): The ID of the user.
+        activity_date (datetime): The date and time of the activity.
+        activity_type (str): The type of activity, such as "sign-in" or "sign-up".
+        activity_desc (str): A description of the activity.
+    """
+
+    __tablename__ = "user_activity"
+    user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"), default=None)
+    activity_date: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=func.now()
+    )
+    activity_type: Mapped[str] = mapped_column(String(length=200), nullable=False)
+    activity_desc: Mapped[str | None] = mapped_column(
+        String(length=1024), nullable=True
+    )
+    user: Mapped["User"] = relationship("User", back_populates="activity")

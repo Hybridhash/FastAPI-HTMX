@@ -74,6 +74,8 @@ async def post_create_roles(
     try:
         form = await request.form()
 
+        # converting form data to dictionary
+        logger.debug(dict(form))
         # Iterate over the form fields and sanitize the values before validating against the Pydantic model
         role_create = RoleCreate(
             role_name=nh3.clean(str(form.get("role_name"))),

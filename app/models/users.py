@@ -35,6 +35,10 @@ class User(SQLAlchemyBaseUserTableUUID, Base):
         back_populates="user",
     )
     # items: Mapped["Item"] = relationship(back_populates="user", cascade="all, delete")
+    # Creating a relationship with the activity model
+    activity: Mapped["UserActivity"] = relationship(
+        "UserActivity", back_populates="user"
+    )
     # Creating a relationship with the group user link model
     group_users: Mapped["UserGroupLink"] = relationship(
         "UserGroupLink",

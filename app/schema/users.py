@@ -4,6 +4,8 @@ from typing import Annotated, Optional
 from fastapi_users import schemas
 from pydantic import UUID4, BaseModel, ConfigDict, EmailStr, Field, StringConstraints
 
+from .pydantic_base import pydantic_partial
+
 PasswordStr = Annotated[str, StringConstraints(strip_whitespace=True, min_length=8)]
 
 
@@ -60,6 +62,11 @@ class RoleBase(BaseModel):
             default=None,
         ),
     ]
+    role_id: UUID4 = Field(
+        default_factory=uuid.uuid4,
+        title="Role ID",
+        description="Role ID",
+    )
 
     # @validator("role_desc")
     # def validate_role_desc(cls, v):
@@ -70,16 +77,10 @@ class RoleBase(BaseModel):
     #     return v
 
 
-class RoleRead(RoleBase):
-    role_id: UUID4 = Field(
-        default_factory=uuid.uuid4,
-        title="Role ID",
-        description="Role ID",
-    )
-
-
-class RoleCreate(RoleBase):
-    pass
+# Pydantic model to read the role based on id and excluding the role_name and role_desc
+RoleRead = pydantic_partial(exclude_fields=["role_name", "role_desc"])(RoleBase)
+# Pydantic model to create the Role with the role_name and role_desc and excluding the id
+RoleCreate = pydantic_partial(exclude_fields=["role_id"])(RoleBase)
 
 
 class RoleUpdate(RoleBase):

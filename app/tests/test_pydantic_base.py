@@ -1,101 +1,98 @@
-import logging
+from typing import Optional
 
 import pytest
 from pydantic import BaseModel
 
-from ..schema.pydantic_base import PydanticDTO
-
-LOGGER = logging.getLogger(__name__)
+from ..schema.pydantic_base import pydantic_partial
 
 
-class MyModel(BaseModel):
-    field1: int
-    field2: int
-    field3: int
-    field4: int
+class TestPartialModel:
 
-
-class TestPydanticBaseInit:
-    def test_init_with_include_fields(self):
+    # The function returns a new BaseModel with all fields optional if exclude_fields is None.
+    def test_all_fields_optional_if_exclude_fields_is_none(self):
         # Arrange
-        include_fields = ["field1", "field2"]
-        model = MyModel
+        class MyModel(BaseModel):
+            field1: int
+            field2: str
 
         # Act
-        pydantic_base = PydanticDTO(model=model, include_fields=include_fields)
+        partial = pydantic_partial()(MyModel)
 
         # Assert
-        assert pydantic_base.model == model
-        assert pydantic_base.include_fields == include_fields
-        assert pydantic_base.exclude_fields == []
+        assert issubclass(partial, BaseModel)
+        assert "field1" in partial.schema()["properties"]
+        assert "field2" in partial.schema()["properties"]
+        if "type" in partial.schema()["properties"]["field1"]:
+            assert partial.schema()["properties"]["field1"]["type"] == "integer"
+        if "type" in partial.schema()["properties"]["field2"]:
+            assert partial.schema()["properties"]["field2"]["type"] == "string"
 
-    def test_init_with_exclude_fields(self):
+    # The function returns a new BaseModel with specified fields optional if exclude_fields is a list of field names.
+    def test_specified_fields_optional_if_exclude_fields_is_list(self):
         # Arrange
-        exclude_fields = ["field3", "field4"]
-        model = MyModel
+        class MyModel(BaseModel):
+            field1: int
+            field2: str
+            field3: float
 
         # Act
-        pydantic_base = PydanticDTO(model=model, exclude_fields=exclude_fields)
+        partial = pydantic_partial(exclude_fields=["field1", "field3"])(MyModel)
 
         # Assert
-        assert pydantic_base.model == model
-        assert pydantic_base.include_fields == []
-        assert pydantic_base.exclude_fields == exclude_fields
+        assert issubclass(partial, BaseModel)
+        assert "field1" not in partial.__annotations__
+        assert partial.__annotations__["field2"] == Optional[str]
+        assert "field3" not in partial.__annotations__
 
-    def test_init_with_no_fields(self):
+    # The function returns a new BaseModel with the same name and module as the original model.
+    def test_same_name_and_module_as_original_model(self):
         # Arrange
-        model = MyModel
+        class MyModel(BaseModel):
+            field1: int
+            field2: str
 
         # Act
-        pydantic_base = PydanticDTO(model=model)
+        partial = pydantic_partial()(MyModel)
 
         # Assert
-        assert pydantic_base.model == model
-        assert pydantic_base.include_fields == []
-        assert pydantic_base.exclude_fields == []
+        assert partial.__name__ == "MyModel"
+        assert partial.__module__ == MyModel.__module__
 
-    def test_init_with_both_include_and_exclude_fields(self):
+    # The function returns a new BaseModel with no fields if exclude_fields is an empty list.
+    def test_no_fields_if_exclude_fields_is_empty_list(self):
         # Arrange
-        include_fields = ["field1", "field2"]
-        exclude_fields = ["field3", "field4"]
-        model = MyModel
+        class MyModel(BaseModel):
+            field1: int
+            field2: str
+
+        # Act
+        partial = pydantic_partial(exclude_fields=[])(MyModel)
+
+        # Assert
+        assert issubclass(partial, BaseModel)
+        assert len(partial.__annotations__) == 2
+
+    # The function returns a new BaseModel with no fields if exclude_fields contains all field names.
+    def test_no_fields_if_exclude_fields_contains_all_field_names(self):
+        # Arrange
+        class MyModel(BaseModel):
+            field1: int
+            field2: str
+
+        # Act
+        partial = pydantic_partial(exclude_fields=["field1", "field2"])(MyModel)
+
+        # Assert
+        assert issubclass(partial, BaseModel)
+        assert len(partial.__annotations__) == 0
+
+    # The function raises an exception if the original model is not a subclass of BaseModel.
+    def test_exception_if_original_model_not_subclass_of_BaseModel(self):
+        # Arrange
+        class MyModel:
+            field1: int
+            field2: str
 
         # Act & Assert
-        with pytest.raises(
-            ValueError, match="Cannot include and exclude fields at the same time."
-        ):
-            PydanticDTO(
-                model=model,
-                include_fields=include_fields,
-                exclude_fields=exclude_fields,
-            )
-
-    # def test_init_with_neither_include_nor_exclude_fields(self):
-    #     # Arrange
-    #     model = MyModel
-
-    #     # Act & Assert
-    #     with pytest.raises(
-    #         ValueError, match="Either include or exclude fields must be provided."
-    #     ):
-    #         PydanticDTO(model=model)
-
-    def test_init_with_missing_fields(self, caplog):
-        # Arrange
-        model = MyModel
-        include_fields = ["field1", "field6"]  # field3 is not defined in MyModel
-        # Act & Assert
-        with pytest.raises(ValueError):
-            LOGGER.debug(f"Missing fields: {ValueError}")
-            PydanticDTO(model=model, include_fields=include_fields)()
-
-    # Excluding a field that is not defined in the pydantic model
-    def test_exclude_missing_field(self, caplog):
-        # Arrange
-        model = MyModel
-        exclude_fields = ["field3", "field6"]  # field6 is not defined in MyModel
-        # Act & Assert
-        with pytest.raises(
-            ValueError, match="Fields {'field6'} are not defined in the pydantic model."
-        ):
-            PydanticDTO(model=model, exclude_fields=exclude_fields)()
+        with pytest.raises(TypeError):
+            pydantic_partial()(MyModel)

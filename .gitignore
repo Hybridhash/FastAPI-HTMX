@@ -257,4 +257,8 @@ pip-selfcheck.json
 .history
 .ionide
 
+# Alembic migration files ###
+app/migrations/versions/*
+!app/migrations/versions/ccc721bd563b_init.py
+
 # End of https://www.toptal.com/developers/gitignore/api/macos,git,python,visualstudiocode,database,virtualenv

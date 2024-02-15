@@ -34,6 +34,16 @@ class User(SQLAlchemyBaseUserTableUUID, Base):
         uselist=False,
         back_populates="user",
     )
+    profile_id: Mapped[UUID] = mapped_column(
+        ForeignKey("user_profiles.id"), nullable=True, default=None
+    )
+    # Profile 1 to 1 relationship with the user model
+    profile: Mapped["UserProfile"] = relationship(
+        "UserProfile",
+        uselist=False,
+        back_populates="user",
+        cascade="all, delete",
+    )
     # items: Mapped["Item"] = relationship(back_populates="user", cascade="all, delete")
     # Creating a relationship with the activity model
     activity: Mapped["UserActivity"] = relationship(
@@ -50,7 +60,44 @@ class User(SQLAlchemyBaseUserTableUUID, Base):
         return f"User(id={self.id!r}, name={self.email!r})"
 
 
+class UserProfile(BaseSQLModel):
+    """
+    Model to hold the profile of a user
+
+    Parameters:
+        first_name (str): The first name of the user.
+        last_name (str): The last name of the user.
+        gender (str, optional): The gender of the user.
+        date_of_birth (datetime, optional): The date of birth of the user.
+        city (str, optional): The city of the user.
+        country (str, optional): The country of the user.
+        address (str, optional): The address of the user.
+        phone (str, optional): The phone number of the user.
+        company (str, optional): The company of the user.
+    """
+
+    __tablename__ = "user_profiles"
+    first_name: Mapped[str] = mapped_column(String(length=120), index=True)
+    last_name: Mapped[str] = mapped_column(String(length=120), index=True)
+    gender: Mapped[str | None] = mapped_column(String(length=10), nullable=True)
+    date_of_birth: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    city: Mapped[str | None] = mapped_column(String(length=50), nullable=True)
+    country: Mapped[str | None] = mapped_column(String(length=50), nullable=True)
+    address: Mapped[str | None] = mapped_column(String(length=255), nullable=True)
+    phone: Mapped[str | None] = mapped_column(String(length=20), nullable=True)
+    company: Mapped[str | None] = mapped_column(String(length=100), nullable=True)
+    user: Mapped["User"] = relationship("User", back_populates="profile")
+
+
 class Role(BaseSQLModel):
+    """
+    A Role represents a set of permissions and privileges granted to a user.
+
+    Parameters:
+        role_name (str): The name of the role, e.g., "admin", "moderator", etc.
+        role_desc (str, optional): A description of the role.
+    """
+
     __tablename__ = "roles"
     role_name: Mapped[str] = mapped_column(
         String(length=200), nullable=False, unique=True
@@ -61,7 +108,6 @@ class Role(BaseSQLModel):
     user: Mapped["User"] = relationship("User", back_populates="role")
 
 
-# Sql alchemy model to track and save user activity
 class UserActivity(BaseSQLModel):
     """
     Tracks user activities such as sign-ins, sign-ups, and other events.

@@ -259,6 +259,6 @@ pip-selfcheck.json
 
 # Alembic migration files ###
 app/migrations/versions/*
-!app/migrations/versions/ccc721bd563b_init.py
+!app/migrations/versions/68909545693a_init.py
 
 # End of https://www.toptal.com/developers/gitignore/api/macos,git,python,visualstudiocode,database,virtualenv

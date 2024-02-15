@@ -1,8 +1,8 @@
-"""init
+"""Init
 
-Revision ID: ccc721bd563b
+Revision ID: 68909545693a
 Revises: 
-Create Date: 2024-02-14 08:12:25.137680
+Create Date: 2024-02-15 07:32:53.223398
 
 """
 
@@ -15,7 +15,7 @@ from alembic import op
 import app.models.groups
 
 # revision identifiers, used by Alembic.
-revision: str = "ccc721bd563b"
+revision: str = "68909545693a"
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -65,6 +65,41 @@ def upgrade() -> None:
         sa.UniqueConstraint("role_name"),
     )
     op.create_table(
+        "user_profiles",
+        sa.Column("first_name", sa.String(length=120), nullable=False),
+        sa.Column("last_name", sa.String(length=120), nullable=False),
+        sa.Column("gender", sa.String(length=10), nullable=True),
+        sa.Column("date_of_birth", sa.DateTime(timezone=True), nullable=True),
+        sa.Column("city", sa.String(length=50), nullable=True),
+        sa.Column("country", sa.String(length=50), nullable=True),
+        sa.Column("address", sa.String(length=255), nullable=True),
+        sa.Column("phone", sa.String(length=20), nullable=True),
+        sa.Column("company", sa.String(length=100), nullable=True),
+        sa.Column("id", sa.Uuid(), nullable=False),
+        sa.Column(
+            "created",
+            sa.DateTime(timezone=True),
+            server_default=sa.text("(CURRENT_TIMESTAMP)"),
+            nullable=False,
+        ),
+        sa.Column(
+            "updated",
+            sa.DateTime(timezone=True),
+            server_default=sa.text("(CURRENT_TIMESTAMP)"),
+            nullable=False,
+        ),
+        sa.PrimaryKeyConstraint("id"),
+    )
+    op.create_index(
+        op.f("ix_user_profiles_first_name"),
+        "user_profiles",
+        ["first_name"],
+        unique=False,
+    )
+    op.create_index(
+        op.f("ix_user_profiles_last_name"), "user_profiles", ["last_name"], unique=False
+    )
+    op.create_table(
         "users",
         sa.Column(
             "created",
@@ -79,12 +114,17 @@ def upgrade() -> None:
             nullable=False,
         ),
         sa.Column("role_id", sa.Uuid(), nullable=True),
+        sa.Column("profile_id", sa.Uuid(), nullable=True),
         sa.Column("id", fastapi_users_db_sqlalchemy.generics.GUID(), nullable=False),
         sa.Column("email", sa.String(length=320), nullable=False),
         sa.Column("hashed_password", sa.String(length=1024), nullable=False),
         sa.Column("is_active", sa.Boolean(), nullable=False),
         sa.Column("is_superuser", sa.Boolean(), nullable=False),
         sa.Column("is_verified", sa.Boolean(), nullable=False),
+        sa.ForeignKeyConstraint(
+            ["profile_id"],
+            ["user_profiles.id"],
+        ),
         sa.ForeignKeyConstraint(
             ["role_id"],
             ["roles.id"],
@@ -157,6 +197,9 @@ def downgrade() -> None:
     op.drop_table("group_users")
     op.drop_index(op.f("ix_users_email"), table_name="users")
     op.drop_table("users")
+    op.drop_index(op.f("ix_user_profiles_last_name"), table_name="user_profiles")
+    op.drop_index(op.f("ix_user_profiles_first_name"), table_name="user_profiles")
+    op.drop_table("user_profiles")
     op.drop_table("roles")
     op.drop_table("group")
     # ### end Alembic commands ###

@@ -1,8 +1,9 @@
 import uuid
-from typing import Any, Generic, List, Type, TypeVar
+from typing import Any, Dict, Generic, List, Optional, Type, TypeVar
 
 from fastapi import HTTPException
 from sqlalchemy import func, select
+from sqlalchemy.orm import joinedload
 
 from app.database.base import Base
 from app.database.db import CurrentAsyncSession
@@ -11,8 +12,13 @@ ModelType = TypeVar("ModelType", bound=Base)
 
 
 class SQLAlchemyCRUD(Generic[ModelType]):
-    def __init__(self, db_model: Type[ModelType]):
+    def __init__(
+        self,
+        db_model: Type[ModelType],
+        related_models: Optional[Dict[Type[Base], str]] = None,
+    ):
         self.db_model = db_model
+        self.related_models = related_models if related_models is not None else {}
 
     async def create(self, data: dict[str, Any], db: CurrentAsyncSession) -> ModelType:
         """Creates a new record in the database."""
@@ -26,19 +32,43 @@ class SQLAlchemyCRUD(Generic[ModelType]):
         db: CurrentAsyncSession,
         skip: int = 0,
         limit: int = 0,
+        join_relationships: bool = False,
     ) -> List[ModelType]:
         """Retrieves all records from the database, optionally with pagination."""
-        stmt = select(self.db_model).offset(skip)
+        stmt = select(self.db_model)
+        if join_relationships:
+            for related_model, join_column in self.related_models.items():
+                relationship = getattr(self.db_model, join_column, None)
+                print(relationship)
+                if relationship is not None:
+                    stmt = stmt.options(joinedload(relationship))
+                else:
+                    # Handle error or invalid relationship specification
+                    raise ValueError(f"No relationship found for {join_column}")
+        stmt = stmt.offset(skip)
         if limit:
             stmt = stmt.limit(limit)
         query = await db.execute(stmt)
         return list(query.scalars().all())
 
     async def read_by_primary_key(
-        self, db: CurrentAsyncSession, id: uuid.UUID
+        self,
+        db: CurrentAsyncSession,
+        id: uuid.UUID,
+        join_relationships: bool = False,
     ) -> ModelType:
         """Retrieves a single record from the database by its primary key."""
-        stmt = select(self.db_model).where(self.db_model.id == id)
+        stmt = select(self.db_model)
+        if join_relationships:
+            for related_model, join_column in self.related_models.items():
+                relationship = getattr(self.db_model, join_column, None)
+                print(relationship)
+                if relationship is not None:
+                    stmt = stmt.options(joinedload(relationship))
+                else:
+                    # Handle error or invalid relationship specification
+                    raise ValueError(f"No relationship found for {join_column}")
+        stmt = stmt.where(self.db_model.id == id)
         query = await db.execute(stmt)
         record = query.scalar()
         if not record:

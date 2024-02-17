@@ -1,28 +1,30 @@
 # importing the required modules
+import uuid
 
 # import nh3
-
 from fastapi import Depends, HTTPException, Request
-
-# from fastapi import Depends, HTTPException, Request, Response
-from fastapi.responses import HTMLResponse
 from fastapi.routing import APIRouter
+from loguru import logger
 
-# from loguru import logger
-# from pydantic import ValidationError
 from app.database.db import CurrentAsyncSession
 from app.database.security import current_active_user
+from app.models.users import Role as RoleModelDB
 from app.models.users import User as UserModelDB
 from app.routes.view.view_crud import SQLAlchemyCRUD
 
 # from app.schema.users import RoleCreate
 from app.templates import templates
 
+# import nh3
+
+
 # Create an APIRouter
 user_view_route = APIRouter()
 
 
-user_crud = SQLAlchemyCRUD[UserModelDB](UserModelDB)
+user_crud = SQLAlchemyCRUD[UserModelDB](
+    UserModelDB, related_models={RoleModelDB: "role"}
+)
 
 
 """
@@ -44,7 +46,8 @@ async def get_users(
     limit: int = 100,
 ):
     # Access the cookies using the Request object
-    users = await user_crud.read_all(db, skip, limit)
+    users = await user_crud.read_all(db, skip, limit, join_relationships=True)
+    logger.info(f"users: {users}")
     return templates.TemplateResponse(
         "pages/user.html",
         {
@@ -143,25 +146,25 @@ async def get_create_users(
 #         )
 
 
-# # Defining end point to get the record based on the id
-# @user_view_route.get("/get_role/{role_id}", response_class=HTMLResponse)
-# async def get_role_by_id(
-#     request: Request,
-#     role_id: uuid.UUID,
-#     db: CurrentAsyncSession,
-#     current_user: UserModelDB = Depends(current_active_user),
-# ):
-#     # checking the current user as super user
-#     if not current_user.is_superuser:
-#         raise HTTPException(status_code=403, detail="Not authorized to add roles")
-#     role = await role_crud.read_by_primary_key(db, role_id)
-#     return templates.TemplateResponse(
-#         "partials/edit_role.html",
-#         {
-#             "request": request,
-#             "role": role,
-#         },
-#     )
+# Defining end point to get the record based on the id
+@user_view_route.get("/get_user/{user_id}", response_class=HTMLResponse)
+async def get_user_by_id(
+    request: Request,
+    user_id: uuid.UUID,
+    db: CurrentAsyncSession,
+    current_user: UserModelDB = Depends(current_active_user),
+):
+    # checking the current user as super user
+    if not current_user.is_superuser:
+        raise HTTPException(status_code=403, detail="Not authorized to add roles")
+    role = await user_crud.read_by_primary_key(db, user_id)
+    return templates.TemplateResponse(
+        "partials/edit_user.html",
+        {
+            "request": request,
+            "role": role,
+        },
+    )
 
 
 # # Defining end point to update the record based on the id

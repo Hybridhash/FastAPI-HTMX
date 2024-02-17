@@ -126,6 +126,7 @@
                   <th scope="col" class="px-6 py-3">User Email</th>
                   <th scope="col" class="px-6 py-3">Active</th>
                   <th scope="col" class="px-6 py-3">Super User</th>
+                  <th scope="col" class="px-6 py-3">Role</th>
                   <th scope="col" class="px-6 py-3">Created</th>
                   <th scope="col" class="px-6 py-3">
                     <span class="sr-only">Edit</span>
@@ -166,6 +167,7 @@
                     <!-- Red cross symbol -->
                     {% endif %}
                   </td>
+                  <td class="px-6 py-4">{{ user.role}}</td>
                   <td class="px-6 py-4">
                     {{ user.created.strftime('%d-%m-%Y')}}
                   </td>

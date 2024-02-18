@@ -3,6 +3,7 @@ import uuid
 
 # import nh3
 from fastapi import Depends, HTTPException, Request
+from fastapi.responses import HTMLResponse
 from fastapi.routing import APIRouter
 from loguru import logger
 
@@ -14,8 +15,6 @@ from app.routes.view.view_crud import SQLAlchemyCRUD
 
 # from app.schema.users import RoleCreate
 from app.templates import templates
-
-# import nh3
 
 
 # Create an APIRouter

@@ -1,8 +1,8 @@
 """Init
 
-Revision ID: 68909545693a
+Revision ID: de35d92e5baa
 Revises: 
-Create Date: 2024-02-15 07:32:53.223398
+Create Date: 2024-02-18 06:40:44.389721
 
 """
 
@@ -15,7 +15,7 @@ from alembic import op
 import app.models.groups
 
 # revision identifiers, used by Alembic.
-revision: str = "68909545693a"
+revision: str = "de35d92e5baa"
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None

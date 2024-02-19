@@ -1,5 +1,5 @@
-{% extends "auth_base.html" %} {% block title %}Role | Sparrow App{% endblock %}
-{% block content %}
+{% extends "auth_base.html" %} {% block title %}Groups | FastApi Admin{%
+endblock %} {% block content %}
 
 <div id="dashboard-body" class="p-4 sm:ml-64">
   <div
@@ -67,7 +67,7 @@
         </div>
       </div>
 
-      <!-- Table for the roles extracted from the back end -->
+      <!-- Table for the groups extracted from the back end -->
       <div hx-ext="response-targets">
         <div id="create-group-form">
           <button
@@ -82,18 +82,33 @@
           >
             Add Group
           </button>
-          <div
-            id="role-updated"
+          <!-- <div
+            id="group-updated"
             class="hidden p-4 mb-4 text-sm text-yellow-800 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300"
             role="alert"
           >
-            <span class="font-medium"
-              >Group memberships updated successfully</span
+            <span class="font-medium">Group updated successfully</span>
+          </div> -->
+          <div
+            x-data="{ show: false }"
+            x-init="$watch('show', value => { if (value) setTimeout(() => { show = false }, 3000) })"
+            @groupUpdated.window="show = true"
+          >
+            <div
+              x-show="show"
+              x-transition:leave="transition ease-in duration-1000"
+              x-transition:leave-start="opacity-100"
+              x-transition:leave-end="opacity-0"
+              id="group-updated"
+              class="p-4 mb-4 text-sm text-yellow-800 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300"
+              role="alert"
             >
+              <span class="font-medium">Group updated successfully</span>
+            </div>
           </div>
 
           <div
-            id="role-added"
+            id="group-added"
             class="hidden p-4 mb-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400"
             role="alert"
           >
@@ -101,7 +116,7 @@
           </div>
 
           <div
-            id="role-deleted"
+            id="group-deleted"
             class="hidden p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400"
             role="alert"
           >
@@ -150,7 +165,7 @@
                   <td class="px-2 py-4 text-right">
                     <a
                       href="#"
-                      hx-get="{{ url_for('get_role_by_id', role_id=role.id) }}"
+                      hx-get="{{ url_for('get_group_by_id', group_id=group.id) }}"
                       hx-swap="outerHTML"
                       hx-target="#group-page"
                       class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
@@ -160,10 +175,10 @@
                   <td class="pr-3 py-4 text-right">
                     <a
                       href="#"
-                      hx-delete="{{ url_for('delete_role', role_id=role.id) }}"
+                      hx-delete="{{ url_for('delete_group', group_id=group.id) }}"
                       hx-swap="outerHTML"
                       hx-target="#group-page"
-                      hx-confirm="Are you sure you want to delete this role? "
+                      hx-confirm="Are you sure you want to delete this group? "
                       class="font-medium text-red-600 dark:text-red-500 hover:underline"
                       >Delete</a
                     >
@@ -395,33 +410,33 @@
     </div>
   </div>
 </div>
-<script type="text/hyperscript">
+<!-- <script type="text/hyperscript">
   on groupUpdated
     wait for load or 1s
-    remove .hidden from #role-updated
+    remove .hidden from #group-updated
     wait 3s
-    transition #role-updated opacity to 0
-    add .hidden to #role-updated
+    transition #group-updated opacity to 0
+    add .hidden to #group-updated
   end
-</script>
+</script> -->
 
 <script type="text/hyperscript">
   on groupAdded
     wait for load or 1s
-    remove .hidden from #role-added
+    remove .hidden from #group-added
     wait 3s
-    transition #role-added opacity to 0
-    add .hidden to #role-added
+    transition #group-added opacity to 0
+    add .hidden to #group-added
   end
 </script>
 
 <script type="text/hyperscript">
   on groupDeleted
     wait for load or 1s
-    remove .hidden from #role-deleted
+    remove .hidden from #group-deleted
     wait 3s
-    transition #role-deleted opacity to 0
-    add .hidden to #role-deleted
+    transition #group-deleted opacity to 0
+    add .hidden to #group-deleted
   end
 </script>
 {% endblock %}

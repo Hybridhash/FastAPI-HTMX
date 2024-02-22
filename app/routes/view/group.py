@@ -1,3 +1,4 @@
+import json
 import uuid
 
 import nh3
@@ -171,7 +172,14 @@ async def post_update_group(
         # Redirecting to the add group page upon successful group creation
         headers = {
             "HX-Location": "/groups",
-            "HX-Trigger": "groupUpdated",
+            "HX-Trigger": json.dumps(
+                {
+                    "showAlert": {
+                        "type": "updated",
+                        "message": "Group updated successfully",
+                    }
+                }
+            ),
         }
         return HTMLResponse(content="", headers=headers)
     except ValidationError as e:

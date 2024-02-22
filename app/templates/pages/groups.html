@@ -1,5 +1,47 @@
-{% extends "auth_base.html" %} {% block title %}Groups | FastApi Admin{%
+{% extends "base/auth_base.html" %} {% block title %}Groups | FastApi Admin{%
 endblock %} {% block content %}
+
+
+<script>
+  document.addEventListener('alpine:init', () => {
+    Alpine.store('darkMode', {
+      update:false,
+      add:false,
+      delete:false,
+      message:"",
+      
+      
+        toggle() {
+            this.delete= ! this.delete
+            console.log(this.delete)
+        }
+      
+    })
+
+    document.body.addEventListener("showAlert", function (evt) {
+      console.log("Event Triggered Alpine");
+      console.log(evt);
+
+      // Wait for 3 seconds before dispatching the event
+      setTimeout(function() {
+        // document.getElementById('group-updated').dispatchEvent(new CustomEvent('update-ok'));
+        console.log(evt.detail.message)
+        if (evt.detail.type == "updated") {
+          Alpine.store('darkMode').update = true;
+          Alpine.store('darkMode').message = evt.detail.message;
+        } else if (evt.detail.type == "added") {
+          Alpine.store('darkMode').add = true;
+          Alpine.store('darkMode').message = evt.detail.message;
+        } else if (evt.detail.type == "deleted") {
+          Alpine.store('darkMode').delete = true;
+          Alpine.store('darkMode').message = evt.detail.message;
+        }
+        console.log(evt.detail.type)
+      }, 1000);
+    });
+
+  })
+  </script>
 
 <div id="dashboard-body" class="p-4 sm:ml-64">
   <div
@@ -82,47 +124,78 @@ endblock %} {% block content %}
           >
             Add Group
           </button>
+
           <!-- <div
             id="group-updated"
-            class="hidden p-4 mb-4 text-sm text-yellow-800 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300"
-            role="alert"
-          >
-            <span class="font-medium">Group updated successfully</span>
-          </div> -->
-          <div
-            x-data="{ show: false }"
-            x-init="$watch('show', value => { if (value) setTimeout(() => { show = false }, 3000) })"
-            @groupUpdated.window="show = true"
+            x-data="{ updateShow: false, addShow:false }"
+            x-on:update-ok="updateShow = true"
+            x-init="$watch('updateShow', value => { console.log('From x-init watch:', value); if (value) setTimeout(() => { updateShow = false }, 3000) })"
           >
             <div
-              x-show="show"
-              x-transition:leave="transition ease-in duration-1000"
-              x-transition:leave-start="opacity-100"
-              x-transition:leave-end="opacity-0"
-              id="group-updated"
+            :class="updateShow ? '' : 'hidden'"
+            x-transition:leave="transition ease-in duration-1000"
+            x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0"
               class="p-4 mb-4 text-sm text-yellow-800 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300"
               role="alert"
             >
               <span class="font-medium">Group updated successfully</span>
             </div>
-          </div>
-
-          <div
+            <div
             id="group-added"
-            class="hidden p-4 mb-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400"
+            :class="addShow ? '' : 'hidden'"
+            class="p-4 mb-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400"
             role="alert"
-          >
+            >
             <span class="font-medium">Group added successfully</span>
           </div>
+          </div> -->
 
+
+</div>  
+
+<button x-data @click="$store.darkMode.toggle()">Toggle Dark Mode</button>
+<!-- 
           <div
             id="group-deleted"
             class="hidden p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400"
             role="alert"
           >
             <span class="font-medium">Group deleted successfully</span>
-          </div>
-
+          </div> -->
+          <div x-data 
+          x-init="$watch('$store.darkMode.update', value => { console.log('From x-init watch:', value); if (value) setTimeout(() => { $store.darkMode.update = false }, 3000) }); 
+      $watch('$store.darkMode.add', value => { console.log('From x-init watch:', value); if (value) setTimeout(() => { $store.darkMode.add = false }, 3000) }); $watch('$store.darkMode.delete', value => { console.log('From x-init watch:', value); if (value) setTimeout(() => { $store.darkMode.delete = false }, 3000) })" 
+          >
+              <div  
+                 x-show="$store.darkMode.update"
+                 x-transition:leave="transition ease-in duration-1000"
+                 x-transition:leave-start="opacity-100"
+                 x-transition:leave-end="opacity-0"
+                   class="p-4 mb-4 text-sm text-yellow-800 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300"
+                   role="alert"
+                 >
+                   <span class="font-medium" x-text="$store.darkMode.message" ></span>
+                 </div>
+                  <div  
+                 x-show="$store.darkMode.add"
+                 x-transition:leave="transition ease-in duration-1000"
+                 x-transition:leave-start="opacity-100"
+                 x-transition:leave-end="opacity-0"
+                class="p-4 mb-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400"
+                 role="alert"
+                   <span class="font-medium" x-text="$store.darkMode.message" ></span>
+                 </div>
+                  <div  
+                 x-show="$store.darkMode.delete"
+                 x-transition:leave="transition ease-in duration-1000"
+                 x-transition:leave-start="opacity-100"
+                 x-transition:leave-end="opacity-0"
+                 class="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400"
+                 role="alert"
+                   <span class="font-medium" x-text="$store.darkMode.message" ></span>
+                 </div>
+     </div>
           {%if error_message%}
           <div
             id="error-message"
@@ -410,33 +483,4 @@ endblock %} {% block content %}
     </div>
   </div>
 </div>
-<!-- <script type="text/hyperscript">
-  on groupUpdated
-    wait for load or 1s
-    remove .hidden from #group-updated
-    wait 3s
-    transition #group-updated opacity to 0
-    add .hidden to #group-updated
-  end
-</script> -->
-
-<script type="text/hyperscript">
-  on groupAdded
-    wait for load or 1s
-    remove .hidden from #group-added
-    wait 3s
-    transition #group-added opacity to 0
-    add .hidden to #group-added
-  end
-</script>
-
-<script type="text/hyperscript">
-  on groupDeleted
-    wait for load or 1s
-    remove .hidden from #group-deleted
-    wait 3s
-    transition #group-deleted opacity to 0
-    add .hidden to #group-deleted
-  end
-</script>
 {% endblock %}

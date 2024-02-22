@@ -112,7 +112,14 @@ async def post_create_group(
         # Redirecting to the add group page upon successful group creation
         headers = {
             "HX-Location": "/groups",
-            "HX-Trigger": "groupAdded",
+            "HX-Trigger": json.dumps(
+                {
+                    "showAlert": {
+                        "type": "added",
+                        "message": "Group added successfully",
+                    }
+                }
+            ),
         }
 
         return HTMLResponse(content="", headers=headers)
@@ -224,6 +231,13 @@ async def delete_group(
     await group_crud.delete(db, group_id)
     headers = {
         "HX-Location": "/groups",
-        "HX-Trigger": "groupDeleted",
+        "HX-Trigger": json.dumps(
+            {
+                "showAlert": {
+                    "type": "deleted",
+                    "message": f"Group id: {group_id} deleted successfully",
+                }
+            }
+        ),
     }
     return HTMLResponse(content="", headers=headers)

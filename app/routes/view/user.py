@@ -11,18 +11,18 @@ from app.database.db import CurrentAsyncSession
 from app.database.security import current_active_user
 from app.models.users import Role as RoleModelDB
 from app.models.users import User as UserModelDB
+from app.models.users import UserProfile as UserProfileModelDB
 from app.routes.view.view_crud import SQLAlchemyCRUD
 
 # from app.schema.users import RoleCreate
 from app.templates import templates
-
 
 # Create an APIRouter
 user_view_route = APIRouter()
 
 
 user_crud = SQLAlchemyCRUD[UserModelDB](
-    UserModelDB, related_models={RoleModelDB: "role"}
+    UserModelDB, related_models={RoleModelDB: "role", UserProfileModelDB: "profile"}
 )
 
 

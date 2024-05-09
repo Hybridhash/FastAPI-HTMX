@@ -32,7 +32,15 @@ async def get_groups(
     limit: int = 100,
 ):
     if not current_user.is_superuser:
-        raise HTTPException(status_code=403, detail="Not authorized to add groups")
+        # raise HTTPException(status_code=403, detail="Not authorized to add groups")
+
+        return templates.TemplateResponse(
+            "pages/groups.html",
+            {
+                "request": request,
+                "error_message": "You are not authorized to view this page",
+            },
+        )
     # Access the cookies using the Request object
     groups = await group_crud.read_all(db, skip, limit)
     return templates.TemplateResponse(

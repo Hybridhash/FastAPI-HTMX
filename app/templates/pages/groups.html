@@ -98,23 +98,31 @@ endblock %} {% block content %}
           </p>
         </div>
       </div>
-
+      {%if error_message%}
+      <div
+        id="error-message"
+        class="p-4 mb-4 text-sm text-yellow-800 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300"
+        role="alert"
+      >
+        <span class="font-medium">{{ error_message }}</span>
+      </div>
+      {% else %}
       <!-- Table for the groups extracted from the back end -->
-      <div hx-ext="response-targets">
-        <div id="create-group-form">
-          <button
-            type="submit"
-            id="group-button"
-            hx-get="{{ url_for('get_create_group') }}"
-            hx-target="#group-page"
-            hx-swap="outerHTML"
-            hx-target-404="#error-message"
-            hx-push-url="true"
-            class="mb-2 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-          >
-            Add Group
-          </button>
-</div>  
+        <div hx-ext="response-targets">
+          <div id="create-group-form">
+            <button
+              type="submit"
+              id="group-button"
+              hx-get="{{ url_for('get_create_group') }}"
+              hx-target="#group-page"
+              hx-swap="outerHTML"
+              hx-target-404="#error-message"
+              hx-push-url="true"
+              class="mb-2 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+            >
+              Add Group
+            </button>
+          </div>  
           <div x-data 
           x-init="$watch('$store.showMessage.update', value => { if (value) setTimeout(() => { $store.showMessage.update = false }, 3000) }); 
                   $watch('$store.showMessage.add', value => {if (value) setTimeout(() => { $store.showMessage.add = false }, 3000) }); 
@@ -149,15 +157,8 @@ endblock %} {% block content %}
                    <span class="font-medium" x-text="$store.showMessage.message" ></span>
                  </div>
      </div>
-          {%if error_message%}
-          <div
-            id="error-message"
-            class="p-4 mb-4 text-sm text-yellow-800 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300"
-            role="alert"
-          >
-            <span class="font-medium">{{ error_message }}</span>
-          </div>
-          {% else %}
+  
+
           <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
             <table
               class="w-full text-sm text-left text-gray-500 dark:text-gray-400"

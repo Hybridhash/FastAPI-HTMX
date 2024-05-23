@@ -66,7 +66,6 @@ endblock %} {% block content %}
           </p>
         </div>
       </div>
-
       <!-- Table for the users extracted from the back end -->
       <div hx-ext="response-targets">
         <div id="create-user-form">
@@ -171,7 +170,15 @@ endblock %} {% block content %}
                     <!-- Red cross symbol -->
                     {% endif %}
                   </td>
-                  <td class="px-6 py-4">{{ user.role}}</td>
+                  <td class="px-6 py-4">
+                    {% if user.role and user.role.role_name %}
+                      {{ user.role.role_name }}
+                    {% else %}
+                        Not Available
+                    {% endif %}
+                     </td>
+
+                  </td>
                   <td class="px-6 py-4">
                     {{ user.created.strftime('%d-%m-%Y')}}
                   </td>
@@ -200,15 +207,17 @@ endblock %} {% block content %}
                       <div>
                         <img
                           class="w-10 h-10 rounded-full mb-3"
-                          src="{{ user.profile_picture }}"
-                          alt="{{ user.name }}"
+                          src="{{ user.profile.profile_picture }}"
+                          alt="{{ user.first_name }}"
                         />
-                        <h3>{{ user.name }}</h3>
-                        <p>First Name: {{ user.first_name }}</p>
-                        <p>Last Name: {{ user.last_name }}</p>
-                        <p>Phone: {{ user.phone }}</p>
-                        <p>Role: {{ user.role }}</p>
-                        <p>Address: {{ user.address }}</p>
+                        <h3>{{ user.profile.name }}</h3>
+                        <p class="font-semibold"">
+                          {{ user.profile.first_name }} {{
+                          user.profile.last_name }}
+                        </p>
+                        <p>Phone: {{ user.profile.phone }}</p>
+                        <p>Birth Date: {{ user.profile.date_of_birth.strftime('%d %b %Y') if user.profile.date_of_birth else 'Not provided' }}</p>
+                        <p>Company: {{ user.profile.company }}</p>
                         <!-- More user details -->
                       </div>
                       <div class="flex mb-3">
@@ -252,6 +261,7 @@ endblock %} {% block content %}
                     <a
                       href="#"
                       hx-swap="outerHTML"
+                      hx-get="{{ url_for('get_user_by_id', user_id=user.id) }}"
                       hx-target="#user-page"
                       class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
                       >Edit</a

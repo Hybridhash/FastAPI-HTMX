@@ -2,6 +2,7 @@ import uuid
 from typing import Any, Dict, Generic, List, Optional, Type, TypeVar
 
 from fastapi import HTTPException
+from loguru import logger
 from sqlalchemy import func, select
 from sqlalchemy.orm import joinedload
 
@@ -71,6 +72,7 @@ class SQLAlchemyCRUD(Generic[ModelType]):
                 print(relationship)
                 if relationship is not None:
                     stmt = stmt.options(joinedload(relationship))
+                    logger.debug(stmt)
                 else:
                     # Handle error or invalid relationship specification
                     raise ValueError(f"No relationship found for {join_column}")
@@ -78,6 +80,14 @@ class SQLAlchemyCRUD(Generic[ModelType]):
         if limit:
             stmt = stmt.limit(limit)
         query = await db.execute(stmt)
+        # users = query.scalars().all()
+        # for user in users:
+        #     if user.profile is not None:
+        #         logger.debug(
+        #             f"User: {user.email}, Profile First Name: {user.profile.first_name}"
+        #         )
+        #     else:
+        #         logger.debug(f"User: {user.email}, No profile")
         return list(query.scalars().all())
 
     async def read_by_primary_key(
@@ -190,4 +200,5 @@ class SQLAlchemyCRUD(Generic[ModelType]):
             await db.delete(db_item)
             await db.commit()
             return True
+        return False
         return False

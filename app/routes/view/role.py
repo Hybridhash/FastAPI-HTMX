@@ -28,10 +28,12 @@ role_crud = SQLAlchemyCRUD[RoleModelDB](RoleModelDB)
 async def get_role(
     request: Request,
     db: CurrentAsyncSession,
-    user: UserModelDB = Depends(current_active_user),
+    current_user: UserModelDB = Depends(current_active_user),
     skip: int = 0,
     limit: int = 100,
 ):
+    if not current_user.is_superuser:
+        raise HTTPException(status_code=403, detail="Not authorized to add users")
     # Access the cookies using the Request object
     roles = await role_crud.read_all(db, skip, limit)
     return templates.TemplateResponse(

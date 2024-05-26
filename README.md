@@ -50,7 +50,7 @@ This project leverages several external libraries to provide a robust and effici
 Create a `.env` file in the root directory of the project and add the following environment variables:
 
 ```
-DATABASE_URL=sqlite:///./users.db
+DATABASE_URL="sqlite+aiosqlite:///./users.db"
 SECRET_KEY=your_secret_key
 ```
 

@@ -3,7 +3,7 @@ from typing import Any, Dict, Generic, List, Optional, Type, TypeVar
 
 from fastapi import HTTPException
 from loguru import logger
-from sqlalchemy import func, select
+from sqlalchemy import func, inspect, select
 from sqlalchemy.orm import joinedload
 
 from app.database.base import Base
@@ -18,8 +18,16 @@ class SQLAlchemyCRUD(Generic[ModelType]):
 
     Args:
         db_model (Type[ModelType]): The SQLAlchemy model class to be used for database operations.
-        related_models (Optional[Dict[Type[Base], str]]): A dictionary of related SQLAlchemy model classes and the relationship
-            attribute name to be used for JOIN queries.
+        related_models (Optional[Dict[Type[Base], str]]): A dictionary of related SQLAlchemy model classes
+        and the relationship attribute name to be used for JOIN queries.
+              Example:
+                Suppose you have a `User` model and a related `Profile` model.
+                If you want to join the `Profile` table when querying the `User` table,
+                you can pass the `related_models` dictionary as follows:
+
+                related_models = {
+                    Profile: "profile"  # Here, "profile" is the relationship attribute name in the `User` model
+                }
     """
 
     def __init__(
@@ -44,6 +52,7 @@ class SQLAlchemyCRUD(Generic[ModelType]):
         new_record = self.db_model(**data)
         db.add(new_record)
         await db.commit()
+        await db.refresh(new_record)
         return new_record
 
     async def read_all(
@@ -88,7 +97,8 @@ class SQLAlchemyCRUD(Generic[ModelType]):
         #         )
         #     else:
         #         logger.debug(f"User: {user.email}, No profile")
-        return list(query.scalars().all())
+        await db.close()
+        return list(query.unique().scalars().all())
 
     async def read_by_primary_key(
         self,
@@ -114,7 +124,7 @@ class SQLAlchemyCRUD(Generic[ModelType]):
         if join_relationships:
             for related_model, join_column in self.related_models.items():
                 relationship = getattr(self.db_model, join_column, None)
-                print(relationship)
+                # print(relationship)
                 if relationship is not None:
                     stmt = stmt.options(joinedload(relationship))
                 else:
@@ -123,6 +133,7 @@ class SQLAlchemyCRUD(Generic[ModelType]):
         stmt = stmt.where(self.db_model.id == id)
         query = await db.execute(stmt)
         record = query.scalar()
+        await db.close()
         if not record:
             raise HTTPException(status_code=404, detail=f"Record with {id} not found")
         return record
@@ -148,6 +159,7 @@ class SQLAlchemyCRUD(Generic[ModelType]):
         )
         query = await db.execute(stmt)
         record = query.scalar()
+        await db.close()
         return record
 
     async def update(
@@ -199,6 +211,28 @@ class SQLAlchemyCRUD(Generic[ModelType]):
         if db_item:
             await db.delete(db_item)
             await db.commit()
+            await db.refresh(db_item)
             return True
         return False
-        return False
+
+    async def check_associated_records(
+        self,
+        db: CurrentAsyncSession,
+        associated_model: Type[Base],
+        primary_attribute: uuid.UUID,
+        secondary_attribute: uuid.UUID,
+    ) -> List[ModelType | None]:
+        """
+        Check that a record exists and then return the associated records.
+        """
+
+        column_names = [column.key for column in inspect(associated_model).columns]
+
+        result = await db.execute(
+            select(associated_model).filter(
+                getattr(associated_model, column_names[0]) == primary_attribute,
+                getattr(associated_model, column_names[1]) == secondary_attribute,
+            )
+        )
+        existing_record = result.scalar_one_or_none()
+        return existing_record

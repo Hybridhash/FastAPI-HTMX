@@ -158,6 +158,7 @@ endblock %} {% block content %}
                  </div>
      </div>
   
+     <h1 class="text-center font-bold">Groups</h1>
 
           <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
             <table
@@ -169,6 +170,9 @@ endblock %} {% block content %}
                 <tr>
                   <th scope="col" class="px-6 py-3">Group Name</th>
                   <th scope="col" class="px-6 py-3">Group Description</th>
+                    <th scope="col" class="px-6 py-3">
+                    <span class="sr-only">Allocate Users</span>
+                    </th>
                   <th scope="col" class="px-6 py-3">
                     <span class="sr-only">Edit</span>
                   </th>
@@ -189,6 +193,16 @@ endblock %} {% block content %}
                     {{ group.group_name }}
                   </td>
                   <td class="px-6 py-4">{{ group.group_desc}}</td>
+                  <td class="px-2 py-4 text-right">
+                    <a
+                      href="#"
+                      hx-get="{{ url_for('get_group_users', group_id=group.id) }}"
+                      hx-swap="outerHTML"
+                      hx-target="#group-page"
+                      class="font-medium text-purple-600 dark:text-purple-500 hover:underline"
+                      >Allocate User</a
+                    >
+                  </td>
                   <td class="px-2 py-4 text-right">
                     <a
                       href="#"
@@ -219,11 +233,51 @@ endblock %} {% block content %}
           </div>
         </div>
       </div>
+      <div class="mt-8">
+  <h1 class="text-center font-bold">Groups Allocation</h1>
+</div>
 
-      <div
+      <!-- <div
         class="flex items-center justify-center h-48 mt-4 mb-4 rounded bg-gray-50 dark:bg-gray-800"
-      >
-        <p class="text-2xl text-gray-400 dark:text-gray-500">
+      > -->
+      
+      <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+        <table
+          class="w-full text-sm text-left text-gray-500 dark:text-gray-400"
+        >
+          <thead
+            class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"
+          >
+            <tr>
+              <th scope="col" class="px-6 py-3">Group Name</th>
+              <th scope="col" class="px-6 py-3">Users Allocated</th>
+            </tr>
+          </thead>
+          {% for group in groups %}
+          <tbody hx-target="closest tr" hx-swap="outerHTML">
+            <tr
+              class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
+            >
+              <td
+                scope="row"
+                class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+              >
+                {{ group.group_name }}
+              </td>
+              <td class="px-6 py-4">{% if group.users %}
+                {% for user in group.users %}
+                    <div id="user-profile" hx-get="{{ url_for('get_user_profile', user_id=user.id) }}" hx-swap="innerHTML" hx-target="this" hx-trigger="load">
+                    </div>
+                {% endfor %}
+            {% else %}
+                No users allocated
+            {% endif %}</td>
+            </tr>
+          </tbody>
+          {% endfor %}
+        </table>
+      </div>
+        <!-- <p class="text-2xl text-gray-400 dark:text-gray-500">
           <svg
             class="w-3.5 h-3.5"
             aria-hidden="true"
@@ -239,7 +293,7 @@ endblock %} {% block content %}
               d="M9 1v16M1 9h16"
             />
           </svg>
-        </p>
+        </p> -->
       </div>
       <div class="grid grid-cols-2 gap-4 mb-4">
         <div

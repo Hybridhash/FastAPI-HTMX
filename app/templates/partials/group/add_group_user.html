@@ -1,0 +1,52 @@
+{% extends "base/base.html" %} {% block title %}Group Allocation{% endblock %}
+{% block content %}
+<form
+  id="create-group-form"
+  hx-target="this"
+  hx-post="{{ url_for('post_group_user_link' , group_id = group.id)}}"
+  hx-swap="outerHTML"
+  hx-push-url="true"
+>
+  <div class="mb-6">
+    <input type="hidden" name="group_id" value="{{ group.id }}" />
+
+    <label
+      for="users-selected"
+      class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+      >Select users for the <b>{{group.group_name}}</b>{{group.id}} group</label
+    >
+
+    <select
+      multiple
+      id="users-selected"
+      name="users_selected"
+      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+    >
+      <option selected>Choose Users</option>
+      {% for user in users %}
+      <option value="{{user.id}}">
+        {%if user.profile.first_name %} {{user.profile.first_name}}
+        {{user.profile.last_name}} {% else %} User Name Undefined {% endif %}
+      </option>
+      {% endfor %}
+    </select>
+  </div>
+  {% if error_messages %}
+  <div
+    id="error-message"
+    class="p-4 mb-4 text-sm text-yellow-800 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300"
+    role="alert"
+  >
+    {% for error in error_messages %}
+    <span class="font-medium">{{ error }}</span><br />
+    {% endfor %}
+  </div>
+  {% endif %}
+  <button
+    type="submit"
+    class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+  >
+    Add
+  </button>
+</form>
+{% endblock %}

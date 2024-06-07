@@ -52,6 +52,20 @@ class GroupUpdate(GroupBase):
     pass
 
 
+class GroupUserLink(BaseModel):
+    group_id: UUID4 = Field(
+        default_factory=uuid.uuid4,
+        title="Role ID",
+        description="Role ID",
+    )
+    user_id: UUID4 = Field(
+        default_factory=uuid.uuid4, title="User ID", description="User ID"
+    )
+
+    # def to_dict(self):
+    #     # return self.dict(exclude_unset=True, exclude={"id"})
+
+
 # class CreateUpdateDictModel(BaseModel):
 #     def create_update_dict(self):
 #         return model_dump(

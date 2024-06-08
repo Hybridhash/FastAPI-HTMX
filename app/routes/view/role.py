@@ -5,18 +5,16 @@ import nh3
 from fastapi import Depends, HTTPException, Request, Response
 from fastapi.responses import HTMLResponse
 from fastapi.routing import APIRouter
-from loguru import logger
-from pydantic import ValidationError
 
 from app.database.db import CurrentAsyncSession
 from app.database.security import current_active_user
 from app.models.users import Role as RoleModelDB
 from app.models.users import User as UserModelDB
+from app.routes.view.errors import handle_error
 from app.routes.view.view_crud import SQLAlchemyCRUD
 from app.schema.users import RoleCreate
 from app.templates import templates
 
-# Create an APIRouter
 role_view_route = APIRouter()
 
 
@@ -32,17 +30,22 @@ async def get_role(
     skip: int = 0,
     limit: int = 100,
 ):
-    if not current_user.is_superuser:
-        raise HTTPException(status_code=403, detail="Not authorized to add users")
-    # Access the cookies using the Request object
-    roles = await role_crud.read_all(db, skip, limit)
-    return templates.TemplateResponse(
-        "pages/role.html",
-        {
-            "request": request,
-            "roles": roles,
-        },
-    )
+    try:
+        if not current_user.is_superuser:
+            raise HTTPException(
+                status_code=403, detail="Not authorized to view this page"
+            )
+        # Access the cookies using the Request object
+        roles = await role_crud.read_all(db, skip, limit)
+        return templates.TemplateResponse(
+            "pages/role.html",
+            {
+                "request": request,
+                "roles": roles,
+            },
+        )
+    except Exception as e:
+        return handle_error("pages/role.html", {"request": request}, e)
 
 
 # Defining a get view route for showing form to add a new role to the database
@@ -52,13 +55,16 @@ async def get_create_roles(
     current_user: UserModelDB = Depends(current_active_user),
 ):
     # checking the current user as super user
-    if not current_user.is_superuser:
-        raise HTTPException(status_code=403, detail="Not authorized to add roles")
-    # Redirecting to the add role page upon successful role creation
-    return templates.TemplateResponse(
-        "partials/add_role.html",
-        {"request": request},
-    )
+    try:
+        if not current_user.is_superuser:
+            raise HTTPException(status_code=403, detail="Not authorized to add roles")
+        # Redirecting to the add role page upon successful role creation
+        return templates.TemplateResponse(
+            "partials/role/add_role.html",
+            {"request": request},
+        )
+    except Exception as e:
+        return handle_error("partials/role/add_role.html", {"request": request}, e)
 
 
 # Defining a post view route for adding a new role to the database
@@ -76,8 +82,6 @@ async def post_create_roles(
     try:
         form = await request.form()
 
-        # converting form data to dictionary
-        logger.debug(dict(form))
         # Iterate over the form fields and sanitize the values before validating against the Pydantic model
         role_create = RoleCreate(
             role_name=nh3.clean(str(form.get("role_name"))),
@@ -87,7 +91,7 @@ async def post_create_roles(
         existing_role = await role_crud.read_by_column(
             db, "role_name", role_create.role_name
         )
-        logger.debug(existing_role)
+
         if existing_role:
             raise HTTPException(status_code=400, detail="Role name already exists")
         await role_crud.create(dict(role_create), db)
@@ -96,36 +100,12 @@ async def post_create_roles(
         headers = {
             "HX-Location": "/role",
             "HX-Trigger": "roleAdded",
+            "HX-Push-Url": "true",
         }
 
         return HTMLResponse(content="", headers=headers)
-
-    except ValidationError as e:
-        logger.debug(e.errors())
-        return templates.TemplateResponse(
-            "partials/add_role.html",
-            {
-                "request": request,
-                "error_messages": [
-                    f"{str(error['loc']).strip('(),')}: {error['msg']}"
-                    for error in e.errors()
-                ],
-            },
-        )
-    except HTTPException as e:
-        return templates.TemplateResponse(
-            "partials/add_role.html",
-            {"request": request, "error_messages": [e.detail]},
-        )
     except Exception as e:
-        logger.debug(e)
-        return templates.TemplateResponse(
-            "partials/add_role.html",
-            {
-                "request": request,
-                "error_messages": ["An unexpected error occurred: {}".format(e)],
-            },
-        )
+        return handle_error("partials/role/add_role.html", {"request": request}, e)
 
 
 # Defining end point to get the record based on the id
@@ -141,7 +121,7 @@ async def get_role_by_id(
         raise HTTPException(status_code=403, detail="Not authorized to add roles")
     role = await role_crud.read_by_primary_key(db, role_id)
     return templates.TemplateResponse(
-        "partials/edit_role.html",
+        "partials/role/edit_role.html",
         {
             "request": request,
             "role": role,
@@ -177,33 +157,13 @@ async def post_update_role(
         headers = {
             "HX-Location": "/role",
             "HX-Trigger": "roleUpdated",
+            "HX-Boost": "true",
         }
         return HTMLResponse(content="", headers=headers)
-    except ValidationError as e:
-        logger.debug(e.errors())
-        return templates.TemplateResponse(
-            "partials/edit_role.html",
-            {
-                "request": request,
-                "role": await role_crud.read_by_primary_key(db, role_id),
-                "error_messages": [
-                    f"{str(error['loc']).strip('(),')}: {error['msg']}"
-                    for error in e.errors()
-                ],
-            },
-        )
-    except HTTPException as e:
-        return templates.TemplateResponse(
-            "partials/edit_role.html",
-            {"request": request, "error_messages": [e.detail]},
-        )
     except Exception as e:
-        return templates.TemplateResponse(
-            "partials/edit_role.html",
-            {
-                "request": request,
-                "error_messages": ["An unexpected error occurred: {}".format(e)],
-            },
+        role = await role_crud.read_by_primary_key(db, role_id)
+        return handle_error(
+            "partials/role/edit_role.html", {"request": request, "role": role}, e
         )
 
 
@@ -215,12 +175,18 @@ async def delete_role(
     db: CurrentAsyncSession,
     current_user: UserModelDB = Depends(current_active_user),
 ):
-    # checking the current user as super user
-    if not current_user.is_superuser:
-        raise HTTPException(status_code=403, detail="Not authorized to add roles")
-    await role_crud.delete(db, role_id)
-    headers = {
-        "HX-Location": "/role",
-        "HX-Trigger": "roleDeleted",
-    }
-    return HTMLResponse(content="", headers=headers)
+    try:
+        # checking the current user as super user
+        if not current_user.is_superuser:
+            raise HTTPException(
+                status_code=403, detail="Not authorized to delete roles"
+            )
+        await role_crud.delete(db, role_id)
+        headers = {
+            "HX-Location": "/role",
+            "HX-Trigger": "roleDeleted",
+            "HX-Boost": "true",
+        }
+        return HTMLResponse(content="", headers=headers)
+    except Exception as e:
+        return handle_error("pages/role.html", {"request": request}, e)

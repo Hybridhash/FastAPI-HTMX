@@ -1,5 +1,6 @@
 import json
 import uuid
+from urllib.parse import parse_qs, unquote_plus
 
 import nh3
 from fastapi import Depends, HTTPException, Request, Response
@@ -13,6 +14,7 @@ from app.database.db import CurrentAsyncSession
 from app.database.security import current_active_user
 from app.models.groups import Group as GroupModelDB
 from app.models.groups import UserGroupLink as UserGroupLinkModelDB
+from app.models.users import Role as UserRoleModelDB
 from app.models.users import User as UserModelDB
 from app.models.users import UserProfile as UserProfileModelDB
 from app.routes.view.view_crud import SQLAlchemyCRUD
@@ -28,7 +30,7 @@ group_crud = SQLAlchemyCRUD[GroupModelDB](
 )
 user_crud = SQLAlchemyCRUD[UserModelDB](
     UserModelDB,
-    related_models={UserProfileModelDB: "profile"},
+    related_models={UserProfileModelDB: "profile", UserRoleModelDB: "role"},
 )
 
 
@@ -267,6 +269,12 @@ async def delete_group(
     db: CurrentAsyncSession,
     current_user: UserModelDB = Depends(current_active_user),
 ):
+    extra_info = await request.body()
+
+    parsed_values = parse_qs(unquote_plus(extra_info.decode()))
+
+    group_name = parsed_values["group_name"][0]
+
     # checking the current user as super user
     if not current_user.is_superuser:
         raise HTTPException(status_code=403, detail="Not authorized to add groups")
@@ -277,7 +285,7 @@ async def delete_group(
             {
                 "showAlert": {
                     "type": "deleted",
-                    "message": f"Group id: {group_id} deleted successfully",
+                    "message": f"Group : {group_name} deleted successfully",
                 }
             }
         ),
@@ -286,7 +294,7 @@ async def delete_group(
 
 
 """
-Group Users Allocation Routes
+# Group Users Allocation Routes
 """
 
 
@@ -302,21 +310,26 @@ async def get_group_users(
     if not current_user.is_superuser:
         raise HTTPException(status_code=403, detail="Not authorized to add groups")
     group = await group_crud.read_by_primary_key(db, group_id)
-    # users = ["user1", "user2", "user3", "user4", "user5"]
     users = await user_crud.read_all(db, join_relationships=True)
+    group_users = await db.execute(
+        select(UserGroupLinkModelDB).where(UserGroupLinkModelDB.group_id == group_id)
+    )
+    group_users = group_users.unique().scalars().all()
+    await db.close()
+    group_user_ids = [user.user_id for user in group_users]
+
     return templates.TemplateResponse(
         "partials/group/add_group_user.html",
         {
             "request": request,
             "group": group,
             "users": users,
+            "group_user_ids": group_user_ids,
         },
     )
 
 
 # Update the UserGroupLink model based on selected user for a group
-
-
 @group_view_route.post("/post_group_user_link/{group_id}", response_class=HTMLResponse)
 async def post_group_user_link(
     request: Request,
@@ -331,6 +344,11 @@ async def post_group_user_link(
     try:
         form = await request.form()
 
+        all_users = set(form.getlist("all_users"))
+        selected_users = set(form.getlist("users_selected"))
+
+        # Removing the users already selected from the list of all users
+        non_selected_users = all_users - selected_users
         db_data = []
         for user_id in form.getlist("users_selected"):
             group_user_link = GroupUserLinkCreate(
@@ -345,11 +363,26 @@ async def post_group_user_link(
                 )
             )
             if existing_record:
-                print("Record already exists")
+                print(f"Record with {user_id} already exists")
             else:
                 db_data.append(
                     group_user_link.model_dump(exclude={"id"}, exclude_unset=True)
                 )
+        for user_id in non_selected_users:
+            group_user_link = GroupUserLinkCreate(
+                group_id=uuid.UUID(nh3.clean(str(group_id))),
+                user_id=uuid.UUID(nh3.clean(str(user_id))),
+            )
+            group_id = group_user_link.group_id
+            user_id = group_user_link.user_id
+            existing_record = await db.scalar(
+                select(UserGroupLinkModelDB).filter_by(
+                    group_id=group_id, user_id=user_id
+                )
+            )
+            if existing_record:
+                await db.delete(existing_record)
+                await db.commit()
 
         if len(db_data) > 0:
             db.add_all([UserGroupLinkModelDB(**link) for link in db_data])
@@ -360,7 +393,7 @@ async def post_group_user_link(
                 {
                     "showAlert": {
                         "type": "added",
-                        "message": "User allocated successfully",
+                        "message": "User allocated to Group successfully",
                     }
                 }
             ),

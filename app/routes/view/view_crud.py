@@ -211,7 +211,6 @@ class SQLAlchemyCRUD(Generic[ModelType]):
         if db_item:
             await db.delete(db_item)
             await db.commit()
-            await db.refresh(db_item)
             return True
         return False
 

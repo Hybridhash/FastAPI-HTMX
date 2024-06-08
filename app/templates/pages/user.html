@@ -66,6 +66,17 @@ endblock %} {% block content %}
           </p>
         </div>
       </div>
+      {%if error_messages%}
+      <div
+        id="error-message"
+        class="p-4 mb-4 text-sm text-yellow-800 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300"
+        role="alert"
+      >
+        {% for error_message in error_messages %}
+        <span class="font-medium">{{ error_message }}</span>
+        {%endfor%}
+      </div>
+      {% else %}
       <!-- Table for the users extracted from the back end -->
       <div hx-ext="response-targets">
         <div id="create-user-form">
@@ -282,11 +293,11 @@ endblock %} {% block content %}
               {% endfor %}
             </table>
 
-            {% endif %}
+            <!-- {% endif %} -->
           </div>
         </div>
       </div>
-
+      {% endif %}
       <div
         class="flex items-center justify-center h-48 mt-4 mb-4 rounded bg-gray-50 dark:bg-gray-800"
       >

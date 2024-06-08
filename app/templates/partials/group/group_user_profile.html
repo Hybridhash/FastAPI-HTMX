@@ -1,0 +1,7 @@
+{% extends "base/base.html" %} {% block title %} Group | FastAPI HTMX {%
+endblock %} {% block content %}
+<li>
+  {{user_profile.profile.first_name}} {{user_profile.profile.last_name}} |
+  {{user_profile.role.role_name}}
+</li>
+{% endblock %}

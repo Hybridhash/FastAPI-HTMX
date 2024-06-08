@@ -1,25 +1,36 @@
 import json
 import uuid
+from urllib.parse import parse_qs, unquote_plus
 
 import nh3
 from fastapi import Depends, HTTPException, Request, Response
 from fastapi.responses import HTMLResponse
 from fastapi.routing import APIRouter
-from loguru import logger
-from pydantic import ValidationError
+from sqlalchemy import select
 
 from app.database.db import CurrentAsyncSession
 from app.database.security import current_active_user
 from app.models.groups import Group as GroupModelDB
+from app.models.groups import UserGroupLink as UserGroupLinkModelDB
+from app.models.users import Role as UserRoleModelDB
 from app.models.users import User as UserModelDB
+from app.models.users import UserProfile as UserProfileModelDB
+from app.routes.view.errors import handle_error
 from app.routes.view.view_crud import SQLAlchemyCRUD
 from app.schema.group import GroupCreate
+from app.schema.group import GroupUserLink as GroupUserLinkCreate
 from app.templates import templates
 
 group_view_route = APIRouter()
 
 
-group_crud = SQLAlchemyCRUD[GroupModelDB](GroupModelDB)
+group_crud = SQLAlchemyCRUD[GroupModelDB](
+    GroupModelDB, related_models={UserModelDB: "users"}
+)
+user_crud = SQLAlchemyCRUD[UserModelDB](
+    UserModelDB,
+    related_models={UserProfileModelDB: "profile", UserRoleModelDB: "role"},
+)
 
 
 # Defining a route to navigate to the group page
@@ -31,23 +42,43 @@ async def get_groups(
     skip: int = 0,
     limit: int = 100,
 ):
-    if not current_user.is_superuser:
-        # raise HTTPException(status_code=403, detail="Not authorized to add groups")
+    try:
+        if not current_user.is_superuser:
+            raise HTTPException(
+                status_code=403, detail="Not authorized to view this page"
+            )
+        # Access the cookies using the Request object
+        groups = await group_crud.read_all(db, skip, limit, join_relationships=True)
 
         return templates.TemplateResponse(
             "pages/groups.html",
             {
                 "request": request,
-                "error_message": "You are not authorized to view this page",
+                "groups": groups,
             },
         )
-    # Access the cookies using the Request object
-    groups = await group_crud.read_all(db, skip, limit)
+    except Exception as e:
+        return handle_error("pages/groups.html", {"request": request}, e)
+
+
+# Defining a route to get the user profile based on id
+@group_view_route.get("/get_user_profile/{user_id}", response_class=HTMLResponse)
+async def get_user_profile(
+    request: Request,
+    user_id: uuid.UUID,
+    db: CurrentAsyncSession,
+    current_user: UserModelDB = Depends(current_active_user),
+):
+    if not current_user.is_superuser:
+        raise HTTPException(status_code=403, detail="Not authorized to add groups")
+    user_profile = await user_crud.read_by_primary_key(
+        db, user_id, join_relationships=True
+    )
     return templates.TemplateResponse(
-        "pages/groups.html",
+        "partials/group/group_user_profile.html",
         {
             "request": request,
-            "groups": groups,
+            "user_profile": user_profile,
         },
     )
 
@@ -63,7 +94,7 @@ async def get_create_group(
         raise HTTPException(status_code=403, detail="Not authorized to add groups")
     # Redirecting to the add group page upon successful group creation
     return templates.TemplateResponse(
-        "partials/add_group.html",
+        "partials/group/add_group.html",
         {"request": request},
     )
 
@@ -81,7 +112,7 @@ async def get_group_by_id(
         raise HTTPException(status_code=403, detail="Not authorized to add groups")
     group = await group_crud.read_by_primary_key(db, group_id)
     return templates.TemplateResponse(
-        "partials/edit_group.html",
+        "partials/group/edit_group.html",
         {
             "request": request,
             "group": group,
@@ -112,7 +143,7 @@ async def post_create_group(
         existing_group = await group_crud.read_by_column(
             db, "group_name", group_create.group_name
         )
-        logger.debug(existing_group)
+
         if existing_group:
             raise HTTPException(status_code=400, detail="Group name already exists")
         await group_crud.create(dict(group_create), db)
@@ -132,32 +163,8 @@ async def post_create_group(
 
         return HTMLResponse(content="", headers=headers)
 
-    except ValidationError as e:
-        logger.debug(e.errors())
-        return templates.TemplateResponse(
-            "partials/add_group.html",
-            {
-                "request": request,
-                "error_messages": [
-                    f"{str(error['loc']).strip('(),')}: {error['msg']}"
-                    for error in e.errors()
-                ],
-            },
-        )
-    except HTTPException as e:
-        return templates.TemplateResponse(
-            "partials/add_group.html",
-            {"request": request, "error_messages": [e.detail]},
-        )
     except Exception as e:
-        logger.debug(e)
-        return templates.TemplateResponse(
-            "partials/add_group.html",
-            {
-                "request": request,
-                "error_messages": ["An unexpected error occurred: {}".format(e)],
-            },
-        )
+        return handle_error("partials/group/add_group.html", {"request": request}, e)
 
 
 # Route to update a group
@@ -197,31 +204,10 @@ async def post_update_group(
             ),
         }
         return HTMLResponse(content="", headers=headers)
-    except ValidationError as e:
-        logger.debug(e.errors())
-        return templates.TemplateResponse(
-            "partials/edit_group.html",
-            {
-                "request": request,
-                "group": await group_crud.read_by_primary_key(db, group_id),
-                "error_messages": [
-                    f"{str(error['loc']).strip('(),')}: {error['msg']}"
-                    for error in e.errors()
-                ],
-            },
-        )
-    except HTTPException as e:
-        return templates.TemplateResponse(
-            "partials/edit_group.html",
-            {"request": request, "error_messages": [e.detail]},
-        )
     except Exception as e:
-        return templates.TemplateResponse(
-            "partials/edit_group.html",
-            {
-                "request": request,
-                "error_messages": ["An unexpected error occurred: {}".format(e)],
-            },
+        group = await group_crud.read_by_primary_key(db, group_id)
+        return handle_error(
+            "partials/group/edit_group.html", {"request": request, "group": group}, e
         )
 
 
@@ -233,19 +219,144 @@ async def delete_group(
     db: CurrentAsyncSession,
     current_user: UserModelDB = Depends(current_active_user),
 ):
+    try:
+        extra_info = await request.body()
+
+        parsed_values = parse_qs(unquote_plus(extra_info.decode()))
+
+        group_name = parsed_values["group_name"][0]
+
+        # checking the current user as super user
+        if not current_user.is_superuser:
+            raise HTTPException(status_code=403, detail="Not authorized to add groups")
+        await group_crud.delete(db, group_id)
+        headers = {
+            "HX-Location": "/groups",
+            "HX-Trigger": json.dumps(
+                {
+                    "showAlert": {
+                        "type": "deleted",
+                        "message": f"Group : {group_name} deleted successfully",
+                    }
+                }
+            ),
+        }
+        return HTMLResponse(content="", headers=headers)
+    except Exception as e:
+        return handle_error("pages/groups.html", {"request": request}, e)
+
+
+"""
+# Group Users Allocation Routes
+"""
+
+
+# Defining a route getting the page for allocating users to the selected group
+@group_view_route.get("/get_group_users/{group_id}", response_class=HTMLResponse)
+async def get_group_users(
+    request: Request,
+    group_id: uuid.UUID,
+    db: CurrentAsyncSession,
+    current_user: UserModelDB = Depends(current_active_user),
+):
     # checking the current user as super user
     if not current_user.is_superuser:
         raise HTTPException(status_code=403, detail="Not authorized to add groups")
-    await group_crud.delete(db, group_id)
-    headers = {
-        "HX-Location": "/groups",
-        "HX-Trigger": json.dumps(
-            {
-                "showAlert": {
-                    "type": "deleted",
-                    "message": f"Group id: {group_id} deleted successfully",
+    group = await group_crud.read_by_primary_key(db, group_id)
+    users = await user_crud.read_all(db, join_relationships=True)
+    group_users = await db.execute(
+        select(UserGroupLinkModelDB).where(UserGroupLinkModelDB.group_id == group_id)
+    )
+    group_users = group_users.unique().scalars().all()
+    await db.close()
+    group_user_ids = [user.user_id for user in group_users]
+
+    return templates.TemplateResponse(
+        "partials/group/add_group_user.html",
+        {
+            "request": request,
+            "group": group,
+            "users": users,
+            "group_user_ids": group_user_ids,
+        },
+    )
+
+
+# Update the UserGroupLink model based on selected user for a group
+@group_view_route.post("/post_group_user_link/{group_id}", response_class=HTMLResponse)
+async def post_group_user_link(
+    request: Request,
+    response: Response,
+    group_id: uuid.UUID,
+    db: CurrentAsyncSession,
+    current_user: UserModelDB = Depends(current_active_user),
+):
+    # checking the current user as super user
+    if not current_user.is_superuser:
+        raise HTTPException(status_code=403, detail="Not authorized to add groups")
+    try:
+        form = await request.form()
+
+        all_users = set(form.getlist("all_users"))
+        selected_users = set(form.getlist("users_selected"))
+
+        # Removing the users already selected from the list of all users
+        non_selected_users = all_users - selected_users
+        db_data = []
+        for user_id in form.getlist("users_selected"):
+            group_user_link = GroupUserLinkCreate(
+                group_id=uuid.UUID(nh3.clean(str(group_id))),
+                user_id=uuid.UUID(nh3.clean(str(user_id))),
+            )
+            group_id = group_user_link.group_id
+            user_id = group_user_link.user_id
+            existing_record = await db.scalar(
+                select(UserGroupLinkModelDB).filter_by(
+                    group_id=group_id, user_id=user_id
+                )
+            )
+            if existing_record:
+                print(f"Record with {user_id} already exists")
+            else:
+                db_data.append(
+                    group_user_link.model_dump(exclude={"id"}, exclude_unset=True)
+                )
+        for user_id in non_selected_users:
+            group_user_link = GroupUserLinkCreate(
+                group_id=uuid.UUID(nh3.clean(str(group_id))),
+                user_id=uuid.UUID(nh3.clean(str(user_id))),
+            )
+            group_id = group_user_link.group_id
+            user_id = group_user_link.user_id
+            existing_record = await db.scalar(
+                select(UserGroupLinkModelDB).filter_by(
+                    group_id=group_id, user_id=user_id
+                )
+            )
+            if existing_record:
+                await db.delete(existing_record)
+                await db.commit()
+
+        if len(db_data) > 0:
+            db.add_all([UserGroupLinkModelDB(**link) for link in db_data])
+            await db.commit()
+        headers = {
+            "HX-Location": "/groups",
+            "HX-Trigger": json.dumps(
+                {
+                    "showAlert": {
+                        "type": "added",
+                        "message": "User allocated to Group successfully",
+                    }
                 }
-            }
-        ),
-    }
-    return HTMLResponse(content="", headers=headers)
+            ),
+        }
+
+        return HTMLResponse(content="", headers=headers)
+    except Exception as e:
+        group = await group_crud.read_by_primary_key(db, group_id)
+        return handle_error(
+            "partials/group/add_group_user.html",
+            {"request": request, "group": group},
+            e,
+        )

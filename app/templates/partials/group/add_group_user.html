@@ -1,0 +1,67 @@
+{% extends "base/base.html" %} {% block title %}Group Allocation | FastAPI HTMX
+{% endblock %} {% block content %}
+<form
+  id="create-group-form"
+  hx-target="this"
+  hx-post="{{ url_for('post_group_user_link' , group_id = group.id)}}"
+  hx-swap="outerHTML"
+  hx-push-url="true"
+>
+  <div class="mb-6">
+    <input type="hidden" name="group_id" value="{{ group.id }}" />
+    <label
+      for="users-selected"
+      class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+      >Select users for the <b>{{group.group_name}}</b> group</label
+    >
+
+    <div class="overflow-y-auto h-40 border border-gray-300 rounded-lg p-2">
+      {% for user in users %}
+      <div
+        class="flex items-center p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-600"
+      >
+        <input type="hidden" name="all_users" value="{{ user.id }}" />
+        <input
+          id="users_selected"
+          type="checkbox"
+          name="users_selected"
+          value="{{user.id}}"
+          {%if
+          user.id
+          in
+          group_user_ids%}checked{%
+          endif
+          %}
+          class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
+        />
+        <label
+          for="users_selected"
+          class="w-full ms-2 text-sm font-medium text-gray-900 rounded dark:text-gray-300"
+          >{%if user.profile.first_name %} {{user.profile.first_name}}
+          {{user.profile.last_name}} | {{user.role.role_name}} {% else %} User
+          Name Undefined {% endif %}</label
+        >
+      </div>
+      {% endfor %}
+    </div>
+    <!-- </select> -->
+  </div>
+  {% if error_messages %}
+  <div
+    id="error-message"
+    class="p-4 mb-4 text-sm text-yellow-800 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300"
+    role="alert"
+  >
+    {% for error in error_messages %}
+    <span class="font-medium">{{ error }}</span><br />
+    {% endfor %}
+  </div>
+  {% endif %}
+  <button
+    type="submit"
+    class="text-white mt-2 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+  >
+    Add
+  </button>
+</form>
+{% endblock %}

@@ -12,7 +12,7 @@ from sqlalchemy.sql.functions import func
 from sqlalchemy.sql.schema import ForeignKey
 
 from app.models.base import Base, BaseSQLModel
-from app.models.groups import UserGroupLink
+from app.models.groups import Group
 
 
 class User(SQLAlchemyBaseUserTableUUID, Base):
@@ -50,9 +50,11 @@ class User(SQLAlchemyBaseUserTableUUID, Base):
         "UserActivity", back_populates="user"
     )
     # Creating a relationship with the group user link model
-    group_users: Mapped["UserGroupLink"] = relationship(
-        "UserGroupLink",
-        back_populates="user",
+    groups: Mapped["Group"] = relationship(
+        "Group",
+        secondary="group_users",
+        back_populates="users",
+        uselist=True,
     )
 
     # string representation of an object

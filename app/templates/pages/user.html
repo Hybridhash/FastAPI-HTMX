@@ -125,7 +125,9 @@ endblock %} {% block content %}
             <span class="font-medium">{{ error_message }}</span>
           </div>
           {% else %}
-          <div class="relative my-scroll shadow-md sm:rounded-lg">
+          <div
+            class="relative my-scroll overflow-x-auto shadow-md sm:rounded-lg"
+          >
             <table
               class="w-full text-sm text-left text-gray-500 dark:text-gray-400"
             >
@@ -182,14 +184,10 @@ endblock %} {% block content %}
                     {% endif %}
                   </td>
                   <td class="px-6 py-4">
-                    {% if user.role and user.role.role_name %}
-                      {{ user.role.role_name }}
-                    {% else %}
-                        Not Available
-                    {% endif %}
-                     </td>
-
+                    {% if user.role and user.role.role_name %} {{
+                    user.role.role_name }} {% else %} Not Available {% endif %}
                   </td>
+
                   <td class="px-6 py-4">
                     {{ user.created.strftime('%d-%m-%Y')}}
                   </td>
@@ -212,8 +210,6 @@ endblock %} {% block content %}
                       class="absolute z-10 w-64 max-w-sm px-4 py-2 top-1/2 transform -translate-x-full -translate-y-1/2 bg-white border rounded-lg shadow-lg dark:text-gray-400 dark:bg-gray-800 dark:border-gray-600"
                       @mouseenter="openHover = true"
                       @mouseleave="openHover = false"
-                      style="display: none"
-                      :style="{ display: openHover ? 'block' : 'none' }"
                     >
                       <div>
                         <img
@@ -222,12 +218,16 @@ endblock %} {% block content %}
                           alt="{{ user.first_name }}"
                         />
                         <h3>{{ user.profile.name }}</h3>
-                        <p class="font-semibold"">
+                        <p class="font-semibold">
                           {{ user.profile.first_name }} {{
                           user.profile.last_name }}
                         </p>
                         <p>Phone: {{ user.profile.phone }}</p>
-                        <p>Birth Date: {{ user.profile.date_of_birth.strftime('%d %b %Y') if user.profile.date_of_birth else 'Not provided' }}</p>
+                        <p>
+                          Birth Date: {{ user.profile.date_of_birth.strftime('%d
+                          %b %Y') if user.profile.date_of_birth else 'Not
+                          provided' }}
+                        </p>
                         <p>Company: {{ user.profile.company }}</p>
                         <!-- More user details -->
                       </div>

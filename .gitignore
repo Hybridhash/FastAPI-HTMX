@@ -261,3 +261,5 @@ pip-selfcheck.json
 app/migrations/versions/*
 !app/migrations/versions/de35d92e5baa_init.py
 # End of https://www.toptal.com/developers/gitignore/api/macos,git,python,visualstudiocode,database,virtualenv
+
+app/static/minio_server/*

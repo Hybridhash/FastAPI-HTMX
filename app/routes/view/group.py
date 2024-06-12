@@ -55,6 +55,7 @@ async def get_groups(
             {
                 "request": request,
                 "groups": groups,
+                "user_type": current_user.is_superuser,
             },
         )
     except Exception as e:

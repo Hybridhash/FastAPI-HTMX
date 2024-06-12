@@ -42,6 +42,7 @@ async def get_role(
             {
                 "request": request,
                 "roles": roles,
+                "user_type": current_user.is_superuser,
             },
         )
     except Exception as e:

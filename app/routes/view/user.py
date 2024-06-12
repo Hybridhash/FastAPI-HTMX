@@ -67,6 +67,7 @@ async def get_users(
             {
                 "request": request,
                 "users": users,
+                "user_type": current_user.is_superuser,
             },
         )
     except Exception as e:

@@ -2,10 +2,10 @@
   <img src="static/img/logo/logo.png" alt="Project Logo" width="200"/>
 </p>
 
-<h1 align="center">FASTAPI HTMX</h1>
+<h1 align="center">FastAPI HTMX</h1>
 
 <p align="center">
-  Web App providing boilerplate implementation for user management, roles, groups, and CRUD operations using  HTMX, FASTAPI and AlpineJS for rapid prototyping and without worrying for the user management.
+  Web App providing boilerplate implementation for user management, roles, groups, and CRUD operations using  HTMX, FastAPI and AlpineJS for rapid prototyping and without worrying for the user management.
 </p>
 
 ## External Libraries Used
@@ -37,11 +37,12 @@ This project leverages several external libraries to provide a robust and effici
 
 ## To-Do (Future Enhancements)
 
-- Implement real-time notifications
-- Add support for multiple languages
-- Integrate with third-party services (e.g., Slack, Trello)
-- Enhance the UI/UX with more interactive elements
-- Implement comprehensive unit and integration tests
+- Implement a rate limiter to prevent abuse and ensure fair usage
+- Integrate MinIO object storage for efficient file saving and management
+- Add functionality to allow users to update their passwords
+- Implement a password reset feature on the login page
+- Develop a logging service to track and analyze user activity
+- Implement CSRF protection to enhance security
 
 ## Setting Up the Project
 
@@ -103,6 +104,12 @@ Replace `your_secret_key` with a strong secret key for your application.
 ## Contributing
 
 Contributions are welcome! Please open an issue or submit a pull request for any changes.
+
+## ER Diagram
+
+Here's the Entity-Relationship (ER) diagram for database:
+
+![ER Diagram](app/static/img/logo/er_diagram.png)
 
 ## License
 

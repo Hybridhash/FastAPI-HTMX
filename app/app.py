@@ -2,6 +2,7 @@ from fastapi import Depends, FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
 from loguru import logger
 
+from app.core.minio import minio
 from app.database.db import User, create_db_and_tables
 from app.database.security import auth_backend, current_active_user, fastapi_users
 from app.exception import http_exception_handler
@@ -62,6 +63,7 @@ async def on_startup():
     # Not needed if you setup a migration system like Alembic
     await create_db_and_tables()
     # await create_superuser()
+    await minio.create_bucket()
 
 
 # @app.exception_handler(HTTPException)

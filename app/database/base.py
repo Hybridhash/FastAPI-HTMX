@@ -24,6 +24,7 @@ async_session_maker = async_sessionmaker(engine, expire_on_commit=False)
 
 def init_models():
     from ..models.groups import Group, Permission, UserGroupLink  # noqa: F401
+    from ..models.uploads import Uploads  # noqa: F401
     from ..models.users import Role, User, UserActivity  # noqa: F401
 
 

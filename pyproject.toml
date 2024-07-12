@@ -17,6 +17,7 @@ httpx = "^0.25.0"
 nh3 = "^0.2.14"
 alembic = "^1.13.1"
 pydantic-settings = "^2.2.1"
+minio = "^7.2.7"
 
 
 [tool.poetry.group.dev.dependencies]

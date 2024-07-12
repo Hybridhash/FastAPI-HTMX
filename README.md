@@ -84,7 +84,29 @@ Replace `your_secret_key` with a strong secret key for your application.
    alembic upgrade head
    ```
 
-4. **Start the application:**
+4. **Run database migrations:**
+
+   ```sh
+   alembic revision --autogenerate -m "Initial migration"
+   ```
+
+5. **Insert Required import in Migration File:**
+
+   After generating the initial migration, open the newly created revision file in app/migrations/versions/ and add the following imports at the top of the file:
+
+   ```sh
+   import fastapi_users_db_sqlalchemy.generics
+   import app.models.groups
+
+   ```
+
+6. **Apply the changes:**
+
+   ```sh
+   alembic upgrade head
+   ```
+
+7. **Start the application:**
    If you are using `poetry`, run:
 
    ```sh
@@ -97,8 +119,46 @@ Replace `your_secret_key` with a strong secret key for your application.
    uvicorn main:app --reload
    ```
 
-5. **Access the application:**
+8. **Access the application:**
    Open your web browser and navigate to `http://127.0.0.1:8000`.
+
+## Updating Model References in `init_models`
+
+When you define a new model in your application, it's essential to update the `init_models` function to ensure that Alembic can detect and generate migrations for this new model correctly. This step is crucial for maintaining the integrity of your database schema and ensuring that all models are correctly versioned.
+
+### Steps to Update `init_models`
+
+1. **Locate `init_models` Function**: Open the `base.py` file in app/models/base.py. This file contains the `init_models` function, which is responsible for importing all the models in your application.
+
+2. **Add New Model Import**: Once you have defined a new model in your application, you need to import it in the `init_models` function. Ensure that you follow the existing import structure. For example, if your new model is `Invoice` and it's located in the `models.financial` module, you would add the following line:
+
+   ```python
+   from ..models.financial import Invoice  # noqa: F401
+   ```
+
+   The `# noqa: F401` comment at the end of the import statement tells the linter to ignore the "imported but unused" warning, as the import is necessary for Alembic to detect and generate migrations for the model.
+
+3. **Follow Import Conventions**: If you have multiple models in the same module, you can import them in a single line to keep the `init_models` function organized. For example:
+
+   ```python
+   from ..models.financial import Invoice, Payment, Transaction  # noqa: F401
+   ```
+
+4. **Save Changes**: After adding the import statement for your new model, save the changes to the `base.py` file.
+
+5. **Generate Alembic Migration**: With the new model imported in the `init_models` function, you can now generate an Alembic migration script that includes this model. Run the Alembic command to autogenerate a migration:
+
+   ```bash
+   alembic revision --autogenerate -m "Added new model Invoice"
+   ```
+
+6. **Review and Apply Migration**: Always review the generated migration script to ensure it accurately represents the changes to your models. After reviewing, apply the migration to update your database schema:
+
+   ```bash
+   alembic upgrade head
+   ```
+
+By following these steps, you ensure that your new models are correctly integrated into your application's database schema management process.
 
 ## Contributing
 

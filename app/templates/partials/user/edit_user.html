@@ -17,8 +17,8 @@
     >
     <input
       type="text"
-      id="first_name""
-      name="first_name""
+      id="first_name"
+      name="first_name"
       class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light"
       placeholder="First Name"
       value="{{ user.profile.first_name |e}}"
@@ -118,21 +118,13 @@
     />
   </div>
 
+  
   <div class="mb-6">
-    <label
-      for="phone"
-      class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-      >Phone</label
-    >
-    <input
-      type="text"
-      id="phone"
-      name="phone"
-      placeholder="Mobile Number"
-      value="{{ user.profile.phone | e}}"
-      class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light"
-
-    />
+    <label for="phone" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Phone number:</label>
+    <div class="relative">
+      <input type="text" value="{{ user.profile.phone | e}}" name="phone" id="phone" aria-describedby="helper-text-explanation" class=" bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-20 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" pattern="^(\+?1?\s*?\(?\d{3}[\)\-\s]?\d{3}[\-\s]?\d{4}|\+?\d{2}?\s?\d{4}\s?\d{6})$" placeholder="USA: (123) 456-7890 or UK: 01234 567890 or Australia: 0412 345 678" required />  
+    </div>
+  <p id="helper-text-explanation" class="mt-2 text-sm text-gray-500 dark:text-gray-400">Select a phone number that matches the format.</p>
   </div>
 
   <div class="mb-6">

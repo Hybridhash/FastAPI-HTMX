@@ -26,11 +26,15 @@
   class="fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full sm:translate-x-0"
   aria-label="Sidebar"
 >
+  {% if user_type == True %}
   <div class="h-full px-3 py-4 overflow-y-auto bg-indigo-100 dark:bg-gray-800">
     <ul class="space-y-2 font-medium">
       <li>
         <a
           href="#"
+          hx-get="{{ url_for('get_dashboard') }}"
+          hx-target="#dashboard-body"
+          hx-swap="outerHTML"
           class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
         >
           <svg
@@ -73,7 +77,7 @@
           <span class="flex-1 ml-3 whitespace-nowrap">Role</span>
         </a>
       </li>
-      <li>
+      <!-- <li>
         <a
           href="#"
           class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
@@ -95,7 +99,7 @@
             >3</span
           >
         </a>
-      </li>
+      </li> -->
       <li>
         <a
           href="#"
@@ -176,7 +180,7 @@
           >
         </a>
       </li>
-      <li>
+      <!-- <li>
         <a
           href="#"
           class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
@@ -199,6 +203,83 @@
             />
           </svg>
           <span class="flex-1 ml-3 whitespace-nowrap">Sign Up</span>
+        </a>
+      </li> -->
+    </ul>
+
+    <div
+      id="dropdown-cta"
+      class="p-4 mt-6 rounded-lg bg-blue-50 dark:bg-blue-900"
+      role="alert"
+    >
+      <div class="flex items-center mb-3">
+        <span
+          class="bg-orange-100 text-orange-800 text-sm font-semibold mr-2 px-2.5 py-0.5 rounded dark:bg-orange-200 dark:text-orange-900"
+          >Beta</span
+        >
+        <button
+          type="button"
+          class="ml-auto -mx-1.5 -my-1.5 bg-blue-50 inline-flex justify-center items-center w-6 h-6 text-blue-900 rounded-lg focus:ring-2 focus:ring-blue-400 p-1 hover:bg-blue-200 h-6 w-6 dark:bg-blue-900 dark:text-blue-400 dark:hover:bg-blue-800"
+          data-dismiss-target="#dropdown-cta"
+          aria-label="Close"
+        >
+          <span class="sr-only">Close</span>
+          <svg
+            class="w-2.5 h-2.5"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 14 14"
+          >
+            <path
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+            />
+          </svg>
+        </button>
+      </div>
+      <p class="mb-3 text-justify text-sm text-blue-800 dark:text-blue-400">
+        The admin dashboard is currently in a beta testing phase, which means
+        that it is not yet fully released and may contain bugs or issues. As a
+        user, you are encouraged to report any bugs or issues that you encounter
+        while using the dashboard.
+      </p>
+    </div>
+  </div>
+  {%else%}
+  <div class="h-full px-3 py-4 overflow-y-auto bg-indigo-100 dark:bg-gray-800">
+    <ul class="space-y-2 font-medium">
+      <li>
+        <a
+          href="#"
+          class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
+        >
+          <svg
+            class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 18 16"
+          >
+            <path
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M1 8h11m0 0L8 4m4 4-4 4m4-11h3a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-3"
+            />
+          </svg>
+          <span
+            _='on click
+            add @disabled
+            fetch /auth/jwt/logout as JSON with method:"POST" log result
+            go to url http:/login'
+            class="flex-1 ml-3 whitespace-nowrap"
+            >Log Out</span
+          >
         </a>
       </li>
     </ul>
@@ -244,4 +325,6 @@
       </p>
     </div>
   </div>
+
+  {%endif%}
 </aside>

@@ -50,3 +50,14 @@ class GroupCreate(GroupBase):
 
 class GroupUpdate(GroupBase):
     pass
+
+
+class GroupUserLink(BaseModel):
+    group_id: UUID4 = Field(
+        default_factory=uuid.uuid4,
+        title="Role ID",
+        description="Role ID",
+    )
+    user_id: UUID4 = Field(
+        default_factory=uuid.uuid4, title="User ID", description="User ID"
+    )

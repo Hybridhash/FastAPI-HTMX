@@ -8,14 +8,13 @@ import nh3
 from fastapi import Depends, HTTPException, Request, Response
 from fastapi.responses import HTMLResponse
 from fastapi.routing import APIRouter
-from loguru import logger
-from pydantic import ValidationError
 
 from app.database.db import CurrentAsyncSession
 from app.database.security import current_active_user
 from app.models.users import Role as RoleModelDB
 from app.models.users import User as UserModelDB
 from app.models.users import UserProfile as UserProfileModelDB
+from app.routes.view.errors import handle_error
 from app.routes.view.view_crud import SQLAlchemyCRUD
 from app.schema.users import ProfileUpdate
 
@@ -43,7 +42,7 @@ async def get_users(
     current_user: UserModelDB = Depends(current_active_user),
 ):
     """
-    This function is used to get the create user page.
+    Route handler function to get the create user page.
 
     Args:
         request (Request): The request object.
@@ -55,18 +54,24 @@ async def get_users(
     Raises:
         HTTPException: If the current user is not a superuser, with a 403 Forbidden status code.
     """
-    if not current_user.is_superuser:
-        raise HTTPException(status_code=403, detail="Not authorized to add users")
-    # Access the cookies using the Request object
-    users = await user_crud.read_all(db, skip, limit, join_relationships=True)
+    try:
+        if not current_user.is_superuser:
+            raise HTTPException(
+                status_code=403, detail="Not authorized to view this page"
+            )
+        # Access the cookies using the Request object
+        users = await user_crud.read_all(db, skip, limit, join_relationships=True)
 
-    return templates.TemplateResponse(
-        "pages/user.html",
-        {
-            "request": request,
-            "users": users,
-        },
-    )
+        return templates.TemplateResponse(
+            "pages/user.html",
+            {
+                "request": request,
+                "users": users,
+                "user_type": current_user.is_superuser,
+            },
+        )
+    except Exception as e:
+        return handle_error("pages/user.html", {"request": request}, e)
 
 
 @user_view_route.get("/get_create_users", response_class=HTMLResponse)
@@ -75,21 +80,29 @@ async def get_create_users(
     current_user: UserModelDB = Depends(current_active_user),
 ):
     """
-    Used to get the create user page.
+    Route handler function to render the template for creating a new user.
 
-    :param request: The request object
-    :param current_user: The current user
-    :return: The create roles page
+    Args:
+        request (Request): The incoming HTTP request object.
+        current_user (UserModelDB): The currently authenticated user object, obtained from the current_active_user dependency.
 
+    Returns:
+        TemplateResponse: The rendered HTML template for creating a new user.
+
+    Raises:
+        HTTPException: If the current user is not a superuser, with a 403 Forbidden status code and a detail message.
     """
     # checking the current user as super user
-    if not current_user.is_superuser:
-        raise HTTPException(status_code=403, detail="Not authorized to add users")
-    # Redirecting to the add role page upon successful role creation
-    return templates.TemplateResponse(
-        "partials/add_user.html",
-        {"request": request},
-    )
+    try:
+        if not current_user.is_superuser:
+            raise HTTPException(status_code=403, detail="Not authorized to add users")
+        # Redirecting to the add role page upon successful role creation
+        return templates.TemplateResponse(
+            "partials/user/add_user.html",
+            {"request": request},
+        )
+    except Exception as e:
+        return handle_error("partials/user/add_user.html", {"request": request}, e)
 
 
 # Defining end point to get the record based on the id
@@ -102,20 +115,32 @@ async def get_user_by_id(
     skip: int = 0,
     limit: int = 100,
 ):
-    roles = await role_crud.read_all(db, skip, limit)
-    # checking the current user as super user
-    if not current_user.is_superuser:
-        raise HTTPException(status_code=403, detail="Not authorized to add roles")
-    user = await user_crud.read_by_primary_key(db, user_id, join_relationships=True)
-    logger.debug(user)
-    return templates.TemplateResponse(
-        "partials/user/edit_user.html",
-        {
-            "request": request,
-            "user": user,
-            "roles": roles,
-        },
-    )
+    try:
+        roles = await role_crud.read_all(db, skip, limit)
+        # checking the current user as super user
+        if not current_user.is_superuser:
+            raise HTTPException(
+                status_code=403, detail="Not authorized to view this page"
+            )
+        user = await user_crud.read_by_primary_key(db, user_id, join_relationships=True)
+        return templates.TemplateResponse(
+            "partials/user/edit_user.html",
+            {
+                "request": request,
+                "user": user,
+                "roles": roles,
+            },
+        )
+    except Exception as e:
+        return handle_error(
+            "partials/user/edit_user.html",
+            {
+                "request": request,
+                "user": user,
+                "roles": roles,
+            },
+            e,
+        )
 
 
 # Defining a endpoint to update the record based on the id
@@ -127,7 +152,6 @@ async def post_update_user(
     db: CurrentAsyncSession,
     current_user: UserModelDB = Depends(current_active_user),
 ):
-    logger.debug(current_user)
     # checking the current user as super user
     if not current_user.is_superuser:
         raise HTTPException(status_code=403, detail="Not authorized to add users")
@@ -152,6 +176,11 @@ async def post_update_user(
 
         role_id = (nh3.clean(str(form.get("role_id"))),)
         role_id = uuid.UUID(role_id[0]) if role_id[0] else None
+
+        if role_id is None:
+            raise HTTPException(
+                status_code=400, detail="Role is required to create a user Profile"
+            )
 
         # Fetch the user being updated
         user_to_update = await user_crud.read_by_primary_key(db, user_id)
@@ -188,41 +217,15 @@ async def post_update_user(
                 "HX-Trigger": "roleUpdated",
             }
             return HTMLResponse(content="", headers=headers)
-
-    except ValidationError as e:
-        logger.debug(e.errors())
-        return templates.TemplateResponse(
-            "partials/user/edit_user.html",
-            {
-                "request": request,
-                "user": await user_crud.read_by_primary_key(
-                    db, user_id, join_relationships=True
-                ),
-                "error_messages": [
-                    f"{str(error['loc']).strip('(),')}: {error['msg']}"
-                    for error in e.errors()
-                ],
-            },
-        )
-    except HTTPException as e:
-        return templates.TemplateResponse(
-            "partials/user/edit_user.html",
-            {
-                "request": request,
-                "error_messages": [e.detail],
-                "user": await user_crud.read_by_primary_key(
-                    db, user_id, join_relationships=True
-                ),
-            },
-        )
     except Exception as e:
-        return templates.TemplateResponse(
+        user = await user_crud.read_by_primary_key(db, user_id, join_relationships=True)
+        roles = await role_crud.read_all(db)
+        return handle_error(
             "partials/user/edit_user.html",
             {
                 "request": request,
-                "user": await user_crud.read_by_primary_key(
-                    db, user_id, join_relationships=True
-                ),
-                "error_messages": ["An unexpected error occurred: {}".format(e)],
+                "user": user,
+                "roles": roles,
             },
+            e,
         )

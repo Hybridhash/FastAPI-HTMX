@@ -27,6 +27,7 @@ async def get_dashboard(
             "title": "My Web Page",
             "message": f"Welcome to my web page!{user.email}",
             "cookie_value": cookie_value,
+            "user_type": user.is_superuser,
         },
     )
 

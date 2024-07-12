@@ -158,7 +158,30 @@ When you define a new model in your application, it's essential to update the `i
    alembic upgrade head
    ```
 
-By following these steps, you ensure that your new models are correctly integrated into your application's database schema management process.
+## Project Structure
+
+Below is an overview of the project structure for application. This structure is designed to organize the application's components logically, making it easier to navigate and maintain.
+
+FastAPI-HTMX/
+├── app/
+│ ├── core/ # Core application logic and utilities
+│ ├── database/ # Database configurations and connections
+│ ├── migrations/ # Alembic migration scripts
+│ ├── models/ # SQLAlchemy ORM models
+│ ├── routes/ # API route definitions
+│ │ ├── api/ # API endpoints
+│ │ └── view/ # View routes for web interface
+│ │ └── view_crud.py # SQLAlchemyCRUD class for database operations
+│ ├── schema/ # Pydantic schemas for data validation
+│ │ └── pydantic_base.py # Pydantic partial model decorator
+│ ├── static/ # Static files (CSS, JS, images)
+│ └── templates/ # Jinja2 HTML templates
+├── tests/ # Unit and integration tests
+├── alembic.ini # Alembic configuration file
+├── main.py # Application entry point
+├── poetry.lock # Poetry lock file for dependencies
+├── pyproject.toml # Project configuration and dependencies
+└── README.md # Project documentation
 
 ## Contributing
 

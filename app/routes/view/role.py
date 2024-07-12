@@ -76,8 +76,6 @@ async def post_create_roles(
     try:
         form = await request.form()
 
-        # converting form data to dictionary
-        logger.debug(dict(form))
         # Iterate over the form fields and sanitize the values before validating against the Pydantic model
         role_create = RoleCreate(
             role_name=nh3.clean(str(form.get("role_name"))),
@@ -87,7 +85,7 @@ async def post_create_roles(
         existing_role = await role_crud.read_by_column(
             db, "role_name", role_create.role_name
         )
-        logger.debug(existing_role)
+
         if existing_role:
             raise HTTPException(status_code=400, detail="Role name already exists")
         await role_crud.create(dict(role_create), db)

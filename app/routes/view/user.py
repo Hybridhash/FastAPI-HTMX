@@ -226,23 +226,3 @@ async def post_update_user(
                 "error_messages": ["An unexpected error occurred: {}".format(e)],
             },
         )
-
-
-# # Defining a route to delete the record based on the id
-# @user_view_route.delete("/delete_role/{role_id}", response_class=HTMLResponse)
-# async def delete_role(
-#     request: Request,
-#     role_id: uuid.UUID,
-#     db: CurrentAsyncSession,
-#     current_user: UserModelDB = Depends(current_active_user),
-# ):
-#     # checking the current user as super user
-#     if not current_user.is_superuser:
-#         raise HTTPException(status_code=403, detail="Not authorized to add roles")
-#     await role_crud.delete(db, role_id)
-#     headers = {
-#         "HX-Location": "/role",
-#         "HX-Trigger": "roleDeleted",
-#     }
-#     return HTMLResponse(content="", headers=headers)
-#     return HTMLResponse(content="", headers=headers)

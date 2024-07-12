@@ -1,4 +1,3 @@
-
 import os
 import uuid
 from typing import Optional
@@ -23,7 +22,9 @@ load_dotenv()
 
 SECRET: str = os.getenv("AUTH_SECRET", "my_default_secret_key")
 
-logger.critical("The SECRET key is being logged! Remove this before deploying to production.")
+logger.critical(
+    "The SECRET key is being logged! Remove this before deploying to production."
+)
 logger.critical(SECRET)
 
 
@@ -61,8 +62,10 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
             [self.verification_token_audience],
         )
 
+
 async def get_user_manager(user_db: SQLAlchemyUserDatabase = Depends(get_user_db)):
     yield UserManager(user_db)
+
 
 cookie_transport = CookieTransport(cookie_max_age=3600)
 bearer_transport = BearerTransport(tokenUrl="auth/jwt/login")
@@ -79,13 +82,15 @@ auth_backend = AuthenticationBackend(
 )
 
 
-async def verify_jwt(jwt_token: str, user_db: SQLAlchemyUserDatabase = Depends(get_user_db)) -> bool:
+async def verify_jwt(
+    jwt_token: str, user_db: SQLAlchemyUserDatabase = Depends(get_user_db)
+) -> bool:
     """
     Verifies the given JWT token by decoding it and checking its validity.
 
     Args:
         jwt_token (str): The JWT token to be verified.
-        user_db (SQLAlchemyUserDatabase, optional): The user database to use for verification. 
+        user_db (SQLAlchemyUserDatabase, optional): The user database to use for verification.
                                                     Defaults to Depends(get_user_db).
 
     Returns:
@@ -105,19 +110,6 @@ async def verify_jwt(jwt_token: str, user_db: SQLAlchemyUserDatabase = Depends(g
     return isTokenValid
 
 
-
 fastapi_users = FastAPIUsers[User, uuid.UUID](get_user_manager, [auth_backend])
 
 current_active_user = fastapi_users.current_user(active=True)
-
-# try:
-#     logger.info ("Trying to access the protected route")    
-#     user = Depends(current_active_user)
-#     if user.status_code == 401:
-#         logger.info("Unauthorized access attempt")
-#         logger.error("Unauthorized access attempt")
-# except HTTPException as e:
-#     logger.info("Unauthorized access attempt")
-#     if e.status_code == 401:
-#         logger.error("Unauthorized access attempt")
-

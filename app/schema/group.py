@@ -50,18 +50,3 @@ class GroupCreate(GroupBase):
 
 class GroupUpdate(GroupBase):
     pass
-
-
-# class CreateUpdateDictModel(BaseModel):
-#     def create_update_dict(self):
-#         return model_dump(
-#             self,
-#             exclude_unset=True,
-#             exclude={
-#                 "id",
-#                 "is_superuser",
-#                 "is_active",
-#                 "is_verified",
-#                 "oauth_accounts",
-#             },
-#         )

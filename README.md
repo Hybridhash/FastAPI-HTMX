@@ -44,6 +44,12 @@ This project leverages several external libraries to provide a robust and effici
 - Develop a logging service to track and analyze user activity
 - Implement CSRF protection to enhance security
 
+## Demo 
+
+<p align="center">
+  <img src=app/static/img/logo/FastAPI-HTMX.gif>
+</p>
+
 ## Setting Up the Project
 
 ### Creating the `.env` File

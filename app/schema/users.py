@@ -178,18 +178,3 @@ class ProfileBase(BaseModel):
 
 # Pydantic model to update the role
 ProfileUpdate = pydantic_partial(exclude_fields=["user_id"])(ProfileBase)
-
-
-# class CreateUpdateDictModel(BaseModel):
-#     def create_update_dict(self):
-#         return model_dump(
-#             self,
-#             exclude_unset=True,
-#             exclude={
-#                 "id",
-#                 "is_superuser",
-#                 "is_active",
-#                 "is_verified",
-#                 "oauth_accounts",
-#             },
-#         )

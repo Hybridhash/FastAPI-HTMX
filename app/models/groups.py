@@ -1,14 +1,8 @@
-# from fastapi import Depends
-
 from sqlalchemy import UUID, Enum, String
-
-# from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql.schema import ForeignKey
 
 from app.models.base import BaseSQLModel
-
-# from app.models.users import User
 
 
 class Permission(Enum):

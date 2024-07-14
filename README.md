@@ -1,11 +1,11 @@
 <p align="center">
-  <img src="static/img/logo/logo.png" alt="Project Logo" width="200"/>
+  <img src="static/img/logo/logo.jpg" alt="Project Logo" width="200"/>
 </p>
 
-<h1 align="center">FASTAPI HTMX</h1>
+<h1 align="center">FastAPI HTMX</h1>
 
 <p align="center">
-  Web App providing boilerplate implementation for user management, roles, groups, and CRUD operations using  HTMX, FASTAPI and AlpineJS for rapid prototyping and without worrying for the user management.
+  Web App providing boilerplate implementation for user management, roles, groups, and CRUD operations using  HTMX, FastAPI and AlpineJS for rapid prototyping and without worrying for the user management.
 </p>
 
 ## External Libraries Used
@@ -32,16 +32,17 @@ This project leverages several external libraries to provide a robust and effici
 - Group Management
 - Dashboard for managing users, roles, and groups
 - RESTful API endpoints for CRUD operations
-- HTML templates for web interface
+- HTML templates for the web interface
 - Database migrations with Alembic
 
 ## To-Do (Future Enhancements)
 
-- Implement real-time notifications
-- Add support for multiple languages
-- Integrate with third-party services (e.g., Slack, Trello)
-- Enhance the UI/UX with more interactive elements
-- Implement comprehensive unit and integration tests
+- Implement a rate limiter to prevent abuse and ensure fair usage
+- Integrate MinIO object storage for efficient file saving and management
+- Add functionality to allow users to update their passwords
+- Implement a password reset feature on the login page
+- Develop a logging service to track and analyze user activity
+- Implement CSRF protection to enhance security
 
 ## Setting Up the Project
 
@@ -124,11 +125,11 @@ Replace `your_secret_key` with a strong secret key for your application.
 
 ## Updating Model References in `init_models`
 
-When you define a new model in your application, it's essential to update the `init_models` function to ensure that Alembic can detect and generate migrations for this new model correctly. This step is crucial for maintaining the integrity of your database schema and ensuring that all models are correctly versioned.
+When you define a new **Database model** in your application, it's essential to update the `init_models` function to ensure that Alembic can detect and generate migrations for this new model correctly. This step is crucial for maintaining the integrity of your database schema and ensuring that all models are correctly versioned.
 
 ### Steps to Update `init_models`
 
-1. **Locate `init_models` Function**: Open the `base.py` file in app/models/base.py. This file contains the `init_models` function, which is responsible for importing all the models in your application.
+1. **Locate `init_models` Function**: Open the `base.py` file in `app/models/base.py`. This file contains the `init_models` function, which is responsible for importing all the models in your application.
 
 2. **Add New Model Import**: Once you have defined a new model in your application, you need to import it in the `init_models` function. Ensure that you follow the existing import structure. For example, if your new model is `Invoice` and it's located in the `models.financial` module, you would add the following line:
 
@@ -162,6 +163,7 @@ When you define a new model in your application, it's essential to update the `i
 
 Below is an overview of the project structure for application. This structure is designed to organize the application's components logically, making it easier to navigate and maintain.
 
+```bash
 FastAPI-HTMX/
 ├── app/
 │ ├── core/ # Core application logic and utilities
@@ -182,6 +184,13 @@ FastAPI-HTMX/
 ├── poetry.lock # Poetry lock file for dependencies
 ├── pyproject.toml # Project configuration and dependencies
 └── README.md # Project documentation
+```
+
+## ER Diagram
+
+Here's the Entity-Relationship (ER) diagram for database:
+
+![ER Diagram](app/static/img/logo/er_diagram.png)
 
 ## Contributing
 

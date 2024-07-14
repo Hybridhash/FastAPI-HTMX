@@ -13,9 +13,11 @@ from sqlalchemy.sql.schema import ForeignKey
 
 from app.models.base import Base, BaseSQLModel
 from app.models.groups import Group
+from app.models.uploads import Uploads
 
 
 class User(SQLAlchemyBaseUserTableUUID, Base):
+
     __tablename__ = "users"
     created: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
@@ -55,6 +57,12 @@ class User(SQLAlchemyBaseUserTableUUID, Base):
         secondary="group_users",
         back_populates="users",
         uselist=True,
+    )
+    # Creating a relationship with the uploads model
+    uploads: Mapped[Uploads] = relationship(
+        "Uploads",
+        back_populates="user",
+        cascade="all, delete",
     )
 
     # string representation of an object

@@ -8,9 +8,10 @@ from app.database.security import auth_backend, current_active_user, fastapi_use
 from app.exception import http_exception_handler
 from app.routes.view.group import group_view_route
 
-# importing the user role route
+# importing the route
 from app.routes.view.login import login_view_route
 from app.routes.view.role import role_view_route
+from app.routes.view.uploads import uploads_view_route
 from app.routes.view.user import user_view_route
 from app.schema.users import UserCreate, UserRead, UserUpdate
 
@@ -43,13 +44,12 @@ app.include_router(
     tags=["users"],
 )
 
-# User
-# app.include_router(role_router)
 
 app.include_router(login_view_route, tags=["Pages", "Authentication/Create"])
 app.include_router(role_view_route, tags=["Pages", "Role"])
 app.include_router(group_view_route, tags=["Pages", "Group"])
 app.include_router(user_view_route, tags=["Pages", "User"])
+app.include_router(uploads_view_route, tags=["Pages", "Uploads"])
 
 
 @app.get("/authenticated-route")
@@ -64,23 +64,9 @@ async def on_startup():
     await create_db_and_tables()
     # await create_superuser()
     await minio.create_bucket()
+    logger.info("Application started")
 
 
-# @app.exception_handler(HTTPException)
-# async def http_exception_handler(request: Request, exc: HTTPException):
-#     if exc.status_code == HTTP_401_UNAUTHORIZED:
-#         return RedirectResponse('/login')
-#     return exc
-
-# @app.exception_handler(HTTPException)
-# async def http_exception_handler(request: Request, exc: HTTPException):
-#     if exc and exc.status_code == 401:
-#         return RedirectResponse("/login")
-#     # elif exc:
-#     #     # return await templates.TemplateResponse("error.html", {"request": request, "error": exc})
-#     #     pass
-#     else:
-#         route = request.scope.get("path")
-#         method = request.scope.get("method")
-#         logger.error(f"Error in route {method} {route}: {exc.detail} : {exc.status_code}")
-#         return Response(status_code=200)
+@app.on_event("shutdown")
+async def on_shutdown():
+    logger.info("Application shutdown")

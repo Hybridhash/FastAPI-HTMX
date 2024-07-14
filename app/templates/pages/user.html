@@ -281,9 +281,8 @@ endblock %} {% block content %}
                   <td class="pr-3 py-4 text-right">
                     <a
                       href="#"
-                      hx-swap="outerHTML"
-                      hx-target="#user-page"
                       hx-confirm="Are you sure you want to delete this user? "
+                      @click.prevent="deleteUser('{{ user.id }}', '{{token}}')"
                       class="font-medium text-red-600 dark:text-red-500 hover:underline"
                       >Delete</a
                     >
@@ -544,6 +543,33 @@ endblock %} {% block content %}
     add .hidden to #user-deleted
   end
 </script>
+
+<script>
+  function deleteUser(userId, authToken) {
+    fetch(`/users/${userId}`, {
+      method: "DELETE",
+      headers: {
+        accept: "*/*",
+        Authorization: `Bearer ${authToken}`, // Use Authorization header with Bearer scheme
+      },
+      // Consider removing credentials: 'include' if JWT is the primary authentication method
+      // credentials: 'include'
+    })
+      .then((response) => {
+        if (response.status === 204) {
+          // Successful deletion
+          window.location.reload();
+        } else {
+          // Handle error (consider user-friendly messages)
+          console.error("Failed to delete user:", response.statusText);
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  }
+</script>
+
 {% endblock %}
 
 <style>

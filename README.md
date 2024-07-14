@@ -34,15 +34,20 @@ This project leverages several external libraries to provide a robust and effici
 - RESTful API endpoints for CRUD operations
 - HTML templates for web interface
 - Database migrations with Alembic
+- Unified error handling approach.
 
 ## To-Do (Future Enhancements)
 
+- Implement Theming using Flowbite and Tailwind
+- Create React like component e.g. Table (To ensure Reusability)
 - Implement a rate limiter to prevent abuse and ensure fair usage
 - Integrate MinIO object storage for efficient file saving and management
 - Add functionality to allow users to update their passwords
-- Implement a password reset feature on the login page
+- Implement rendering of blocks using FastAPI Fragment instead of reloading complete page
 - Develop a logging service to track and analyze user activity
 - Implement CSRF protection to enhance security
+- Integrate Turso database (SQLite) for production use
+- Replace HyperScript code with Alpine JS
 
 ## Setting Up the Project
 

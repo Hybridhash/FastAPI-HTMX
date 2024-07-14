@@ -209,12 +209,6 @@ Here's the Entity-Relationship (ER) diagram for database:
 
 Contributions are welcome! Please open an issue or submit a pull request for any changes.
 
-## ER Diagram
-
-Here's the Entity-Relationship (ER) diagram for database:
-
-![ER Diagram](app/static/img/logo/er_diagram.png)
-
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.

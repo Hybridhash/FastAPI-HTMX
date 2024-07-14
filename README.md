@@ -1,5 +1,5 @@
 <p align="center">
-  ![Logo FastAPI-HTMX](app/static/img/logo/logo.jpg)
+  <img src=app/static/img/logo/logo.jpg width="350">
 </p>
 
 <h1 align="center">FastAPI HTMX</h1>

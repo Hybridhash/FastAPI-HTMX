@@ -269,7 +269,7 @@ endblock %} {% block content %}
                           <div id="user-profile" hx-get="{{ url_for('get_user_profile', user_id=user.id) }}" 
                           hx-swap="innerHTML"
                           hx-target="this" 
-                          hx-trigger="load">
+                          hx-trigger="revealed">
                           </div>
                       {% endfor %}
                   {% else %}

@@ -58,8 +58,8 @@ async def get_users(
                 status_code=403, detail="Not authorized to view this page"
             )
         # Access the cookies using the Request object
-        token = request.cookies.get("fastapiusersauth")
 
+        token = request.cookies.get("fastapiusersauth")
         users = await user_crud.read_all(db, skip, limit, join_relationships=True)
 
         return templates.TemplateResponse(

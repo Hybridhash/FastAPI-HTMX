@@ -1,6 +1,7 @@
 {% extends "base/base.html" %} {% block title %} Register User | FastAPI HTMX{%
 endblock %} {% block content %}
 <div
+  id="register-page"
   x-data="{  message: '', 
             showUsernameError: false, 
             showRepeatPasswordError: false,
@@ -221,6 +222,19 @@ endblock %} {% block content %}
       >
         Register new account
       </button>
+      <div class="mt-2">
+        <button
+          type="submit"
+          id="create-user-button"
+          hx-get="{{ url_for('get_dashboard') }}"
+          hx-target="#register-page"
+          hx-swap="outerHTML"
+          hx-push-url="true"
+          class="text-white bg-green-500 hover:bg-green-600 focus-ring-4 focus-outline-none focus-ring-green-300 font-medium rounded-lg text-sm w-full sm-w-auto px-5 py-2.5 text-center dark-bg-green-600 dark-hover-bg-green-700 dark-focus-ring-green-800"
+        >
+          Return to login
+        </button>
+      </div>
     </div>
     <!-- </form> is not working for url redirect on successful response 200-->
   </div>

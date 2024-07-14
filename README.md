@@ -34,17 +34,24 @@ This project leverages several external libraries to provide a robust and effici
 - RESTful API endpoints for CRUD operations
 - HTML templates for the web interface
 - Database migrations with Alembic
+- Unified error handling approach.
 
 ## To-Do (Future Enhancements)
 
+- Implement Theming using Flowbite and Tailwind
 - Implement a rate limiter to prevent abuse and ensure fair usage
 - Integrate MinIO object storage for efficient file saving and management
 - Add functionality to allow users to update their passwords
 - Implement a password reset feature on the login page
+- Implement rendering of blocks using FastAPI Fragment instead of reloading complete page or partials
 - Develop a logging service to track and analyze user activity
 - Implement CSRF protection to enhance security
+- Integrate Turso database (SQLite) for production use
+- Replace HyperScript code with Alpine JS
+- Upgrading the boilerplate code to work with Python 12 and HTMX 2
+- Fixing the GUI issues appearing in mobile view
 
-## Demo 
+## Demo
 
 <p align="center">
   <img src=app/static/img/logo/FastAPI-HTMX.gif>
@@ -201,6 +208,12 @@ Here's the Entity-Relationship (ER) diagram for database:
 ## Contributing
 
 Contributions are welcome! Please open an issue or submit a pull request for any changes.
+
+## ER Diagram
+
+Here's the Entity-Relationship (ER) diagram for database:
+
+![ER Diagram](app/static/img/logo/er_diagram.png)
 
 ## License
 

@@ -1,19 +1,15 @@
 from datetime import datetime
 
-# from fastapi import Depends
 from fastapi_users.db import SQLAlchemyBaseUserTableUUID
 
 # from fastapi_users_db_sqlalchemy import GUID
 from sqlalchemy import UUID, DateTime, String
-
-# from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql.functions import func
 from sqlalchemy.sql.schema import ForeignKey
 
 from app.models.base import Base, BaseSQLModel
 from app.models.groups import Group
-from app.models.uploads import Uploads
 
 
 class User(SQLAlchemyBaseUserTableUUID, Base):
@@ -57,12 +53,6 @@ class User(SQLAlchemyBaseUserTableUUID, Base):
         secondary="group_users",
         back_populates="users",
         uselist=True,
-    )
-    # Creating a relationship with the uploads model
-    uploads: Mapped[Uploads] = relationship(
-        "Uploads",
-        back_populates="user",
-        cascade="all, delete",
     )
 
     # string representation of an object

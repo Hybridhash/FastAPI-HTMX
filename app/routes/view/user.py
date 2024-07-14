@@ -3,8 +3,6 @@ import uuid
 from datetime import datetime
 
 import nh3
-
-# import nh3
 from fastapi import Depends, HTTPException, Request, Response
 from fastapi.responses import HTMLResponse
 from fastapi.routing import APIRouter
@@ -60,6 +58,8 @@ async def get_users(
                 status_code=403, detail="Not authorized to view this page"
             )
         # Access the cookies using the Request object
+        token = request.cookies.get("fastapiusersauth")
+
         users = await user_crud.read_all(db, skip, limit, join_relationships=True)
 
         return templates.TemplateResponse(
@@ -67,6 +67,7 @@ async def get_users(
             {
                 "request": request,
                 "users": users,
+                "token": token,
                 "user_type": current_user.is_superuser,
             },
         )

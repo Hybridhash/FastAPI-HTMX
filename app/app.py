@@ -2,7 +2,6 @@ from fastapi import Depends, FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
 from loguru import logger
 
-from app.core.minio import minio
 from app.database.db import User, create_db_and_tables
 from app.database.security import auth_backend, current_active_user, fastapi_users
 from app.exception import http_exception_handler
@@ -11,7 +10,6 @@ from app.routes.view.group import group_view_route
 # importing the route
 from app.routes.view.login import login_view_route
 from app.routes.view.role import role_view_route
-from app.routes.view.uploads import uploads_view_route
 from app.routes.view.user import user_view_route
 from app.schema.users import UserCreate, UserRead, UserUpdate
 
@@ -49,7 +47,6 @@ app.include_router(login_view_route, tags=["Pages", "Authentication/Create"])
 app.include_router(role_view_route, tags=["Pages", "Role"])
 app.include_router(group_view_route, tags=["Pages", "Group"])
 app.include_router(user_view_route, tags=["Pages", "User"])
-app.include_router(uploads_view_route, tags=["Pages", "Uploads"])
 
 
 @app.get("/authenticated-route")
@@ -63,7 +60,6 @@ async def on_startup():
     # Not needed if you setup a migration system like Alembic
     await create_db_and_tables()
     # await create_superuser()
-    await minio.create_bucket()
     logger.info("Application started")
 
 

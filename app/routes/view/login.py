@@ -1,5 +1,3 @@
-from typing import Optional
-
 from fastapi import Depends, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.routing import APIRouter
@@ -24,8 +22,8 @@ async def get_dashboard(
         "pages/dashboard.html",
         {
             "request": request,
-            "title": "My Web Page",
-            "message": f"Welcome to my web page!{user.email}",
+            "title": "FastAPI-HTMX",
+            "message": f"Welcome to FastAPI-HTMX!{user.email}",
             "cookie_value": cookie_value,
             "user_type": user.is_superuser,
         },
@@ -53,16 +51,10 @@ async def get_index(request: Request):
 )
 async def get_login(
     request: Request,
-    invalid: Optional[bool] = None,
-    logged_out: Optional[bool] = None,
-    unauthorized: Optional[bool] = None,
 ):
     # Access the cookies using the Request object
     context = {
         "request": request,
-        "invalid": invalid,
-        "logged_out": logged_out,
-        "unauthorized": unauthorized,
     }
     return templates.TemplateResponse("pages/login.html", context)
 

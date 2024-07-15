@@ -16,9 +16,7 @@ This project leverages several external libraries to provide a robust and effici
 - [SQLAlchemy](https://www.sqlalchemy.org/) (v2.0.21): The Python SQL toolkit and Object Relational Mapper that gives application developers the full power and flexibility of SQL.
 - [FastAPI Users](https://fastapi-users.github.io/fastapi-users/) (v12.1.2): Ready-to-use and customizable users management for FastAPI.
 - [Uvicorn](https://www.uvicorn.org/) (v0.23.2): A lightning-fast ASGI server implementation, using `uvloop` and `httptools`.
-- [AioSQLite](https://github.com/omnilib/aiosqlite) (v0.19.0): A library for SQLite with asyncio support.
 - [Jinja2](https://palletsprojects.com/p/jinja/) (v3.1.2): A modern and designer-friendly templating language for Python.
-- [HTTPX](https://www.python-httpx.org/): A next-generation HTTP client for Python.
 - [NH3](https://github.com/Th3Whit3Wolf/nh3) (v3.1.2): A Python binding to the HTML sanitizer `h3`.
 - [Alembic](https://alembic.sqlalchemy.org/en/latest/) (v1.13.1): A lightweight database migration tool for usage with the SQLAlchemy Database Toolkit.
 - [AlpineJS](https://alpinejs.dev/) (loaded from CDN): A rugged, minimal framework for composing JavaScript behavior in your HTML templates.
@@ -50,6 +48,8 @@ This project leverages several external libraries to provide a robust and effici
 - Replace HyperScript code with Alpine JS
 - Upgrading the boilerplate code to work with Python 12 and HTMX 2
 - Fixing the GUI issues appearing in mobile view
+- Adding more tests
+- Wrapper to handle the pydantic models inputs efficiently from front end
 
 ## Demo
 

@@ -259,7 +259,7 @@ pip-selfcheck.json
 
 # Alembic migration files ###
 app/migrations/versions/*
-!app/migrations/versions/de35d92e5baa_init.py
+!app/migrations/versions/
 # End of https://www.toptal.com/developers/gitignore/api/macos,git,python,visualstudiocode,database,virtualenv
 
 app/static/minio_server/*

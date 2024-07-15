@@ -57,6 +57,11 @@ This project leverages several external libraries to provide a robust and effici
   <img src=app/static/img/logo/FastAPI-HTMX.gif>
 </p>
 
+## Admin Login Credential
+
+- **email:** superuser@admin.com
+- **password:** password123
+
 ## Setting Up the Project
 
 ### Creating the `.env` File

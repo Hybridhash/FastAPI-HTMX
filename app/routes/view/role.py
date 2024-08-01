@@ -15,6 +15,8 @@ from app.routes.view.view_crud import SQLAlchemyCRUD
 from app.schema.users import RoleCreate
 from app.templates import templates
 
+from fastapi_csrf_protect import CsrfProtect
+
 role_view_route = APIRouter()
 
 
@@ -29,24 +31,31 @@ async def get_role(
     current_user: UserModelDB = Depends(current_active_user),
     skip: int = 0,
     limit: int = 100,
+    csrf_protect: CsrfProtect = Depends(),
 ):
     try:
+        
         if not current_user.is_superuser:
             raise HTTPException(
                 status_code=403, detail="Not authorized to view this page"
             )
         # Access the cookies using the Request object
         roles = await role_crud.read_all(db, skip, limit)
-        return templates.TemplateResponse(
+        csrf_token, signed_token = csrf_protect.generate_csrf_tokens()
+        response = templates.TemplateResponse(
             "pages/role.html",
             {
                 "request": request,
                 "roles": roles,
                 "user_type": current_user.is_superuser,
+                "csrf_token": csrf_token,
             },
         )
+        csrf_protect.set_csrf_cookie(signed_token, response)
+        return response
     except Exception as e:
-        return handle_error("pages/role.html", {"request": request}, e)
+        csrf_token = request.headers.get("X-CSRF-Token")
+        return handle_error("pages/role.html", {"request": request, "csrf_token": csrf_token}, e)
 
 
 # Defining a get view route for showing form to add a new role to the database
@@ -54,18 +63,37 @@ async def get_role(
 async def get_create_roles(
     request: Request,
     current_user: UserModelDB = Depends(current_active_user),
+    csrf_protect: CsrfProtect = Depends()
 ):
     # checking the current user as super user
     try:
+        await csrf_protect.validate_csrf(request)
+        
+        print(request.headers)
+        
         if not current_user.is_superuser:
             raise HTTPException(status_code=403, detail="Not authorized to add roles")
         # Redirecting to the add role page upon successful role creation
-        return templates.TemplateResponse(
+        
+        csrf_token, signed_token = csrf_protect.generate_csrf_tokens()
+        
+        response = templates.TemplateResponse(
             "partials/role/add_role.html",
-            {"request": request},
+            {"request": request, "csrf_token": csrf_token},
+            
+            
         )
+        
+        # UnSetting the CSRF cookie validated by get-create-roles endpoint
+        csrf_protect.unset_csrf_cookie(response)
+        
+        # Setting a new CSRF cookie for validation by post future requests
+        csrf_protect.set_csrf_cookie(signed_token, response)
+        
+        return response
     except Exception as e:
-        return handle_error("partials/role/add_role.html", {"request": request}, e)
+        csrf_token = request.headers.get("X-CSRF-Token")
+        return handle_error("partials/role/add_role.html", {"request": request, "csrf_token":csrf_token}, e)
 
 
 # Defining a post view route for adding a new role to the database
@@ -75,12 +103,14 @@ async def post_create_roles(
     response: Response,
     db: CurrentAsyncSession,
     current_user: UserModelDB = Depends(current_active_user),
-):
-    # checking the current user as super user
-    if not current_user.is_superuser:
-        raise HTTPException(status_code=403, detail="Not authorized to add roles")
-
+    csrf_protect: CsrfProtect = Depends(),
+):  
     try:
+        await csrf_protect.validate_csrf(request)
+        # checking the current user as super user
+        if not current_user.is_superuser:
+            raise HTTPException(status_code=403, detail="Not authorized to add roles")
+        
         form = await request.form()
 
         # Iterate over the form fields and sanitize the values before validating against the Pydantic model
@@ -97,16 +127,26 @@ async def post_create_roles(
             raise HTTPException(status_code=400, detail="Role name already exists")
         await role_crud.create(dict(role_create), db)
 
+        csrf_token, signed_token = csrf_protect.generate_csrf_tokens()
+        
         # Redirecting to the add role page upon successful role creation
         headers = {
             "HX-Location": "/role",
             "HX-Trigger": "roleAdded",
             "HX-Push-Url": "true",
+            "csrf_token": csrf_token,
         }
 
-        return HTMLResponse(content="", headers=headers)
+        response = HTMLResponse(content="", headers=headers)
+        
+        csrf_protect.unset_csrf_cookie(response)
+        
+        csrf_protect.set_csrf_cookie(signed_token, response)
+        
+        return response
     except Exception as e:
-        return handle_error("partials/role/add_role.html", {"request": request}, e)
+        csrf_token = request.headers.get("X-CSRF-Token")
+        return handle_error("partials/role/add_role.html", {"request": request, "csrf_token":csrf_token}, e)
 
 
 # Defining end point to get the record based on the id
@@ -116,19 +156,37 @@ async def get_role_by_id(
     role_id: uuid.UUID,
     db: CurrentAsyncSession,
     current_user: UserModelDB = Depends(current_active_user),
+    csrf_protect: CsrfProtect = Depends(),
 ):
-    # checking the current user as super user
-    if not current_user.is_superuser:
-        raise HTTPException(status_code=403, detail="Not authorized to add roles")
-    role = await role_crud.read_by_primary_key(db, role_id)
-    return templates.TemplateResponse(
-        "partials/role/edit_role.html",
-        {
-            "request": request,
-            "role": role,
-        },
-    )
-
+    try:
+        await csrf_protect.validate_csrf(request)
+        # checking the current user as super user
+        if not current_user.is_superuser:
+            raise HTTPException(status_code=403, detail="Not authorized to add roles")
+        role = await role_crud.read_by_primary_key(db, role_id)
+        
+        csrf_token, signed_token = csrf_protect.generate_csrf_tokens()
+        
+        if request.headers.get("HX-Request") == "true":
+            print("HX-Request is true")
+        
+        response = templates.TemplateResponse(
+            "partials/role/edit_role.html",
+            {
+                "request": request,
+                "role": role,
+                "csrf_token": csrf_token,
+            },
+        )
+        
+        csrf_protect.unset_csrf_cookie(response)
+        
+        csrf_protect.set_csrf_cookie(signed_token, response)
+         
+        return response
+    except Exception as e:
+        csrf_token = request.headers.get("X-CSRF-Token")
+        return handle_error("partials/role/edit_role.html", {"request": request, "csrf_token":csrf_token}, e)
 
 # Defining end point to update the record based on the id
 @role_view_route.put("/post_update_role/{role_id}", response_class=HTMLResponse)
@@ -138,12 +196,15 @@ async def post_update_role(
     role_id: uuid.UUID,
     db: CurrentAsyncSession,
     current_user: UserModelDB = Depends(current_active_user),
+    csrf_protect: CsrfProtect = Depends(),
 ):
-    # checking the current user as super user
-    if not current_user.is_superuser:
-        raise HTTPException(status_code=403, detail="Not authorized to add roles")
 
     try:
+        await csrf_protect.validate_csrf(request)
+        # checking the current user as super user
+        if not current_user.is_superuser:
+            raise HTTPException(status_code=403, detail="Not authorized to add roles")
+        
         form = await request.form()
 
         # Iterate over the form fields and sanitize the values before validating against the Pydantic model
@@ -154,17 +215,26 @@ async def post_update_role(
 
         await role_crud.update(db, role_id, dict(role_update))
 
+        csrf_token, signed_token = csrf_protect.generate_csrf_tokens()
         # Redirecting to the add role page upon successful role creation
         headers = {
             "HX-Location": "/role",
             "HX-Trigger": "roleUpdated",
             "HX-Boost": "true",
+            "csrf_token": csrf_token,
         }
-        return HTMLResponse(content="", headers=headers)
+        response = HTMLResponse(content="", headers=headers)
+        
+        csrf_protect.unset_csrf_cookie(response)
+        
+        csrf_protect.set_csrf_cookie(signed_token, response)
+        
+        return response
     except Exception as e:
         role = await role_crud.read_by_primary_key(db, role_id)
+        csrf_token = request.headers.get("X-CSRF-Token")
         return handle_error(
-            "partials/role/edit_role.html", {"request": request, "role": role}, e
+            "partials/role/edit_role.html", {"request": request, "role": role, "csrf_token": csrf_token}, e
         )
 
 
@@ -175,6 +245,7 @@ async def delete_role(
     role_id: uuid.UUID,
     db: CurrentAsyncSession,
     current_user: UserModelDB = Depends(current_active_user),
+    csrf_protect: CsrfProtect = Depends(),
 ):
     try:
         # checking the current user as super user
@@ -183,11 +254,23 @@ async def delete_role(
                 status_code=403, detail="Not authorized to delete roles"
             )
         await role_crud.delete(db, role_id)
+        
+        csrf_token, signed_token = csrf_protect.generate_csrf_tokens()
+        
         headers = {
             "HX-Location": "/role",
             "HX-Trigger": "roleDeleted",
             "HX-Boost": "true",
+            "csrf_token": csrf_token,
         }
-        return HTMLResponse(content="", headers=headers)
+              
+        response = HTMLResponse(content="", headers=headers)
+        
+        csrf_protect.unset_csrf_cookie(response)
+        
+        csrf_protect.set_csrf_cookie(signed_token, response)
+        
+        return response
     except Exception as e:
-        return handle_error("pages/role.html", {"request": request}, e)
+        csrf_token = request.headers.get("X-CSRF-Token")
+        return handle_error("pages/role.html", {"request": request, "csrf_token":csrf_token}, e)

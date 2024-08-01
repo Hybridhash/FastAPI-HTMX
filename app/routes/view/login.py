@@ -5,6 +5,7 @@ from fastapi.routing import APIRouter
 from app.database.security import current_active_user, verify_jwt
 from app.models.users import User as UserModelDB
 from app.templates import templates
+from fastapi_csrf_protect import CsrfProtect
 
 # Create an APIRouter
 login_view_route = APIRouter()
@@ -13,21 +14,27 @@ login_view_route = APIRouter()
 # Defining a route to navigate to the dashboard page using the current_active_user dependency
 @login_view_route.get("/dashboard", response_class=HTMLResponse)
 async def get_dashboard(
-    request: Request, user: UserModelDB = Depends(current_active_user)
+    request: Request, user: UserModelDB = Depends(current_active_user),
+    csrf_protect: CsrfProtect = Depends()
 ):
+    csrf_token, signed_token = csrf_protect.generate_csrf_tokens()
+    
     # Access the cookies using the Request object
     cookies = request.cookies
     cookie_value = cookies.get("fastapiusersauth")
-    return templates.TemplateResponse(
+    response = templates.TemplateResponse(
         "pages/dashboard.html",
         {
             "request": request,
             "title": "FastAPI-HTMX",
             "message": f"Welcome to FastAPI-HTMX!{user.email}",
             "cookie_value": cookie_value,
+            "csrf_token": csrf_token,
             "user_type": user.is_superuser,
         },
     )
+    csrf_protect.set_csrf_cookie(signed_token, response)
+    return response
 
 
 @login_view_route.get("/")

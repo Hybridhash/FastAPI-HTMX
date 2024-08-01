@@ -18,6 +18,7 @@ nh3 = "^0.2.14"
 alembic = "^1.13.1"
 pydantic-settings = "^2.2.1"
 minio = "^7.2.7"
+fastapi-csrf-protect = "^0.3.4"
 
 
 [tool.poetry.group.dev.dependencies]

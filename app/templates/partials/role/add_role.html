@@ -7,6 +7,7 @@ endblock %} {% block content %}
   hx-post="{{ url_for('post_create_roles') }}"
   hx-swap="outerHTML"
   hx-push-url="true"
+  hx-headers='{"X-CSRF-Token": "{{ csrf_token }}"}'
 >
   <div class="mb-6">
     <label

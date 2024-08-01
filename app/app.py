@@ -13,6 +13,10 @@ from app.routes.view.role import role_view_route
 from app.routes.view.user import user_view_route
 from app.schema.users import UserCreate, UserRead, UserUpdate
 
+from fastapi_csrf_protect import CsrfProtect
+
+from app.core.csrf_settings import CsrfSettings
+
 app = FastAPI(exception_handlers={HTTPException: http_exception_handler})
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
@@ -66,3 +70,8 @@ async def on_startup():
 @app.on_event("shutdown")
 async def on_shutdown():
     logger.info("Application shutdown")
+
+
+@CsrfProtect.load_config
+def get_csrf_config():
+    return CsrfSettings()

@@ -121,6 +121,7 @@ endblock %} {% block content %}
               hx-swap="outerHTML"
               hx-target-404="#error-message"
               hx-push-url="true"
+              hx-headers='{"X-CSRF-Token": "{{ csrf_token }}"}'
               class="mb-2 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
             >
               Add Group
@@ -202,6 +203,7 @@ endblock %} {% block content %}
                       hx-get="{{ url_for('get_group_users', group_id=group.id) }}"
                       hx-swap="outerHTML"
                       hx-target="#group-page"
+                      hx-headers='{"X-CSRF-Token": "{{ csrf_token }}"}'
                       class="font-medium text-purple-600 dark:text-purple-500 hover:underline"
                       >Allocate User</a
                     >
@@ -212,6 +214,7 @@ endblock %} {% block content %}
                       hx-get="{{ url_for('get_group_by_id', group_id=group.id) }}"
                       hx-swap="outerHTML"
                       hx-target="#group-page"
+                      hx-headers='{"X-CSRF-Token": "{{ csrf_token }}"}'
                       class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
                       >Edit</a
                     >

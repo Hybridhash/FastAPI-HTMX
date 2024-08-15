@@ -290,9 +290,9 @@ async def delete_group(
     current_user: UserModelDB = Depends(current_active_user),
     csrf_protect: CsrfProtect = Depends(),
 ):
-    try:
-        await csrf_protect.validate_csrf(request)
+    await csrf_protect.validate_csrf(request)
 
+    try:
         extra_info = await request.body()
 
         parsed_values = parse_qs(unquote_plus(extra_info.decode()))

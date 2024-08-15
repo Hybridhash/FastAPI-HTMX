@@ -6,6 +6,7 @@
   id="edit-user-form"
   hx-target="this"
   hx-put="{{url_for('post_update_user', user_id=user.id)}}"
+  hx-headers='{"X-CSRF-Token": "{{ csrf_token }}"}'
   hx-swap="outerHTML"
 >
   <div class="mb-6">
@@ -149,7 +150,7 @@
     <select id="role-selection" name="role_id" class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light" required>
       <option value="">Select a role</option>
       {% for role in roles %}
-      <option value="{{ role.id }}">{{ role.role_name }}</option>
+        <option value="{{ role.id }}" {% if user.role and user.role.id == role.id %}selected{% endif %}>{{ role.role_name }}</option>
       {% endfor %}
     </select>
   </div>

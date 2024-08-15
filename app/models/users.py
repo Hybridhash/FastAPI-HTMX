@@ -13,7 +13,6 @@ from app.models.groups import Group
 
 
 class User(SQLAlchemyBaseUserTableUUID, Base):
-
     __tablename__ = "users"
     created: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()

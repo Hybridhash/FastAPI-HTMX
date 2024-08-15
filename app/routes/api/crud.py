@@ -14,22 +14,29 @@ PydanticCreateModelType = TypeVar("PydanticCreateModelType", bound=BaseModel)
 PydanticUpdateModelType = TypeVar("PydanticUpdateModelType", bound=BaseModel)
 IdentifierType = TypeVar("IdentifierType")
 
+
 class BaseCRUD(Generic[ModelType, PydanticCreateModelType, PydanticUpdateModelType]):
-    def __init__(self, db_model: Type[ModelType], 
-                 pydantic_create_model: Type[PydanticCreateModelType], 
-                 pydantic_update_model: Type[PydanticUpdateModelType]):
+    def __init__(
+        self,
+        db_model: Type[ModelType],
+        pydantic_create_model: Type[PydanticCreateModelType],
+        pydantic_update_model: Type[PydanticUpdateModelType],
+    ):
         self.db_model = db_model
         self.pydantic_create_model = pydantic_create_model
         self.pydantic_update_model = pydantic_update_model
 
-    async def create(self,  item: PydanticCreateModelType, 
-                     db: CurrentAsyncSession,) -> ModelType:
+    async def create(
+        self,
+        item: PydanticCreateModelType,
+        db: CurrentAsyncSession,
+    ) -> ModelType:
         db_item = self.db_model(**item.dict())
         db.add(db_item)
         await db.commit()
         await db.refresh(db_item)
         return db_item
-    
+
     async def read_all(self, db: CurrentAsyncSession, skip: int, limit: int):
         # Querying the database model using SQLAlchemy select()
         stmt = select(self.db_model).offset(skip).limit(limit)
@@ -38,7 +45,7 @@ class BaseCRUD(Generic[ModelType, PydanticCreateModelType, PydanticUpdateModelTy
         if not query:
             raise HTTPException(status_code=404, detail="Record not found")
         return query.scalars().all()
-    
+
         # return db.query(self.db_model).offset(skip).limit(limit).all()
 
     # Reading the one record only from the database model
@@ -48,14 +55,15 @@ class BaseCRUD(Generic[ModelType, PydanticCreateModelType, PydanticUpdateModelTy
         if not query:
             raise HTTPException(status_code=404, detail=f"Record with {id} not found")
         return query.scalar_one_or_none()
-    
+
     # Adding a database operation function to update the record
-    async def update(self, db: CurrentAsyncSession, id: uuid.UUID, 
-                    item: PydanticUpdateModelType) -> ModelType | None:
+    async def update(
+        self, db: CurrentAsyncSession, id: uuid.UUID, item: PydanticUpdateModelType
+    ) -> ModelType | None:
         stmt = select(self.db_model).where(self.db_model.id == id)
         query = await db.execute(stmt)
         if not query:
-             raise HTTPException(status_code=404, detail=f"Record with {id} not found")
+            raise HTTPException(status_code=404, detail=f"Record with {id} not found")
         db_item = query.scalar_one()
         if db_item:
             for key, value in item.dict().items():
@@ -65,7 +73,11 @@ class BaseCRUD(Generic[ModelType, PydanticCreateModelType, PydanticUpdateModelTy
             return db_item
 
     # Adding a database model to delete a record
-    async def delete(self,db:CurrentAsyncSession, id: uuid.UUID, ):
+    async def delete(
+        self,
+        db: CurrentAsyncSession,
+        id: uuid.UUID,
+    ):
         stmt = select(self.db_model).where(self.db_model.id == id)
         query = await db.execute(stmt)
         if not query:
@@ -84,7 +96,6 @@ class BaseCRUD(Generic[ModelType, PydanticCreateModelType, PydanticUpdateModelTy
     #         return db_item
     #     else:
     #         raise HTTPException(status_code=404, detail="Item not found")
-
 
     # async def create(self, data: Dict[str, Any]) -> Any:
     #     obj = self.model(**data)
@@ -108,7 +119,6 @@ class BaseCRUD(Generic[ModelType, PydanticCreateModelType, PydanticUpdateModelTy
     #     obj = self.db_session.query(self.model).filter(self.model.id == id).first()
     #     self.db_session.delete(obj)
     #     self.db_session.commit()
-
 
 
 # @app.post("/create/{model_name}")

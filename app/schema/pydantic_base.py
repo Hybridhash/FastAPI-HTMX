@@ -22,7 +22,6 @@ def pydantic_partial(
         exclude_fields = []
 
     def wrapper(model: Type[Model]) -> Type[Model]:
-
         base_model: Type[BaseModel] = model
 
         if not issubclass(base_model, BaseModel):

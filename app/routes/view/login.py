@@ -14,11 +14,12 @@ login_view_route = APIRouter()
 # Defining a route to navigate to the dashboard page using the current_active_user dependency
 @login_view_route.get("/dashboard", response_class=HTMLResponse)
 async def get_dashboard(
-    request: Request, user: UserModelDB = Depends(current_active_user),
-    csrf_protect: CsrfProtect = Depends()
+    request: Request,
+    user: UserModelDB = Depends(current_active_user),
+    csrf_protect: CsrfProtect = Depends(),
 ):
     csrf_token, signed_token = csrf_protect.generate_csrf_tokens()
-    
+
     # Access the cookies using the Request object
     cookies = request.cookies
     cookie_value = cookies.get("fastapiusersauth")

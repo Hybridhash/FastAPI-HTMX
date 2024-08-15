@@ -7,7 +7,6 @@ from ..schema.pydantic_base import pydantic_partial
 
 
 class TestPartialModel:
-
     # The function returns a new BaseModel with all fields optional if exclude_fields is None.
     def test_all_fields_optional_if_exclude_fields_is_none(self):
         # Arrange

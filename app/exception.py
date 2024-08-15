@@ -11,7 +11,8 @@ async def http_exception_handler(request: Request, exc: HTTPException):
     else:
         route = request.scope.get("path")
         method = request.scope.get("method")
-        logger.error(f"Error in route {method} {route}: {exc.detail} : {exc.status_code}")
+        logger.error(
+            f"Error in route {method} {route}: {exc.detail} : {exc.status_code}"
+        )
         # if route == "/auth/jwt/login" and exc.status_code == 400:
         return Response(content="Error managed via HTTP module", status_code=400)
-    

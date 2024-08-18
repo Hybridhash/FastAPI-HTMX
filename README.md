@@ -43,7 +43,7 @@ This project leverages several external libraries to provide a robust and effici
 - Implement a password reset feature on the login page
 - Implement rendering of blocks using FastAPI Fragment instead of reloading complete page or partials
 - Develop a logging service to track and analyze user activity
-- Implement CSRF protection to enhance security
+- ✅ 🛡️ Implement CSRF protection to enhance security [Completed]
 - Integrate Turso database (SQLite) for production use
 - Replace HyperScript code with Alpine JS
 - Upgrading the boilerplate code to work with Python 12 and HTMX 2

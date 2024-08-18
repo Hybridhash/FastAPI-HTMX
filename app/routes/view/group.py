@@ -230,11 +230,11 @@ async def post_update_group(
 ):
     await csrf_protect.validate_csrf(request)
 
-    # checking the current user as super user
-    if not current_user.is_superuser:
-        raise HTTPException(status_code=403, detail="Not authorized to add groups")
-
     try:
+        # checking the current user as super user
+        if not current_user.is_superuser:
+            raise HTTPException(status_code=403, detail="Not authorized to add groups")
+
         form = await request.form()
 
         # Iterate over the form fields and sanitize the values before validating against the Pydantic model
@@ -276,6 +276,7 @@ async def post_update_group(
                 "request": request,
                 "group": group,
                 "csrf_token": csrf_token,
+                "user_type": current_user.is_superuser,
             },
             e,
         )

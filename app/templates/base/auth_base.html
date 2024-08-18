@@ -22,8 +22,8 @@
     {% block additional_head %}{% endblock %}
   </head>
 
-  <aside>{% include "partials/auth_navigation.html" %}</aside>
   <body>
+    {% include "partials/auth_navigation.html" %}
     <!-- Your page content goes here -->
     {% block content %}{% endblock %}
 

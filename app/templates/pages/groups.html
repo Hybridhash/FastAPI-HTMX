@@ -128,6 +128,7 @@ endblock %} {% block content %}
             </button>
           </div>  
           <div x-data 
+          x-cloak
           x-init="$watch('$store.showMessage.update', value => { if (value) setTimeout(() => { $store.showMessage.update = false }, 3000) }); 
                   $watch('$store.showMessage.add', value => {if (value) setTimeout(() => { $store.showMessage.add = false }, 3000) }); 
                   $watch('$store.showMessage.delete', value => { if (value) setTimeout(() => { $store.showMessage.delete = false }, 3000) })" 
@@ -228,6 +229,7 @@ endblock %} {% block content %}
                       hx-confirm="Are you sure you want to delete this group? "
                       hx-vals='{"group_desc": "{{group.group_desc}}", "group_name": "{{group.group_name}}"}'
                       class="font-medium text-red-600 dark:text-red-500 hover:underline"
+                      hx-headers='{"X-CSRF-Token": "{{ csrf_token }}"}'
                       >Delete</a
                     >
                   </td>

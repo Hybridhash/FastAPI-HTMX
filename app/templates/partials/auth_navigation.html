@@ -56,6 +56,7 @@
       </li>
       <li>
         <a
+          id="role-link"
           href=""
           hx-get="{{ url_for('get_role') }}"
           hx-target="#dashboard-body"
@@ -328,3 +329,16 @@
 
   {%endif%}
 </aside>
+
+<script>
+  document.body.addEventListener("htmx:historyRestore", function (event) {
+    const currentPath = window.location.pathname;
+
+    if (currentPath === "/role") {
+      console.log("Role page restored");
+      htmx.trigger(document.getElementById("role-link"), "click");
+    }
+
+    // Perform any additional actions here
+  });
+</script>

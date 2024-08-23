@@ -3,7 +3,7 @@ import uuid
 from typing import Optional
 
 from dotenv import load_dotenv
-from fastapi import Depends, Request
+from fastapi import Depends, Request, Response
 from fastapi_users import BaseUserManager, FastAPIUsers, UUIDIDMixin
 from fastapi_users.authentication import (
     AuthenticationBackend,
@@ -15,8 +15,9 @@ from fastapi_users.db import SQLAlchemyUserDatabase
 from fastapi_users.jwt import decode_jwt
 from jwt.exceptions import InvalidTokenError
 from loguru import logger
-
+from fastapi_csrf_protect import CsrfProtect
 from app.database.db import User, get_user_db
+
 
 load_dotenv()
 
@@ -45,6 +46,16 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
     ):
         print(f"Verification requested for user {user.id}. Verification token: {token}")
 
+    async def on_after_login(
+        self,
+        user: User,
+        request: Optional[Request] = None,
+        response: Optional[Response] = None,
+    ):
+        csrf_protect = CsrfProtect()  
+        await csrf_protect.validate_csrf(request)
+        print(f"User {user.id} logged in.")
+    
     # Decoding the JWT token using the inheritance of the BaseUserManager
     async def on_decode_jwt(self, jwt_token: str):
         """
@@ -101,7 +112,6 @@ async def verify_jwt(
     try:
         async for user_manager in get_user_manager(user_db=user_db):
             payload = user_manager.on_decode_jwt(jwt_token)
-            logger.debug(payload)
             # Add your verification logic here
     except InvalidTokenError:
         logger.debug(payload)

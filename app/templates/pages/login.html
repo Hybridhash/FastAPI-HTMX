@@ -2,7 +2,10 @@
 endblock %} {% block content %}
 <div
   id="login-page"
-  x-data="{  message: '', showError: false }"
+  x-data="login"
+  x-init="$watch('showError', (value) => { if (value) { 
+    setTimeout(() => { showError = false; }, 3000); 
+}  });"
   class="bg-gray-100 dark:bg-gray-900 flex justify-center items-center h-screen"
 >
   <div class="bg-indigo-100 shadow-lg rounded-lg p-8 max-w-md mx-auto w-96">
@@ -29,24 +32,18 @@ endblock %} {% block content %}
         type="email"
         id="email"
         name="username"
-        _="on change if my.value is '' 
-                add @disabled to #password
-                remove .hidden from #UsernameError
-            else
-                js return /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/ end
-                set pattern to it
-                if (pattern.test(my value)) == false
-                remove .hidden from #UsernameError
-            else
-                add .hidden to #UsernameError 
-                remove .hidden from #password 
-                remove .hidden from #password-label"
         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
         placeholder="john.doe@company.com"
         autocomplete="off"
+        x-model="username"
+        @input="checkLoginUsername(), allocateCSRFToken('{{csrf_token}}')"
         required
       />
-      <p id="UsernameError" class="hidden mb-2 text-red-600 dark:text-red-500">
+      <p
+        id="UsernameError"
+        :class="{ 'hidden': !showUsernameError }"
+        class="hidden mb-2 text-red-600 dark:text-red-500"
+      >
         <span class="font-medium">Please enter a valid email address</span>
       </p>
     </div>
@@ -54,6 +51,7 @@ endblock %} {% block content %}
       <label
         for="password"
         id="password-label"
+        :class="{ 'hidden': !showPasswordDiv }"
         class="hidden block mb-2 text-sm font-medium text-gray-900 dark:text-white"
         >Password</label
       >
@@ -61,7 +59,10 @@ endblock %} {% block content %}
         type="password"
         id="password"
         name="password"
-        @keyup.enter="setCookie"
+        x-model="password"
+        x-show="showPasswordDiv"
+        @keyup.enter="setCookie()"
+        :class="{ 'hidden': !showPasswordDiv }"
         class="hidden bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
         autocomplete="new-password"
         placeholder="•••••••••"
@@ -81,7 +82,7 @@ endblock %} {% block content %}
     >
     <div class="mt-2">
       <button
-        type="submit"
+        type="button"
         id="login-button"
         @click="setCookie"
         class="text-white bg-blue-700 hover-bg-blue-800 focus-ring-4 focus-outline-none focus-ring-blue-300 font-medium rounded-lg text-sm w-full sm-w-auto px-5 py-2.5 text-center dark-bg-blue-600 dark-hover-bg-blue-700 dark-focus-ring-blue-800"
@@ -103,52 +104,7 @@ endblock %} {% block content %}
         Register User
       </button>
     </div>
-    <script>
-      function setCookie() {
-        // Get the username and password from the form
-        const username = document.getElementById("email").value;
-        const password = document.getElementById("password").value;
-
-        const formData = new URLSearchParams();
-        formData.append("grant_type", "");
-        formData.append("username", username);
-        formData.append("password", password);
-        formData.append("scope", "");
-        formData.append("client_id", "");
-        formData.append("client_secret", "");
-
-        console.log(formData);
-
-        fetch("/auth/jwt/login", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-          body: formData,
-        })
-          .then((response) => {
-            if (response.status === 204) {
-              // Successful login, navigate to /dashboard
-              window.location.href = "/dashboard";
-            } else if (response.status === 400) {
-              // Incorrect username or password
-              this.message = "Incorrect username or password";
-              this.showError = true;
-              return response.text();
-            }
-          })
-          .then((errorMessage) => {
-            if (errorMessage) {
-              Alpine.store("message", "Error: Incorrect username or password");
-              console.log(errorMessage);
-            }
-          });
-
-        Alpine.data("login", () => ({
-          setCookie,
-        }));
-      }
-    </script>
-    {% endblock %}
   </div>
 </div>
+
+{% endblock %}

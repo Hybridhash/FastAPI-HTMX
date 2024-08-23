@@ -59,12 +59,18 @@ async def get_index(request: Request):
 )
 async def get_login(
     request: Request,
+    csrf_protect: CsrfProtect = Depends(),
 ):
-    # Access the cookies using the Request object
+    csrf_token, signed_token = csrf_protect.generate_csrf_tokens()    
     context = {
         "request": request,
+        "csrf_token": csrf_token,
     }
-    return templates.TemplateResponse("pages/login.html", context)
+    
+    response = templates.TemplateResponse("pages/login.html", context)
+    
+    csrf_protect.set_csrf_cookie(signed_token, response)    
+    return response
 
 
 @login_view_route.get(

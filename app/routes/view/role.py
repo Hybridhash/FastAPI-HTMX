@@ -17,6 +17,8 @@ from app.templates import templates
 
 from fastapi_csrf_protect import CsrfProtect
 
+from loguru import logger
+
 role_view_route = APIRouter()
 
 
@@ -68,24 +70,15 @@ async def get_create_roles(
 ):
     # checking the current user as super user
     try:
-        await csrf_protect.validate_csrf(request)
-
         if not current_user.is_superuser:
             raise HTTPException(status_code=403, detail="Not authorized to add roles")
         # Redirecting to the add role page upon successful role creation
 
-        csrf_token, signed_token = csrf_protect.generate_csrf_tokens()
-
+        csrf_token = request.headers.get("X-CSRF-Token")
         response = templates.TemplateResponse(
             "partials/role/add_role.html",
             {"request": request, "csrf_token": csrf_token},
         )
-
-        # UnSetting the CSRF cookie validated by get-create-roles endpoint
-        csrf_protect.unset_csrf_cookie(response)
-
-        # Setting a new CSRF cookie for validation by post future requests
-        csrf_protect.set_csrf_cookie(signed_token, response)
 
         return response
     except Exception as e:
@@ -107,6 +100,7 @@ async def post_create_roles(
     csrf_protect: CsrfProtect = Depends(),
 ):
     try:
+        logger.info(request.headers)
         await csrf_protect.validate_csrf(request)
         # checking the current user as super user
         if not current_user.is_superuser:
@@ -164,16 +158,12 @@ async def get_role_by_id(
     csrf_protect: CsrfProtect = Depends(),
 ):
     try:
-        await csrf_protect.validate_csrf(request)
         # checking the current user as super user
         if not current_user.is_superuser:
             raise HTTPException(status_code=403, detail="Not authorized to add roles")
         role = await role_crud.read_by_primary_key(db, role_id)
 
-        csrf_token, signed_token = csrf_protect.generate_csrf_tokens()
-
-        if request.headers.get("HX-Request") == "true":
-            print("HX-Request is true")
+        csrf_token = request.headers.get("X-CSRF-Token")
 
         response = templates.TemplateResponse(
             "partials/role/edit_role.html",
@@ -183,10 +173,6 @@ async def get_role_by_id(
                 "csrf_token": csrf_token,
             },
         )
-
-        csrf_protect.unset_csrf_cookie(response)
-
-        csrf_protect.set_csrf_cookie(signed_token, response)
 
         return response
     except Exception as e:

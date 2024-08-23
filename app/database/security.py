@@ -52,10 +52,10 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
         request: Optional[Request] = None,
         response: Optional[Response] = None,
     ):
-        csrf_protect = CsrfProtect()  
+        csrf_protect = CsrfProtect()
         await csrf_protect.validate_csrf(request)
         print(f"User {user.id} logged in.")
-    
+
     # Decoding the JWT token using the inheritance of the BaseUserManager
     async def on_decode_jwt(self, jwt_token: str):
         """

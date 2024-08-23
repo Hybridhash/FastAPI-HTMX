@@ -63,7 +63,7 @@ class RoleBase(BaseModel):
             default=None,
         ),
     ]
-    role_id: UUID4 = Field(
+    role_id: uuid.UUID = Field(
         default_factory=uuid.uuid4,
         title="Role ID",
         description="Role ID",

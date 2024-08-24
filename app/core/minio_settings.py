@@ -11,11 +11,8 @@ class Settings(BaseSettings):
     minio_secure: bool = Field(alias="MINIO_SECURE", default=False)
 
     model_config = SettingsConfigDict(
-        env_file="../.env", env_file_encoding="utf-8", extra="ignore"
+        env_file=".env", env_file_encoding="utf-8", extra="ignore"
     )
 
 
 settings = Settings()
-
-print(Settings().model_dump())
-print(settings.minio_url)

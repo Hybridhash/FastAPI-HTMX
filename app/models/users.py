@@ -10,6 +10,7 @@ from sqlalchemy.sql.schema import ForeignKey
 
 from app.models.base import Base, BaseSQLModel
 from app.models.groups import Group
+from app.models.upload import Upload
 
 
 class User(SQLAlchemyBaseUserTableUUID, Base):
@@ -46,6 +47,11 @@ class User(SQLAlchemyBaseUserTableUUID, Base):
     # Creating a relationship with the activity model
     activity: Mapped["UserActivity"] = relationship(
         "UserActivity", back_populates="user"
+    )
+    uploads: Mapped["Upload"] = relationship(
+        "Upload",
+        back_populates="user",
+        cascade="all, delete",
     )
     # Creating a relationship with the group user link model
     groups: Mapped["Group"] = relationship(
@@ -128,4 +134,5 @@ class UserActivity(BaseSQLModel):
     activity_desc: Mapped[str | None] = mapped_column(
         String(length=1024), nullable=True
     )
+    user: Mapped["User"] = relationship("User", back_populates="activity")
     user: Mapped["User"] = relationship("User", back_populates="activity")

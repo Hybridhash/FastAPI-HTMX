@@ -23,7 +23,8 @@
   </head>
 
   <body>
-    {% include "partials/auth_navigation.html" %}
+    {% if current_page not in ["register", "login"] %} {% include
+    "partials/auth_navigation.html" %} {% endif %}
     <!-- Your page content goes here -->
     {% block content %}{% endblock %}
 

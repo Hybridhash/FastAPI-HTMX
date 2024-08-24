@@ -1,5 +1,5 @@
 import uuid
-from typing import Any, Dict, Generic, List, Optional, Type, TypeVar
+from typing import Any, Dict, Generic, List, Optional, Type, TypeVar, Union
 
 from fastapi import HTTPException
 from sqlalchemy import func, inspect, select
@@ -131,28 +131,52 @@ class SQLAlchemyCRUD(Generic[ModelType]):
         return record
 
     async def read_by_column(
-        self, db: CurrentAsyncSession, column_name: str, column_value: Any
-    ) -> ModelType | None:
+        self,
+        db: CurrentAsyncSession,
+        column_name: str,
+        column_value: Any,
+        skip: int = 0,
+        limit: int = 0,
+    ) -> Union[Optional[ModelType], List[ModelType]]:
         """
-        Retrieves a single record from the database by a column other than the primary key.
+        Retrieves records from the database that match a specific column value.
 
         Args:
-            db (CurrentAsyncSession): The database session to be used for the operation.
+            db (AsyncSession): The database session to be used for the operation.
             column_name (str): The name of the column to be used for the search.
             column_value (Any): The value of the column to be used for the search.
+            skip (int): The number of records to skip (for pagination). Default is 0.
+            limit (int): imit (int): The maximum number of records to return.
+                            Default is 0 (no limit).
 
         Returns:
-            ModelType | None: The retrieved database record, or None if no record was found.
+            Union[Optional[ModelType], List[ModelType]]:
+            - If no records are found: None
+            - If one record is found: A single ModelType instance
+            - If multiple records are found: A list of ModelType instances
         """
+        column = getattr(self.db_model, column_name)
+
         if isinstance(column_value, str):
-            column_value = column_value.lower()
-        stmt = select(self.db_model).where(
-            func.lower(getattr(self.db_model, column_name)) == column_value
-        )
+            stmt = select(self.db_model).where(
+                func.lower(column) == column_value.lower()
+            )
+        else:
+            stmt = select(self.db_model).where(column == column_value)
+        if skip > 0:
+            stmt = stmt.offset(skip)
+        if limit > 0:
+            stmt = stmt.limit(limit)
         query = await db.execute(stmt)
-        record = query.scalar()
+        # unique(): to avoid duplicate rows in case of join operations.
+        records = list(query.unique().scalars().all())
         await db.close()
-        return record
+        if not records:
+            return None
+        elif len(records) == 1:
+            return records[0]
+        else:
+            return records
 
     async def update(
         self, db: CurrentAsyncSession, id: uuid.UUID, data: dict[str, Any]
@@ -166,7 +190,8 @@ class SQLAlchemyCRUD(Generic[ModelType]):
             data (dict[str, Any]): The data to be updated in the record.
 
         Returns:
-            ModelType | None: The updated database record, or None if the record could not be found.
+            ModelType | None: The updated database record,
+            or None if the record could not be found.
         """
         stmt = select(self.db_model).where(self.db_model.id == id)
         query = await db.execute(stmt)

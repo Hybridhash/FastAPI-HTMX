@@ -1,11 +1,11 @@
 from fastapi import Depends, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.routing import APIRouter
+from fastapi_csrf_protect import CsrfProtect
 
 from app.database.security import current_active_user, verify_jwt
 from app.models.users import User as UserModelDB
 from app.templates import templates
-from fastapi_csrf_protect import CsrfProtect
 
 # Create an APIRouter
 login_view_route = APIRouter()
@@ -61,9 +61,12 @@ async def get_login(
     request: Request,
     csrf_protect: CsrfProtect = Depends(),
 ):
+    current_page = request.url.path.split("/")[-1]
     csrf_token, signed_token = csrf_protect.generate_csrf_tokens()
+
     context = {
         "request": request,
+        "current_page": current_page,
         "csrf_token": csrf_token,
     }
 
@@ -82,8 +85,9 @@ async def get_login(
 async def get_register(
     request: Request,
 ):
-    # Access the cookies using the Request object
+    current_page = request.url.path.split("/")[-1]
     context = {
         "request": request,
+        "current_page": current_page,
     }
     return templates.TemplateResponse("pages/register.html", context)

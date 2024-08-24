@@ -19,6 +19,7 @@ pydantic-settings = "^2.2.1"
 minio = "^7.2.7"
 fastapi-csrf-protect = "^0.3.4"
 fastapi-users = {extras = ["sqlalchemy"], version = "^13.0.0"}
+prompt-toolkit = "^3.0.47"
 
 
 [tool.poetry.group.dev.dependencies]

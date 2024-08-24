@@ -52,10 +52,9 @@ async def get_index(request: Request):
 async def get_login(
     request: Request,
 ):
+    current_page = request.url.path.split("/")[-1]
     # Access the cookies using the Request object
-    context = {
-        "request": request,
-    }
+    context = {"request": request, "current_page": current_page}
     return templates.TemplateResponse("pages/login.html", context)
 
 
@@ -68,8 +67,9 @@ async def get_login(
 async def get_register(
     request: Request,
 ):
-    # Access the cookies using the Request object
+    current_page = request.url.path.split("/")[-1]
     context = {
         "request": request,
+        "current_page": current_page,
     }
     return templates.TemplateResponse("pages/register.html", context)

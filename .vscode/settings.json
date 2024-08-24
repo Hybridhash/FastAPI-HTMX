@@ -1,9 +1,12 @@
 {
   "cSpell.words": [
     "fastapi",
+    "htmx",
+    "minio",
     "passlib",
     "pydandic",
     "pydantic",
+    "sqlalchemy",
     "sqlmodel",
     "uvicorn"
   ],

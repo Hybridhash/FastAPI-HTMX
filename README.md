@@ -147,7 +147,7 @@ When you define a new **Database model** in your application, it's essential to 
 
 ### Steps to Update `init_models`
 
-1. **Locate `init_models` Function**: Open the `base.py` file in `app/models/base.py`. This file contains the `init_models` function, which is responsible for importing all the models in your application.
+1. **Locate `init_models` Function**: Open the `base.py` file in `app/database/base.py`. This file contains the `init_models` function, which is responsible for importing all the models in your application.
 
 2. **Add New Model Import**: Once you have defined a new model in your application, you need to import it in the `init_models` function. Ensure that you follow the existing import structure. For example, if your new model is `Invoice` and it's located in the `models.financial` module, you would add the following line:
 

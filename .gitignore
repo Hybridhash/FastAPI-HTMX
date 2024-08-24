@@ -264,3 +264,6 @@ app/migrations/versions/*
 # End of https://www.toptal.com/developers/gitignore/api/macos,git,python,visualstudiocode,database,virtualenv
 
 app/static/minio_server/*
+
+# Excluding DB files to be pushed
+*.db

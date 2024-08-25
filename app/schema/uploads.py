@@ -1,7 +1,7 @@
 import uuid
 from typing import Annotated, Optional
 
-from pydantic import UUID4, BaseModel, ConfigDict, Field, validator
+from pydantic import UUID4, BaseModel, ConfigDict, Field, field_validator
 
 from .pydantic_base import pydantic_partial
 
@@ -42,19 +42,19 @@ class FileBase(BaseModel):
             description="File Size",
         ),
     ]
-    user_id: UUID4 = Field(
+    user_id: Optional[UUID4] = Field(
         default_factory=uuid.uuid4,
         title="User ID",
         description="User ID",
     )
 
-    file_id: UUID4 = Field(
+    file_id: Optional[UUID4] = Field(
         default_factory=uuid.uuid4,
         title="File ID",
         description="File ID",
     )
 
-    @validator("file_size")
+    @field_validator("file_size")
     def validate_file_size(cls, v):
         if v == "":
             return None

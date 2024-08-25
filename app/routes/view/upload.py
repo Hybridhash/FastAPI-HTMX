@@ -89,10 +89,11 @@ async def post_upload_file(
             "HX-Trigger": json.dumps(
                 {
                     "showAlert": {
-                        "type": "updated",
+                        "type": "added",
                         "message": f"{file.filename} uploaded successfully. URL: {file_url}",
                         "source": "upload-page",
-                    }
+                    },
+                    "refreshUploadTable": "",
                 }
             ),
         }
@@ -187,7 +188,8 @@ async def delete_file(
                         "type": "deleted",
                         "message": f"{file_id} deleted successfully.",
                         "source": "upload-page",
-                    }
+                    },
+                    "refreshUploadTable": "",
                 }
             ),
         }

@@ -1,27 +1,4 @@
 /**
- * Sets up an event listener for the "htmx:afterRequest" event on the upload-files-table element.
- * When triggered, it checks if the event target is a file download button and initiates a file download.
- * function
- * listens htmx:afterRequest
- * returns {void}
- */
-document.addEventListener("DOMContentLoaded", function () {
-  document
-    .getElementById("upload-files-table")
-    .addEventListener("htmx:afterRequest", function (evt) {
-      if (evt.target && evt.target.id === "file-download-button") {
-        const downloadUrl = evt.target.getAttribute("hx-get");
-        const a = document.createElement("a");
-        a.href = downloadUrl;
-        a.download = ""; // Optional: specify a filename if needed
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-      }
-    });
-});
-
-/**
  * Listens for the "showAlert" event on the document.body and updates the data of the "upload-page" component accordingly.
  * If the event detail has a "type" property of "updated", "added", or "deleted",
  * it sets the corresponding data properties on the "upload-page" component.
@@ -81,10 +58,21 @@ function handleUploadRequest() {
       throw new Error("No element with x-data found");
     }
     const data = Alpine.mergeProxies(component._x_dataStack);
-
-    data.isLoading = !data.isLoading;
+    console.log(
+      data.isLoading,
+      "isLoading State",
+      data.fileLoaded,
+      "fileLoaded State"
+    );
+    data.isLoading = false;
     data.fileName = "";
-    data.fileLoaded = false;
+
+    console.log(
+      data.isLoading,
+      "isLoading State after Function Call",
+      data.fileLoaded,
+      "fileLoaded State after Function Call"
+    );
   } catch (error) {
     console.error("Error in click event handler:", error);
   }

@@ -63,7 +63,7 @@ class RoleBase(BaseModel):
             default=None,
         ),
     ]
-    role_id: UUID4 = Field(
+    role_id: Optional[UUID4] = Field(
         default_factory=uuid.uuid4,
         title="Role ID",
         description="Role ID",
@@ -169,7 +169,7 @@ class ProfileBase(BaseModel):
             title="Company",
         ),
     ]
-    user_id: UUID4 = Field(
+    user_id: Optional[UUID4] = Field(
         default_factory=uuid.uuid4,
         title="User ID",
         description="User ID",

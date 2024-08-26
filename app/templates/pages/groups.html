@@ -121,12 +121,14 @@ endblock %} {% block content %}
               hx-swap="outerHTML"
               hx-target-404="#error-message"
               hx-push-url="true"
+              hx-headers='{"X-CSRF-Token": "{{ csrf_token }}"}'
               class="mb-2 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
             >
               Add Group
             </button>
           </div>  
           <div x-data 
+          x-cloak
           x-init="$watch('$store.showMessage.update', value => { if (value) setTimeout(() => { $store.showMessage.update = false }, 3000) }); 
                   $watch('$store.showMessage.add', value => {if (value) setTimeout(() => { $store.showMessage.add = false }, 3000) }); 
                   $watch('$store.showMessage.delete', value => { if (value) setTimeout(() => { $store.showMessage.delete = false }, 3000) })" 
@@ -202,6 +204,7 @@ endblock %} {% block content %}
                       hx-get="{{ url_for('get_group_users', group_id=group.id) }}"
                       hx-swap="outerHTML"
                       hx-target="#group-page"
+                      hx-headers='{"X-CSRF-Token": "{{ csrf_token }}"}'
                       class="font-medium text-purple-600 dark:text-purple-500 hover:underline"
                       >Allocate User</a
                     >
@@ -212,6 +215,7 @@ endblock %} {% block content %}
                       hx-get="{{ url_for('get_group_by_id', group_id=group.id) }}"
                       hx-swap="outerHTML"
                       hx-target="#group-page"
+                      hx-headers='{"X-CSRF-Token": "{{ csrf_token }}"}'
                       class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
                       >Edit</a
                     >
@@ -225,6 +229,7 @@ endblock %} {% block content %}
                       hx-confirm="Are you sure you want to delete this group? "
                       hx-vals='{"group_desc": "{{group.group_desc}}", "group_name": "{{group.group_name}}"}'
                       class="font-medium text-red-600 dark:text-red-500 hover:underline"
+                      hx-headers='{"X-CSRF-Token": "{{ csrf_token }}"}'
                       >Delete</a
                     >
                   </td>

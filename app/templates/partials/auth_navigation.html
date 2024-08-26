@@ -369,3 +369,16 @@
     console.log(isSidebarVisible, window.innerWidth);
   });
 </script>
+
+<script>
+  document.body.addEventListener("htmx:historyRestore", function (event) {
+    const currentPath = window.location.pathname;
+
+    if (currentPath === "/role") {
+      console.log("Role page restored");
+      htmx.trigger(document.getElementById("role-link"), "click");
+    }
+
+    // Perform any additional actions here
+  });
+</script>

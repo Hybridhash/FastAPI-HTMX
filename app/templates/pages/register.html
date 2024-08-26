@@ -1,85 +1,13 @@
 {% extends "base/auth_base.html" %} {% block title %} Register User | FastAPI
 HTMX{% endblock %} {% block content %}
 <div
+  x-cloak
   id="register-page"
-  x-data="{  message: '', 
-            showUsernameError: false, 
-            showRepeatPasswordError: false,
-            showPasswordError: false,
-            showPassword: false,
-            showSubmitButton: false, 
-            showServerError:false,
-            username: '',
-            password:'',
-            repeatPassword:'',
-            emailPattern: /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/,
-            passwordPattern: /^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*]).{8,}$/, 
-            checkUsername() {
-              console.log('checkUsername() called!');
-          
-              if (!this.username) {
-                this.showUsernameError = false;
-              } else if (!this.emailPattern.test(this.username)) {
-                this.showUsernameError = true;
-                this.showPassword = false;
-              } else {
-                this.showUsernameError = false;
-                this.showPassword = true;
-              }
-            },
-            // Method that is used to check if the password and the confirmation password match.
-            passwordsMatch() {
-              console.log('passwordsMatch() called!');
-              if (!this.repeatPassword)
-              {
-                this.showRepeatPasswordError = false;
-                this.showSubmitButton = true;
-              }
-              else if (this.password !== this.repeatPassword)
-              {
-                this.showRepeatPasswordError = true;
-              }
-              else{
-                this.showRepeatPasswordError = false;
-                this.showSubmitButton = false;
-              }
-            },
-            
-            // Method to check that password entered meets the criteria
-            validatePassword() {
-              console.log('validatePassword() called!');
-              if (!this.password) {
-                this.showPasswordError = false;
-                console.log('Password is not provided');
-              } else if (!this.passwordPattern.test(this.password)) {
-                this.showPasswordError = true;
-                console.log('Password does not match the pattern');
-              } else {
-                this.showPasswordError = false;
-                console.log('Password is valid');
-              }
-            },
-
-            // Method to disable button on initial load
-            disableButton() {
-              console.log('disableButton() called!');
-              this.showSubmitButton = true;
-            },
-            //Method to check the server error and make it invisible after 3 seconds
-            checkServerError() {
-              console.log('checkServerError() called!');
-              if (this.showServerError) {
-                setTimeout(() => {
-                  this.showServerError = false;
-                }, 3000);
-              }
-            },
-          }"
+  x-data="register"
   x-init="$watch('username', () => checkUsername());
           $watch('password', () => validatePassword());
-          $watch('message', () => checkServerError());
-          $watch('repeatPassword', () => passwordsMatch())
-          disableButton();"
+          $watch('message', () => checkServerError(), console.log('message changed'));
+          $watch('repeatPassword', () => passwordsMatch())"
   class="bg-gray-100 dark:bg-gray-900 flex justify-center items-center h-screen my-auto"
 >
   <div class="bg-indigo-100 shadow-lg rounded-lg p-8 max-w-md mx-auto w-96">
@@ -121,7 +49,7 @@ HTMX{% endblock %} {% block content %}
       </p>
     </div>
     <!-- Password Div-->
-    <div class="mb-2 max-w-md">
+    <div x-cloak class="mb-2 max-w-md">
       <label
         for="password"
         id="password-label"
@@ -211,20 +139,25 @@ HTMX{% endblock %} {% block content %}
     >
       <span class="font-medium"></span>
     </p>
-    <div class="mt-4">
+    <div x-cloak class="mt-4">
       <button
-        type="submit"
-        id="login-button"
-        :class="{'text-white bg-blue-700 hover-bg-blue-800 focus-ring-4 focus-outline-none focus-ring-blue-300 font-medium rounded-lg text-sm w-full sm-w-auto px-5 py-2.5 text-center dark-bg-blue-600 dark-hover-bg-blue-700 dark-focus-ring-blue-800': !showSubmitButton,
-                'text-white bg-blue-400 dark:bg-blue-500 cursor-not-allowed font-medium rounded-lg text-sm px-5 py-2.5 text-center w-full sm-w-auto text-center': showSubmitButton}"
-        x-bind:disabled="showSubmitButton"
-        @click="regUser"
+        x-cloak
+        type="button"
+        id="register-button"
+        :class="{
+          'text-white bg-blue-700 hover-bg-blue-800 focus-ring-4 focus-outline-none focus-ring-blue-300 font-medium rounded-lg text-sm w-full sm-w-auto px-5 py-2.5 text-center dark-bg-blue-600 dark-hover-bg-blue-700 dark-focus-ring-blue-800'
+          : username && password && repeatPassword && !showUsernameError && !showPasswordError && !showRepeatPasswordError,
+          'text-white bg-blue-400 dark:bg-blue-500 cursor-not-allowed font-medium rounded-lg text-sm px-5 py-2.5 text-center w-full sm-w-auto text-center'
+          : !username || !password || !repeatPassword || showUsernameError || showPasswordError || showRepeatPasswordError
+        }"
+        x-bind:disabled="!username || !password || !repeatPassword || showUsernameError || showPasswordError || showRepeatPasswordError"
+        @click="registerUser()"
       >
         Register new account
       </button>
       <div class="mt-2">
         <button
-          type="submit"
+          type="button"
           id="create-user-button"
           hx-get="{{ url_for('get_dashboard') }}"
           hx-target="#register-page"
@@ -236,55 +169,7 @@ HTMX{% endblock %} {% block content %}
         </button>
       </div>
     </div>
-    <!-- </form> is not working for url redirect on successful response 200-->
   </div>
 </div>
 
-<script>
-  //Function to register the user on clicking the register user button
-  function regUser() {
-    // Get email and password from the input fields
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
-    const repeatPassword = document.getElementById("repeatPassword").value;
-
-    if (email === "" || password === "" || repeatPassword === "") {
-      alert("Please fill in all fields");
-      return;
-    }
-    // making and form data to submit to backend server
-    const formData = {
-      email: email,
-      password: password,
-    };
-
-    console.log(JSON.stringify(formData));
-    // Sending the form data to the backend server
-    fetch("/auth/register", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(formData),
-    })
-      .then((response) => {
-        if (response.status === 201) {
-          //adding a message that user is created successfully
-          this.message = "User created successfully";
-          this.showServerError = true;
-          //Adding a delay of 3 second before redirecting to index
-          setTimeout(() => {
-            window.location.href = "/";
-          }, 3000);
-        } else if (response.status === 400) {
-          this.message = "User already exists";
-          this.showServerError = true;
-          return response.text();
-        }
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-      });
-  }
-</script>
 {% endblock %}

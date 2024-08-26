@@ -12,16 +12,16 @@
 
 This project leverages several external libraries to provide a robust and efficient solution. Below is a brief description of each library along with a link to their documentation:
 
-- [FastAPI](https://fastapi.tiangolo.com/) (v0.103.2): A modern, fast (high-performance), web framework for building APIs and serving HTML templates with Python 3.6+ based on standard Python type hints.
-- [SQLAlchemy](https://www.sqlalchemy.org/) (v2.0.21): The Python SQL toolkit and Object Relational Mapper that gives application developers the full power and flexibility of SQL.
-- [FastAPI Users](https://fastapi-users.github.io/fastapi-users/) (v12.1.2): Ready-to-use and customizable users management for FastAPI.
+- [FastAPI](https://fastapi.tiangolo.com/) (v0.112.1): A modern, fast (high-performance), web framework for building APIs and serving HTML templates with Python 3.6+ based on standard Python type hints.
+- [SQLAlchemy](https://www.sqlalchemy.org/) (v2.0.32): The Python SQL toolkit and Object Relational Mapper that gives application developers the full power and flexibility of SQL.
+- [FastAPI Users](https://fastapi-users.github.io/fastapi-users/) (v13.0.0): Ready-to-use and customizable users management for FastAPI.
 - [Uvicorn](https://www.uvicorn.org/) (v0.23.2): A lightning-fast ASGI server implementation, using `uvloop` and `httptools`.
-- [Jinja2](https://palletsprojects.com/p/jinja/) (v3.1.2): A modern and designer-friendly templating language for Python.
-- [NH3](https://github.com/Th3Whit3Wolf/nh3) (v3.1.2): A Python binding to the HTML sanitizer `h3`.
-- [Alembic](https://alembic.sqlalchemy.org/en/latest/) (v1.13.1): A lightweight database migration tool for usage with the SQLAlchemy Database Toolkit.
+- [Jinja2](https://palletsprojects.com/p/jinja/) (v3.1.4): A modern and designer-friendly templating language for Python.
+- [NH3](https://github.com/Th3Whit3Wolf/nh3) (v0.2.18): A Python binding to the HTML sanitizer `h3`.
+- [Alembic](https://alembic.sqlalchemy.org/en/latest/) (v1.13.2): A lightweight database migration tool for usage with the SQLAlchemy Database Toolkit.
 - [AlpineJS](https://alpinejs.dev/) (loaded from CDN): A rugged, minimal framework for composing JavaScript behavior in your HTML templates.
 - [Flowbite](https://flowbite.com/) (loaded from CDN): A component library built on top of Tailwind CSS for building modern web interfaces.
-- [Pydantic](https://docs.pydantic.dev/2.0/) (v2.4.2): Data validation and settings management using Python type annotations.
+- [Pydantic](https://docs.pydantic.dev/2.0/) (v2.8.2): Data validation and settings management using Python type annotations.
 
 ## Features Implemented
 
@@ -43,7 +43,7 @@ This project leverages several external libraries to provide a robust and effici
 - Implement a password reset feature on the login page
 - Implement rendering of blocks using FastAPI Fragment instead of reloading complete page or partials
 - Develop a logging service to track and analyze user activity
-- Implement CSRF protection to enhance security
+- ✅ 🛡️ Implement CSRF protection to enhance security [Completed]
 - Integrate Turso database (SQLite) for production use
 - Replace HyperScript code with Alpine JS
 - Upgrading the boilerplate code to work with Python 12 and HTMX 2

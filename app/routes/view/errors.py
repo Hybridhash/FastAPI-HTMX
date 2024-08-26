@@ -26,6 +26,7 @@ def handle_error(
     Returns:
         A FastAPI response containing the rendered template with the error messages.
     """
+    logger.info(f"context: {context}, error: {error}")
     error_messages: list[str] = []
     if isinstance(error, ValidationError):
         if error.errors():

@@ -1,11 +1,12 @@
-{% extends "base/base.html" %} {% block title %}Group Allocation | FastAPI HTMX
-{% endblock %} {% block content %}
+{% extends "base/auth_base.html" %} {% block title %}Group Allocation | FastAPI
+HTMX {% endblock %} {% block content %}
 <form
   id="create-group-form"
   hx-target="this"
   hx-post="{{ url_for('post_group_user_link' , group_id = group.id)}}"
   hx-swap="outerHTML"
   hx-push-url="true"
+  hx-headers='{"X-CSRF-Token": "{{ csrf_token }}"}'
 >
   <div class="mb-6">
     <input type="hidden" name="group_id" value="{{ group.id }}" />

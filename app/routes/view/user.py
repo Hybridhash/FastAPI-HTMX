@@ -16,6 +16,8 @@ from app.routes.view.errors import handle_error
 from app.routes.view.view_crud import SQLAlchemyCRUD
 from app.schema.users import ProfileUpdate
 
+from fastapi_csrf_protect import CsrfProtect
+
 # from app.schema.users import RoleCreate
 from app.templates import templates
 
@@ -38,6 +40,7 @@ async def get_users(
     skip: int = 0,
     limit: int = 100,
     current_user: UserModelDB = Depends(current_active_user),
+    csrf_protect: CsrfProtect = Depends(),
 ):
     """
     Route handler function to get the create user page.
@@ -62,17 +65,32 @@ async def get_users(
         token = request.cookies.get("fastapiusersauth")
         users = await user_crud.read_all(db, skip, limit, join_relationships=True)
 
-        return templates.TemplateResponse(
+        csrf_token, signed_token = csrf_protect.generate_csrf_tokens()
+
+        response = templates.TemplateResponse(
             "pages/user.html",
             {
                 "request": request,
                 "users": users,
                 "token": token,
+                "csrf_token": csrf_token,
                 "user_type": current_user.is_superuser,
             },
         )
+
+        csrf_protect.set_csrf_cookie(signed_token, response)
+
+        return response
     except Exception as e:
-        return handle_error("pages/user.html", {"request": request}, e)
+        csrf_token = request.headers.get("X-CSRF-Token")
+        return handle_error(
+            "pages/user.html",
+            {
+                "request": request,
+                "csrf_token": csrf_token,
+            },
+            e,
+        )
 
 
 @user_view_route.get("/get_create_users", response_class=HTMLResponse)
@@ -124,21 +142,29 @@ async def get_user_by_id(
                 status_code=403, detail="Not authorized to view this page"
             )
         user = await user_crud.read_by_primary_key(db, user_id, join_relationships=True)
+
+        csrf_token = request.headers.get("X-CSRF-Token")
+
         return templates.TemplateResponse(
             "partials/user/edit_user.html",
             {
                 "request": request,
                 "user": user,
                 "roles": roles,
+                "user_type": current_user.is_superuser,
+                "csrf_token": csrf_token,
             },
         )
     except Exception as e:
+        csrf_token = request.headers.get("X-CSRF-Token")
         return handle_error(
             "partials/user/edit_user.html",
             {
                 "request": request,
                 "user": user,
                 "roles": roles,
+                "user_type": current_user.is_superuser,
+                "csrf_token": csrf_token,
             },
             e,
         )
@@ -152,7 +178,9 @@ async def post_update_user(
     user_id: uuid.UUID,
     db: CurrentAsyncSession,
     current_user: UserModelDB = Depends(current_active_user),
+    csrf_protect: CsrfProtect = Depends(),
 ):
+    await csrf_protect.validate_csrf(request)
     # checking the current user as super user
     if not current_user.is_superuser:
         raise HTTPException(status_code=403, detail="Not authorized to add users")
@@ -187,7 +215,6 @@ async def post_update_user(
         user_to_update = await user_crud.read_by_primary_key(db, user_id)
 
         if user_to_update.profile_id is None:
-
             # Create UserProfile
             new_profile = await user_profile_crud.create(dict(profile_data), db)
 
@@ -198,11 +225,19 @@ async def post_update_user(
             if role_id:
                 await user_crud.update(db, user_id, {"role_id": role_id})
 
+            csrf_token, signed_token = csrf_protect.generate_csrf_tokens()
             headers = {
                 "HX-Location": "/user",
                 "HX-Trigger": "roleUpdated",
+                "csrf_token": csrf_token,
             }
-            return HTMLResponse(content="", headers=headers)
+            response = HTMLResponse(content="", headers=headers)
+
+            csrf_protect.unset_csrf_cookie(response)
+
+            csrf_protect.set_csrf_cookie(signed_token, response)
+
+            return response
         else:
             # Update existing user profile
             await user_profile_crud.update(
@@ -213,20 +248,31 @@ async def post_update_user(
             if role_id:
                 await user_crud.update(db, user_id, {"role_id": role_id})
 
+            csrf_token, signed_token = csrf_protect.generate_csrf_tokens()
+
             headers = {
                 "HX-Location": "/user",
                 "HX-Trigger": "roleUpdated",
+                "csrf_token": csrf_token,
             }
-            return HTMLResponse(content="", headers=headers)
+            response = HTMLResponse(content="", headers=headers)
+
+            csrf_protect.unset_csrf_cookie(response)
+
+            csrf_protect.set_csrf_cookie(signed_token, response)
+
+            return response
     except Exception as e:
         user = await user_crud.read_by_primary_key(db, user_id, join_relationships=True)
         roles = await role_crud.read_all(db)
+        csrf_token = request.headers.get("X-CSRF-Token")
         return handle_error(
             "partials/user/edit_user.html",
             {
                 "request": request,
                 "user": user,
                 "roles": roles,
+                "csrf_token": csrf_token,
             },
             e,
         )

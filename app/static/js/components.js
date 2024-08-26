@@ -100,6 +100,7 @@ document.addEventListener("alpine:init", () => {
     showError: false,
     showUsernameError: false,
     showPasswordDiv: false,
+    showInputButton: false,
     csrfToken: "",
 
     checkLoginUsername() {

@@ -46,6 +46,7 @@
             hx-target="#dashboard-body"
             hx-swap="outerHTML"
             class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
+            @click="sidebarOpen = false"
           >
             <svg
               class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
@@ -72,6 +73,7 @@
             hx-swap="outerHTML"
             hx-push-url="true"
             class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
+            @click="sidebarOpen = false"
           >
             <svg
               class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
@@ -95,6 +97,7 @@
             hx-swap="outerHTML"
             hx-push-url="true"
             class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
+            @click="sidebarOpen = false"
           >
             <svg
               class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
@@ -118,6 +121,7 @@
             hx-swap="outerHTML"
             hx-push-url="true"
             class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
+            @click="sidebarOpen = false"
           >
             <svg
               class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
@@ -145,6 +149,7 @@
             hx-swap="outerHTML"
             hx-push-url="true"
             class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
+            @click="sidebarOpen = false"
           >
             <svg
               class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
@@ -376,7 +381,7 @@
 
     if (currentPath === "/role") {
       console.log("Role page restored");
-      htmx.trigger(document.getElementById("role-link"), "click");
+      // htmx.trigger(document.getElementById("role-link"), "click");
     }
 
     // Perform any additional actions here

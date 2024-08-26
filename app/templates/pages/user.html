@@ -262,6 +262,7 @@ endblock %} {% block content %}
                       hx-swap="outerHTML"
                       hx-get="{{ url_for('get_user_by_id', user_id=user.id) }}"
                       hx-target="#user-page"
+                      hx-select="#edit-user-form"
                       class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
                       hx-headers='{"X-CSRF-Token": "{{ csrf_token }}"}'
                       >Edit</a

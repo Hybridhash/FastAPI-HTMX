@@ -19,6 +19,10 @@
         initFlowbite();
       });
     </script>
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
+    ></script>
     {% block additional_head %}{% endblock %}
   </head>
 
@@ -28,24 +32,11 @@
     <!-- Your page content goes here -->
     {% block content %}{% endblock %}
 
-    <!-- Include the HTMX script -->
-    <!-- <script src="https://unpkg.com/htmx.org@1.9.6" integrity="sha384-FhXw7b6AlE/jyjlZH5iHa/tTe9EpJ1Y55RjcgPbjeWMskSxZt1v9qkxLJWNJaGni" crossorigin="anonymous"></script> -->
-    <script src="/static/js/htmx.min.js?v=1.5.0"></script>
+    <!-- Components -->
+    <script type="text/javascript" src="/static/js/components.js"></script>
 
     <!-- Include the hyperscript script -->
     <script src="https://unpkg.com/hyperscript.org@0.9.11"></script>
-
-    <!-- Alpine Plugins -->
-    <script
-      defer
-      src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"
-    ></script>
-
-    <!-- Alpine Core -->
-    <script
-      defer
-      src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
-    ></script>
 
     {% block additional_scripts %}{% endblock %}
   </body>

@@ -5,6 +5,8 @@ import nh3
 from fastapi import Depends, HTTPException, Request, Response
 from fastapi.responses import HTMLResponse
 from fastapi.routing import APIRouter
+from fastapi_csrf_protect import CsrfProtect
+from loguru import logger
 
 from app.database.db import CurrentAsyncSession
 from app.database.security import current_active_user
@@ -14,10 +16,6 @@ from app.routes.view.errors import handle_error
 from app.routes.view.view_crud import SQLAlchemyCRUD
 from app.schema.users import RoleCreate
 from app.templates import templates
-
-from fastapi_csrf_protect import CsrfProtect
-
-from loguru import logger
 
 role_view_route = APIRouter()
 
@@ -77,7 +75,11 @@ async def get_create_roles(
         csrf_token = request.headers.get("X-CSRF-Token")
         response = templates.TemplateResponse(
             "partials/role/add_role.html",
-            {"request": request, "csrf_token": csrf_token},
+            {
+                "request": request,
+                "csrf_token": csrf_token,
+                "user_type": current_user.is_superuser,
+            },
         )
 
         return response
@@ -85,7 +87,11 @@ async def get_create_roles(
         csrf_token = request.headers.get("X-CSRF-Token")
         return handle_error(
             "partials/role/add_role.html",
-            {"request": request, "csrf_token": csrf_token},
+            {
+                "request": request,
+                "csrf_token": csrf_token,
+                "user_type": current_user.is_superuser,
+            },
             e,
         )
 
@@ -171,6 +177,7 @@ async def get_role_by_id(
                 "request": request,
                 "role": role,
                 "csrf_token": csrf_token,
+                "user_type": current_user.is_superuser,
             },
         )
 
@@ -179,7 +186,11 @@ async def get_role_by_id(
         csrf_token = request.headers.get("X-CSRF-Token")
         return handle_error(
             "partials/role/edit_role.html",
-            {"request": request, "csrf_token": csrf_token},
+            {
+                "request": request,
+                "csrf_token": csrf_token,
+                "user_type": current_user.is_superuser,
+            },
             e,
         )
 

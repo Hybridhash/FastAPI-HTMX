@@ -1,5 +1,5 @@
-from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import Field
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class CsrfSettings(BaseSettings):
@@ -13,4 +13,3 @@ class CsrfSettings(BaseSettings):
 
 
 crsf_settings = CsrfSettings()
-print(crsf_settings.secret_key)

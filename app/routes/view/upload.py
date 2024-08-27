@@ -21,7 +21,7 @@ upload_crud = SQLAlchemyCRUD[UploadsModelDB](UploadsModelDB)
 upload_view_route = APIRouter()
 
 
-@upload_view_route.get("/get_upload_file", response_class=HTMLResponse)
+@upload_view_route.get("/uploads", response_class=HTMLResponse)
 async def get_upload_file(
     request: Request,
     db: CurrentAsyncSession,
@@ -57,12 +57,12 @@ async def post_upload_file(
     current_user: UserModelDB = Depends(current_active_user),
     file: UploadFile = File(...),
 ):
-
     try:
         if not current_user.is_superuser:
             raise HTTPException(
                 status_code=403, detail="Not authorized to upload files"
             )
+
         if file.filename is None:
             raise HTTPException(status_code=400, detail="Filename is missing")
         file_extension = file.filename.split(".")[-1]
@@ -117,6 +117,9 @@ async def get_uploaded_files(
         files = await upload_crud.read_by_column(
             db, "user_id", current_user.id, skip, limit
         )
+        # Check if files is iterable
+        if not hasattr(files, "__iter__"):
+            files = [files]
         return templates.TemplateResponse(
             "partials/upload/files_table.html",
             {

@@ -141,8 +141,7 @@ endblock %} {% block content %}
             hx-post="{{ url_for('post_upload_file')}}"
             hx-target="#upload-result"
             hx-trigger="submit"
-            hx-on::after-request="if(event.detail.successful) { this.reset();   }; handleUploadRequest();"
-            hx-on::htmx:load="this.reset();"
+            hx-on::after-request="if(event.detail.successful) { this.reset();  handleUploadRequest(); console.log(event.detail.successful)}"
           >
             <label
               class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
@@ -173,11 +172,15 @@ endblock %} {% block content %}
               >
             </div>
             <button
-              :disabled="!fileLoaded && isLoading && fileName =='';"
-              :class="fileLoaded ?
-              'mt-4 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800'
-              : 'mt-4 text-white bg-blue-400 dark:bg-blue-500 cursor-not-allowed font-medium rounded-lg text-sm px-5 py-2.5 text-center'"
-              x-on:click="fileLoaded = false; isLoading = true"
+              type="submit"
+              x-bind:disabled="!fileLoaded"
+              :class="{
+                'mt-4 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800':
+                  fileLoaded && !isLoading,
+                'mt-4 text-white bg-blue-400 dark:bg-blue-500 disabled:cursor-not-allowed font-medium rounded-lg text-sm px-5 py-2.5 text-center':
+                  !fileLoaded || isLoading,
+              }"
+              @click="isLoading = true"
             >
               <svg
                 x-show="isLoading"

@@ -39,7 +39,7 @@ async def get_dashboard(
 
 
 @login_view_route.get("/")
-async def get_index(request: Request):
+async def get_index(request: Request, csrf_protect: CsrfProtect = Depends()):
     cookies = request.cookies
     cookie_value = cookies.get("fastapiusersauth")
     if cookie_value is not None:

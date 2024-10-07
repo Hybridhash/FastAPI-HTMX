@@ -88,8 +88,6 @@ class SQLAlchemyCRUD(Generic[ModelType]):
         if limit:
             stmt = stmt.limit(limit)
         query = await db.execute(stmt)
-
-        await db.close()
         return list(query.unique().scalars().all())
 
     async def read_by_primary_key(
@@ -125,7 +123,6 @@ class SQLAlchemyCRUD(Generic[ModelType]):
         stmt = stmt.where(self.db_model.id == id)
         query = await db.execute(stmt)
         record = query.scalar()
-        await db.close()
         if not record:
             raise HTTPException(status_code=404, detail=f"Record with {id} not found")
         return record
@@ -170,7 +167,6 @@ class SQLAlchemyCRUD(Generic[ModelType]):
         query = await db.execute(stmt)
         # unique(): to avoid duplicate rows in case of join operations.
         records = list(query.unique().scalars().all())
-        await db.close()
         if not records:
             return None
         elif len(records) == 1:

@@ -183,11 +183,13 @@ async def post_update_user(
     current_user: UserModelDB = Depends(current_active_user),
     csrf_protect: CsrfProtect = Depends(),
 ):
-    await csrf_protect.validate_csrf(request)
-    # checking the current user as super user
-    if not current_user.is_superuser:
-        raise HTTPException(status_code=403, detail="Not authorized to add users")
+
     try:
+        await csrf_protect.validate_csrf(request)
+        # checking the current user as super user
+        if not current_user.is_superuser:
+            raise HTTPException(status_code=403, detail="Not authorized to add users")
+
         form = await request.form()
         # Iterate over the form fields and sanitize the values before validating against the Pydantic model
         profile_data = ProfileUpdate(

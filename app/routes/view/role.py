@@ -276,6 +276,7 @@ async def delete_role(
     csrf_protect: CsrfProtect = Depends(),
 ):
     try:
+        await csrf_protect.validate_csrf(request)
         # checking the current user as super user
         if not current_user.is_superuser:
             raise HTTPException(
@@ -310,5 +311,11 @@ async def delete_role(
     except Exception as e:
         csrf_token = request.headers.get("X-CSRF-Token")
         return handle_error(
-            "pages/role.html", {"request": request, "csrf_token": csrf_token}, e
+            "pages/role.html",
+            {
+                "request": request,
+                "csrf_token": csrf_token,
+                "user_type": current_user.is_superuser,
+            },
+            e,
         )

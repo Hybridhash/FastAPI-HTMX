@@ -233,9 +233,9 @@ async def post_update_group(
     current_user: UserModelDB = Depends(current_active_user),
     csrf_protect: CsrfProtect = Depends(),
 ):
-    await csrf_protect.validate_csrf(request)
 
     try:
+        await csrf_protect.validate_csrf(request)
         # checking the current user as super user
         if not current_user.is_superuser:
             raise HTTPException(status_code=403, detail="Not authorized to add groups")
@@ -297,9 +297,10 @@ async def delete_group(
     current_user: UserModelDB = Depends(current_active_user),
     csrf_protect: CsrfProtect = Depends(),
 ):
-    await csrf_protect.validate_csrf(request)
 
     try:
+        await csrf_protect.validate_csrf(request)
+
         extra_info = await request.body()
 
         parsed_values = parse_qs(unquote_plus(extra_info.decode()))
@@ -394,11 +395,12 @@ async def post_group_user_link(
     current_user: UserModelDB = Depends(current_active_user),
     csrf_protect: CsrfProtect = Depends(),
 ):
-    await csrf_protect.validate_csrf(request)
-    # checking the current user as super user
-    if not current_user.is_superuser:
-        raise HTTPException(status_code=403, detail="Not authorized to add groups")
+
     try:
+        await csrf_protect.validate_csrf(request)
+        # checking the current user as super user
+        if not current_user.is_superuser:
+            raise HTTPException(status_code=403, detail="Not authorized to add groups")
         form = await request.form()
 
         all_users = set(form.getlist("all_users"))

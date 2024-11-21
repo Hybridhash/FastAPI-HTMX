@@ -1,4 +1,5 @@
 # importing the required modules
+import json
 import uuid
 
 import nh3
@@ -6,7 +7,6 @@ from fastapi import Depends, HTTPException, Request, Response
 from fastapi.responses import HTMLResponse
 from fastapi.routing import APIRouter
 from fastapi_csrf_protect import CsrfProtect
-from loguru import logger
 
 from app.database.db import CurrentAsyncSession
 from app.database.security import current_active_user
@@ -106,7 +106,7 @@ async def post_create_roles(
     csrf_protect: CsrfProtect = Depends(),
 ):
     try:
-        logger.info(request.headers)
+
         await csrf_protect.validate_csrf(request)
         # checking the current user as super user
         if not current_user.is_superuser:
@@ -133,7 +133,15 @@ async def post_create_roles(
         # Redirecting to the add role page upon successful role creation
         headers = {
             "HX-Location": "/role",
-            "HX-Trigger": "roleAdded",
+            "HX-Trigger": json.dumps(
+                {
+                    "showAlert": {
+                        "type": "added",
+                        "message": f"{role_create.role_name} added successfully",
+                        "source": "role-page",
+                    },
+                }
+            ),
             "HX-Push-Url": "true",
             "csrf_token": csrf_token,
         }
@@ -149,7 +157,11 @@ async def post_create_roles(
         csrf_token = request.headers.get("X-CSRF-Token")
         return handle_error(
             "partials/role/add_role.html",
-            {"request": request, "csrf_token": csrf_token},
+            {
+                "request": request,
+                "csrf_token": csrf_token,
+                "user_type": current_user.is_superuser,
+            },
             e,
         )
 
@@ -225,7 +237,15 @@ async def post_update_role(
         # Redirecting to the add role page upon successful role creation
         headers = {
             "HX-Location": "/role",
-            "HX-Trigger": "roleUpdated",
+            "HX-Trigger": json.dumps(
+                {
+                    "showAlert": {
+                        "type": "updated",
+                        "message": f"{role_update.role_name} updated successfully",
+                        "source": "role-page",
+                    },
+                }
+            ),
             "HX-Boost": "true",
             "csrf_token": csrf_token,
         }
@@ -264,10 +284,18 @@ async def delete_role(
         await role_crud.delete(db, role_id)
 
         csrf_token, signed_token = csrf_protect.generate_csrf_tokens()
-
+        role_name = request.headers.get("X-Role-Name")
         headers = {
             "HX-Location": "/role",
-            "HX-Trigger": "roleDeleted",
+            "HX-Trigger": json.dumps(
+                {
+                    "showAlert": {
+                        "type": "deleted",
+                        "message": f"{role_name} deleted successfully",
+                        "source": "role-page",
+                    },
+                }
+            ),
             "HX-Boost": "true",
             "csrf_token": csrf_token,
         }

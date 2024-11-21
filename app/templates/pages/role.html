@@ -5,7 +5,14 @@ endblock %} {% block content %}
   <div
     class="p-4 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700"
   >
-    <div id="role-page">
+    <div
+      x-data="{ isLoading: false,
+      isUpdated:false, 
+      isAdded:false, 
+      isDeleted:false, 
+      message:''}"
+      id="role-page"
+    >
       <div class="grid grid-cols-3 gap-4 mb-4">
         <div
           class="flex items-center justify-center h-24 rounded bg-gray-50 dark:bg-gray-800"
@@ -77,6 +84,42 @@ endblock %} {% block content %}
         {%endfor%}
       </div>
       {% else %}
+      <div
+        x-init="$watch('isUpdated', value => { if (value) setTimeout(() => { isUpdated = false }, 3000) }); 
+                  $watch('isAdded', value => {if (value) setTimeout(() => { isAdded = false }, 3000) }); 
+                  $watch('isDeleted', value => { if (value) setTimeout(() => { isDeleted = false }, 3000) })"
+      >
+        <div
+          x-show="isUpdated"
+          x-transition:leave="transition ease-in duration-1000"
+          x-transition:leave-start="opacity-100"
+          x-transition:leave-end="opacity-0"
+          class="p-4 mb-4 text-sm text-yellow-800 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300"
+          role="alert"
+        >
+          <span class="font-medium" x-text="message"></span>
+        </div>
+        <div
+          x-show="isAdded"
+          x-transition:leave="transition ease-in duration-1000"
+          x-transition:leave-start="opacity-100"
+          x-transition:leave-end="opacity-0"
+          class="p-4 mb-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400"
+          role="alert"
+        >
+          <span class="font-medium" x-text="message"></span>
+        </div>
+        <div
+          x-show="isDeleted"
+          x-transition:leave="transition ease-in duration-1000"
+          x-transition:leave-start="opacity-100"
+          x-transition:leave-end="opacity-0"
+          class="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400"
+          role="alert"
+        >
+          <span class="font-medium" x-text="message"></span>
+        </div>
+      </div>
       <!-- Table for the roles extracted from the back end -->
       <div hx-ext="response-targets">
         <div id="create-role-form">
@@ -94,29 +137,6 @@ endblock %} {% block content %}
           >
             Add Role
           </button>
-          <div
-            id="role-updated"
-            class="hidden p-4 mb-4 text-sm text-yellow-800 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300"
-            role="alert"
-          >
-            <span class="font-medium">Memberships updated successfully</span>
-          </div>
-
-          <div
-            id="role-added"
-            class="hidden p-4 mb-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400"
-            role="alert"
-          >
-            <span class="font-medium">Role added successfully</span>
-          </div>
-
-          <div
-            id="role-deleted"
-            class="hidden p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400"
-            role="alert"
-          >
-            <span class="font-medium">Role deleted successfully</span>
-          </div>
 
           {%if error_message%}
           <div
@@ -175,6 +195,7 @@ endblock %} {% block content %}
                       hx-delete="{{ url_for('delete_role', role_id=role.id) }}"
                       hx-swap="outerHTML"
                       hx-target="#role-page"
+                      hx-headers='{"X-Role-Name": "{{ role.role_name }}"}'
                       hx-confirm="Are you sure you want to delete this role? "
                       class="font-medium text-red-600 dark:text-red-500 hover:underline"
                       >Delete</a
@@ -407,34 +428,4 @@ endblock %} {% block content %}
     </div>
   </div>
 </div>
-<script type="text/hyperscript">
-  on roleUpdated
-    wait for load or 1s
-    remove .hidden from #role-updated
-    wait 3s
-    transition #role-updated opacity to 0
-    add .hidden to #role-updated
-  end
-</script>
-
-<script type="text/hyperscript">
-  on roleAdded
-    wait for load or 1s
-    remove .hidden from #role-added
-    wait 3s
-    transition #role-added opacity to 0
-    add .hidden to #role-added
-  end
-</script>
-
-<script type="text/hyperscript">
-  on roleDeleted
-    wait for load or 1s
-    remove .hidden from #role-deleted
-    wait 3s
-    transition #role-deleted opacity to 0
-    add .hidden to #role-deleted
-  end
-</script>
-
 {% endblock %}

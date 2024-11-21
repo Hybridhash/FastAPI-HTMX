@@ -155,44 +155,60 @@ document.addEventListener("alpine:init", () => {
   }));
 });
 
-/**
- * Listens for the "showAlert" event on the document.body and updates the data of the "upload-page" component accordingly.
- * If the event detail has a "type" property of "updated", "added", or "deleted",
- * it sets the corresponding data properties on the "upload-page" component.
- * The data properties set are "isUpdated", "isAdded", and "isDeleted" respectively, and the "message" property is set to the value of the "message" property in the event detail.
- * If the "upload-page" component is not found, an error is logged to the console.
- */
-document.body.addEventListener("showAlert", function (evt) {
+// Store pending alerts during page transitions
+window.pendingAlerts = [];
+
+// Handle direct HTMX swaps
+document.body.addEventListener("htmx:afterSettle", function (evt) {
   try {
-    console.log("showAlert event received in Component.js");
-    const source = evt.detail.source;
-    const components = document.querySelectorAll("[x-data]");
+    const triggerHeader = evt.detail.xhr?.getResponseHeader("HX-Trigger");
 
-    const uploadPageIndex = Array.from(components).findIndex(
-      (component) => component.id === source
-    );
-
-    if (uploadPageIndex === -1) {
-      throw new Error("No element with id 'upload-page' found");
-    }
-    const component = components[uploadPageIndex];
-    if (!component) {
-      throw new Error("No element with x-data found");
-    }
-    const data = Alpine.mergeProxies(component._x_dataStack);
-    setTimeout(function () {
-      if (evt.detail.type == "updated") {
-        data.isUpdated = true;
-        data.message = evt.detail.message;
-      } else if (evt.detail.type == "added") {
-        data.isAdded = true;
-        data.message = evt.detail.message;
-      } else if (evt.detail.type == "deleted") {
-        data.isDeleted = true;
-        data.message = evt.detail.message;
+    if (triggerHeader) {
+      const triggerData = JSON.parse(triggerHeader);
+      if (triggerData.showAlert) {
+        showAlertMessage(triggerData.showAlert);
       }
-    }, 1000);
+    }
+
+    // Check for pending alerts from page transitions
+    while (window.pendingAlerts.length > 0) {
+      const alertData = window.pendingAlerts.pop();
+      showAlertMessage(alertData);
+    }
   } catch (error) {
-    console.error("Error in message display:", error);
+    console.error("Error handling afterSettle:", error);
   }
 });
+
+// Handle page transitions with HX-Location
+document.body.addEventListener("showAlert", function (evt) {
+  try {
+    // Store alert for processing after page load
+    window.pendingAlerts.push(evt.detail);
+  } catch (error) {
+    console.error("Error handling showAlert:", error);
+  }
+});
+
+function showAlertMessage(alertData) {
+  const component = htmx.find(`#${alertData.source}`);
+
+  if (!component) {
+    throw new Error(`No element with id '${alertData.source}' found`);
+  }
+
+  const data = Alpine.mergeProxies(component._x_dataStack);
+
+  setTimeout(function () {
+    if (alertData.type === "updated") {
+      data.isUpdated = true;
+      data.message = alertData.message;
+    } else if (alertData.type === "added") {
+      data.isAdded = true;
+      data.message = alertData.message;
+    } else if (alertData.type === "deleted") {
+      data.isDeleted = true;
+      data.message = alertData.message;
+    }
+  }, 1000);
+}

@@ -5,7 +5,14 @@ endblock %} {% block content %}
   <div
     class="p-4 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700"
   >
-    <div id="user-page">
+    <div
+      x-data="{ isLoading: false, 
+          isUpdated:false, 
+      isAdded:false, 
+      isDeleted:false, 
+      message:''}"
+      id="user-page"
+    >
       <div class="grid grid-cols-3 gap-4 mb-4">
         <div
           class="flex items-center justify-center h-24 rounded bg-gray-50 dark:bg-gray-800"
@@ -81,29 +88,41 @@ endblock %} {% block content %}
       <div hx-ext="response-targets">
         <div id="create-user-form">
           <div
-            id="user-updated"
-            class="hidden p-4 mb-4 text-sm text-yellow-800 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300"
-            role="alert"
+            x-init="$watch('isUpdated', value => { if (value) setTimeout(() => { isUpdated = false }, 3000) }); 
+                    $watch('isAdded', value => {if (value) setTimeout(() => { isAdded = false }, 3000) }); 
+                    $watch('isDeleted', value => { if (value) setTimeout(() => { isDeleted = false }, 3000) })"
           >
-            <span class="font-medium">Memberships updated successfully</span>
+            <div
+              x-show="isUpdated"
+              x-transition:leave="transition ease-in duration-1000"
+              x-transition:leave-start="opacity-100"
+              x-transition:leave-end="opacity-0"
+              class="p-4 mb-4 text-sm text-yellow-800 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300"
+              role="alert"
+            >
+              <span class="font-medium" x-text="message"></span>
+            </div>
+            <div
+              x-show="isAdded"
+              x-transition:leave="transition ease-in duration-1000"
+              x-transition:leave-start="opacity-100"
+              x-transition:leave-end="opacity-0"
+              class="p-4 mb-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400"
+              role="alert"
+            >
+              <span class="font-medium" x-text="message"></span>
+            </div>
+            <div
+              x-show="isDeleted"
+              x-transition:leave="transition ease-in duration-1000"
+              x-transition:leave-start="opacity-100"
+              x-transition:leave-end="opacity-0"
+              class="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400"
+              role="alert"
+            >
+              <span class="font-medium" x-text="message"></span>
+            </div>
           </div>
-
-          <div
-            id="user-added"
-            class="hidden p-4 mb-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400"
-            role="alert"
-          >
-            <span class="font-medium">user added successfully</span>
-          </div>
-
-          <div
-            id="user-deleted"
-            class="hidden p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400"
-            role="alert"
-          >
-            <span class="font-medium">user deleted successfully</span>
-          </div>
-
           {%if error_message%}
           <div
             id="error-message"
@@ -504,35 +523,6 @@ endblock %} {% block content %}
     </div>
   </div>
 </div>
-<script type="text/hyperscript">
-  on userUpdated
-    wait for load or 1s
-    remove .hidden from #user-updated
-    wait 3s
-    transition #user-updated opacity to 0
-    add .hidden to #user-updated
-  end
-</script>
-
-<script type="text/hyperscript">
-  on userAdded
-    wait for load or 1s
-    remove .hidden from #user-added
-    wait 3s
-    transition #user-added opacity to 0
-    add .hidden to #user-added
-  end
-</script>
-
-<script type="text/hyperscript">
-  on userDeleted
-    wait for load or 1s
-    remove .hidden from #user-deleted
-    wait 3s
-    transition #user-deleted opacity to 0
-    add .hidden to #user-deleted
-  end
-</script>
 
 <script>
   async function deleteUser(userId, authToken) {

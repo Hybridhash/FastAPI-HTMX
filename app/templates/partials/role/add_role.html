@@ -3,6 +3,12 @@ endblock %} {% block content %}
 
 <form
   id="create-role-form"
+  x-data="{ 
+    roleName: '',
+    roleDesc: '',
+    roleTypeError: '',
+    roleDescError: ''
+  }"
   hx-target="this"
   hx-post="{{ url_for('post_create_roles') }}"
   hx-swap="outerHTML"
@@ -19,16 +25,19 @@ endblock %} {% block content %}
       type="text"
       id="role-type"
       name="role_name"
+      x-model="roleName"
+      x-effect="roleTypeError = !roleName ? 'Please enter the Role Type' : ''"
       class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light"
       placeholder="Project Manager"
-      _="on htmx:validation:validate
-                if my.value == ''
-                    call me.setCustomValidity('Please enter the Role Type')
-                else
-                    call me.setCustomValidity('')"
       required
     />
+    <p
+      x-show="roleTypeError"
+      x-text="roleTypeError"
+      class="mt-2 text-sm text-red-600"
+    ></p>
   </div>
+
   <div class="mb-6">
     <label
       for="role-desc"
@@ -39,11 +48,19 @@ endblock %} {% block content %}
       type="text"
       id="role-desc"
       name="role_desc"
+      x-model="roleDesc"
+      x-effect="roleDescError = !roleDesc ? 'Please enter the Role Description' : ''"
       placeholder="Project manager is responsible for the planning, execution and closing of any project."
       class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light"
       required
     />
+    <p
+      x-show="roleDescError"
+      x-text="roleDescError"
+      class="mt-2 text-sm text-red-600"
+    ></p>
   </div>
+
   {% if error_messages %}
   <div
     id="error-message"

@@ -4,10 +4,10 @@ from typing import Optional
 
 from dotenv import load_dotenv
 from fastapi import Depends, Request, Response
+from fastapi_csrf_protect import CsrfProtect
 from fastapi_users import BaseUserManager, FastAPIUsers, UUIDIDMixin
 from fastapi_users.authentication import (
     AuthenticationBackend,
-    BearerTransport,
     CookieTransport,
     JWTStrategy,
 )
@@ -15,11 +15,8 @@ from fastapi_users.db import SQLAlchemyUserDatabase
 from fastapi_users.jwt import decode_jwt
 from jwt.exceptions import InvalidTokenError
 from loguru import logger
-from fastapi_csrf_protect import CsrfProtect
+
 from app.database.db import User, get_user_db
-
-
-load_dotenv()
 
 SECRET: str = os.getenv("AUTH_SECRET", "my_default_secret_key")
 
@@ -79,7 +76,6 @@ async def get_user_manager(user_db: SQLAlchemyUserDatabase = Depends(get_user_db
 
 
 cookie_transport = CookieTransport(cookie_max_age=3600)
-bearer_transport = BearerTransport(tokenUrl="auth/jwt/login")
 
 
 def get_jwt_strategy() -> JWTStrategy:

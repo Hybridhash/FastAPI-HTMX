@@ -13,15 +13,15 @@
 This project leverages several external libraries to provide a robust and efficient solution. Below is a brief description of each library along with a link to their documentation:
 
 - [FastAPI](https://fastapi.tiangolo.com/) (v0.112.1): A modern, fast (high-performance), web framework for building APIs and serving HTML templates with Python 3.6+ based on standard Python type hints.
-- [SQLAlchemy](https://www.sqlalchemy.org/) (v2.0.32): The Python SQL toolkit and Object Relational Mapper that gives application developers the full power and flexibility of SQL.
+- [SQLAlchemy](https://www.sqlalchemy.org/) (v2.0.36): The Python SQL toolkit and Object Relational Mapper that gives application developers the full power and flexibility of SQL.
 - [FastAPI Users](https://fastapi-users.github.io/fastapi-users/) (v13.0.0): Ready-to-use and customizable users management for FastAPI.
 - [Uvicorn](https://www.uvicorn.org/) (v0.23.2): A lightning-fast ASGI server implementation, using `uvloop` and `httptools`.
 - [Jinja2](https://palletsprojects.com/p/jinja/) (v3.1.4): A modern and designer-friendly templating language for Python.
 - [NH3](https://github.com/Th3Whit3Wolf/nh3) (v0.2.18): A Python binding to the HTML sanitizer `h3`.
-- [Alembic](https://alembic.sqlalchemy.org/en/latest/) (v1.13.2): A lightweight database migration tool for usage with the SQLAlchemy Database Toolkit.
+- [Alembic](https://alembic.sqlalchemy.org/en/latest/) (v1.14.0): A lightweight database migration tool for usage with the SQLAlchemy Database Toolkit.
 - [AlpineJS](https://alpinejs.dev/) (loaded from CDN): A rugged, minimal framework for composing JavaScript behavior in your HTML templates.
 - [Flowbite](https://flowbite.com/) (loaded from CDN): A component library built on top of Tailwind CSS for building modern web interfaces.
-- [Pydantic](https://docs.pydantic.dev/2.0/) (v2.8.2): Data validation and settings management using Python type annotations.
+- [Pydantic](https://docs.pydantic.dev/2.0/) (v2.10.0): Data validation and settings management using Python type annotations.
 
 ## Features Implemented
 
@@ -36,20 +36,20 @@ This project leverages several external libraries to provide a robust and effici
 
 ## To-Do (Future Enhancements)
 
-- Implement Theming using Flowbite and Tailwind
-- Implement a rate limiter to prevent abuse and ensure fair usage
-- Integrate MinIO object storage for efficient file saving and management
-- Add functionality to allow users to update their passwords
-- Implement a password reset feature on the login page
-- Implement rendering of blocks using FastAPI Fragment instead of reloading complete page or partials
-- Develop a logging service to track and analyze user activity
-- ✅ 🛡️ Implement CSRF protection to enhance security [Completed]
-- Integrate Turso database (SQLite) for production use
-- Replace HyperScript code with Alpine JS
-- Upgrading the boilerplate code to work with Python 12 and HTMX 2
-- Fixing the GUI issues appearing in mobile view
-- Add more tests
-- Wrapper to handle the pydantic models inputs efficiently from front end
+- 🎨 Implement Theming using Flowbite and Tailwind
+- 🚦 Implement a rate limiter to prevent abuse and ensure fair usage
+- ✅ 📦 Integrate MinIO object storage for efficient file saving and management **[Completed]**
+- 🔑 Add functionality to allow users to update their passwords
+- 🔄 Implement a password reset feature on the login page
+- ⚡ Implement rendering of blocks using FastAPI Fragment instead of reloading complete page or partials **[In Progress]**
+- 📝 Develop a logging service to track and analyze user activity
+- ✅ 🛡️ Implement CSRF protection to enhance security **[Completed]**
+- 💾 Integrate Neon database (SQLite) for production use **[In Progress]**
+- ✅ 🎨 Replace HyperScript code with Alpine JS **[Completed]**
+- 🚀 Upgrading the boilerplate code to work with Python 12 and HTMX 2 **[In Progress]**
+- ✅ 📱 Fixing the GUI issues appearing in mobile view **[Completed]**
+- 🧪 Add more tests
+- 🔧 Wrapper to handle the pydantic models inputs efficiently from front end
 
 ## Demo
 
@@ -69,11 +69,26 @@ This project leverages several external libraries to provide a robust and effici
 Create a `.env` file in the root directory of the project and add the following environment variables:
 
 ```
+# Database Configuration
 DATABASE_URL="sqlite+aiosqlite:///./users.db"
-SECRET_KEY=your_secret_key
+SECRET_KEY="super-secret-key-example-123456789"
+
+# MinIO Configuration (Required for file uploads)
+MINIO_URL="http://localhost:9000"
+MINIO_ACCESS_KEY="minioadmin123456789"
+MINIO_SECRET_KEY="miniosecret987654321xyz"
+MINIO_BUCKET="my-fastapi-bucket"
+MINIO_SECURE=false
+
+# CSRF Protection
+CSRF_SECRET_KEY="csrf-secret-key-example-987654321"
+COOKIE_SAMESITE="lax"
+COOKIE_SECURE=true
 ```
 
 Replace `your_secret_key` with a strong secret key for your application.
+
+**Note:** While using sample MinIO credentials will allow the database to record file uploads, the actual files won't be stored without valid MinIO server credentials. For full file storage functionality, set up a MinIO server or use valid MinIO service credentials.
 
 ### Running the Project
 
@@ -184,24 +199,44 @@ Below is an overview of the project structure for application. This structure is
 ```bash
 FastAPI-HTMX/
 ├── app/
-│ ├── core/ # Core application logic and utilities
-│ ├── database/ # Database configurations and connections
-│ ├── migrations/ # Alembic migration scripts
-│ ├── models/ # SQLAlchemy ORM models
-│ ├── routes/ # API route definitions
-│ │ ├── api/ # API endpoints
-│ │ └── view/ # View routes for web interface
-│ │ └── view_crud.py # SQLAlchemyCRUD class for database operations
-│ ├── schema/ # Pydantic schemas for data validation
-│ │ └── pydantic_base.py # Pydantic partial model decorator
-│ ├── static/ # Static files (CSS, JS, images)
-│ └── templates/ # Jinja2 HTML templates
-├── tests/ # Unit and integration tests
-├── alembic.ini # Alembic configuration file
-├── main.py # Application entry point
-├── poetry.lock # Poetry lock file for dependencies
-├── pyproject.toml # Project configuration and dependencies
-└── README.md # Project documentation
+│ ├── core/             # Core application logic and utilities
+│ │ ├── config.py         # Application configuration
+│ │ └── security.py       # Security utilities
+│ ├── database/         # Database configurations and connections
+│ │ ├── base.py           # Base database setup
+│ │ └── session.py        # Database session management
+│ ├── migrations/         # Alembic migration scripts
+│ ├── models/           # SQLAlchemy ORM models
+│ │ ├── groups.py         # Group model definitions
+│ │ ├── roles.py          # Role model definitions
+│ │ └── users.py          # User model definitions
+│ ├── routes/           # API route definitions
+│ │ ├── api/
+│ │ │ ├── auth.py         # Authentication endpoints
+│ │ │ └── users.py        # User management endpoints
+│ │ └── view/           # View routes for web interface
+│ │   ├── group.py        # Group management views
+│ │   ├── role.py         # Role management views
+│ │   └── view_crud.py    # SQLAlchemyCRUD class
+│ ├── schema/           # Pydantic schemas
+│ │ ├── group.py          # Group schemas
+│ │ ├── role.py           # Role schemas
+│ │ └── user.py           # User schemas
+│ ├── static/           # Static files
+│ │ ├── css/              # Stylesheets
+│ │ ├── js/               # JavaScript files
+│ │ └── img/              # Images and assets
+│ └── templates/        # Jinja2 HTML templates
+│   ├── auth/             # Authentication templates
+│   ├── components/       # Reusable components
+│   └── partials/         # Partial templates
+├── tests/              # Unit and integration tests
+├── .env                # Environment variables
+├── alembic.ini         # Alembic configuration
+├── main.py             # Application entry point
+├── poetry.lock         # Poetry dependencies lock
+├── pyproject.toml      # Project configuration
+└── README.md           # Project documentation
 ```
 
 ## ER Diagram

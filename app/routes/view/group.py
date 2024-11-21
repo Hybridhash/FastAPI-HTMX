@@ -6,6 +6,7 @@ import nh3
 from fastapi import Depends, HTTPException, Request, Response
 from fastapi.responses import HTMLResponse
 from fastapi.routing import APIRouter
+from fastapi_csrf_protect import CsrfProtect
 from sqlalchemy import select
 
 from app.database.db import CurrentAsyncSession
@@ -20,7 +21,6 @@ from app.routes.view.view_crud import SQLAlchemyCRUD
 from app.schema.group import GroupCreate
 from app.schema.group import GroupUserLink as GroupUserLinkCreate
 from app.templates import templates
-from fastapi_csrf_protect import CsrfProtect
 
 group_view_route = APIRouter()
 
@@ -193,6 +193,7 @@ async def post_create_group(
                     "showAlert": {
                         "type": "added",
                         "message": "Group added successfully",
+                        "source": "group-page",
                     }
                 }
             ),
@@ -213,7 +214,11 @@ async def post_create_group(
         csrf_token = request.headers.get("X-CSRF-Token")
         return handle_error(
             "partials/group/add_group.html",
-            {"request": request, "csrf_token": csrf_token},
+            {
+                "request": request,
+                "csrf_token": csrf_token,
+                "user_type": current_user.is_superuser,
+            },
             e,
         )
 
@@ -255,6 +260,7 @@ async def post_update_group(
                     "showAlert": {
                         "type": "updated",
                         "message": "Group updated successfully",
+                        "source": "group-page",
                     }
                 }
             ),
@@ -313,7 +319,8 @@ async def delete_group(
                 {
                     "showAlert": {
                         "type": "deleted",
-                        "message": f"Group : {group_name} deleted successfully",
+                        "message": f"{group_name} deleted successfully",
+                        "source": "group-page",
                     }
                 }
             ),
@@ -447,6 +454,7 @@ async def post_group_user_link(
                     "showAlert": {
                         "type": "added",
                         "message": "User allocated to Group successfully",
+                        "source": "group-page",
                     }
                 }
             ),

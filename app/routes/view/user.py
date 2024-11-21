@@ -1,4 +1,5 @@
 # importing the required modules
+import json
 import uuid
 from datetime import datetime
 
@@ -6,6 +7,7 @@ import nh3
 from fastapi import Depends, HTTPException, Request, Response
 from fastapi.responses import HTMLResponse
 from fastapi.routing import APIRouter
+from fastapi_csrf_protect import CsrfProtect
 
 from app.database.db import CurrentAsyncSession
 from app.database.security import current_active_user
@@ -15,8 +17,6 @@ from app.models.users import UserProfile as UserProfileModelDB
 from app.routes.view.errors import handle_error
 from app.routes.view.view_crud import SQLAlchemyCRUD
 from app.schema.users import ProfileUpdate
-
-from fastapi_csrf_protect import CsrfProtect
 
 # from app.schema.users import RoleCreate
 from app.templates import templates
@@ -82,12 +82,15 @@ async def get_users(
 
         return response
     except Exception as e:
+        token = request.cookies.get("fastapiusersauth")
         csrf_token = request.headers.get("X-CSRF-Token")
         return handle_error(
             "pages/user.html",
             {
                 "request": request,
                 "csrf_token": csrf_token,
+                "token": token,
+                "user_type": current_user.is_superuser,
             },
             e,
         )
@@ -228,7 +231,15 @@ async def post_update_user(
             csrf_token, signed_token = csrf_protect.generate_csrf_tokens()
             headers = {
                 "HX-Location": "/user",
-                "HX-Trigger": "roleUpdated",
+                "HX-Trigger": json.dumps(
+                    {
+                        "showAlert": {
+                            "type": "updated",
+                            "message": f"Profile for {profile_data.first_name , profile_data.last_name} updated successfully.",
+                            "source": "user-page",
+                        },
+                    }
+                ),
                 "csrf_token": csrf_token,
             }
             response = HTMLResponse(content="", headers=headers)
@@ -252,7 +263,15 @@ async def post_update_user(
 
             headers = {
                 "HX-Location": "/user",
-                "HX-Trigger": "roleUpdated",
+                "HX-Trigger": json.dumps(
+                    {
+                        "showAlert": {
+                            "type": "updated",
+                            "message": f"Profile for {profile_data.first_name , profile_data.last_name} updated successfully.",
+                            "source": "user-page",
+                        },
+                    }
+                ),
                 "csrf_token": csrf_token,
             }
             response = HTMLResponse(content="", headers=headers)

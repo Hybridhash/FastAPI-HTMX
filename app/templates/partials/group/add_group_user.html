@@ -40,7 +40,7 @@ HTMX {% endblock %} {% block content %}
           class="w-full ms-2 text-sm font-medium text-gray-900 rounded dark:text-gray-300"
           >{%if user.profile.first_name %} {{user.profile.first_name}}
           {{user.profile.last_name}} | {{user.role.role_name}} {% else %} User
-          Name Undefined {% endif %}</label
+          Profile is Missing {% endif %}</label
         >
       </div>
       {% endfor %}

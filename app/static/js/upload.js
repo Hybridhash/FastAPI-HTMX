@@ -23,7 +23,6 @@ document.addEventListener("DOMContentLoaded", function () {
 // Making a after request function to call and handle the loading state
 function handleUploadRequest() {
   try {
-    console.log("handleUploadRequest called");
     const components = document.querySelectorAll("[x-data]");
 
     const uploadPageIndex = Array.from(components).findIndex(
@@ -38,22 +37,10 @@ function handleUploadRequest() {
       throw new Error("No element with x-data found");
     }
     const data = Alpine.mergeProxies(component._x_dataStack);
-    console.log(
-      data.isLoading,
-      "isLoading State",
-      data.fileLoaded,
-      "fileLoaded State"
-    );
+
     data.isLoading = false;
     data.fileLoaded = false;
     data.fileName = "";
-
-    console.log(
-      data.isLoading,
-      "isLoading State after Function Call",
-      data.fileLoaded,
-      "fileLoaded State after Function Call"
-    );
   } catch (error) {
     console.error("Error in click event handler:", error);
   }

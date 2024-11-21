@@ -130,7 +130,15 @@ async def get_uploaded_files(
             },
         )
     except Exception as e:
-        return handle_error("partials/upload/files_table.html", {"request": request}, e)
+        return handle_error(
+            "partials/upload/files_table.html",
+            {
+                "request": request,
+                "current_user": current_user,
+                "user_type": current_user.is_superuser,
+            },
+            e,
+        )
 
 
 # Route to download a file from the back end
@@ -155,7 +163,11 @@ async def download_file(
             headers={"Content-Disposition": f"attachment; filename={file_unique_name}"},
         )
     except Exception as e:
-        return handle_error("pages/upload.html", {"request": request}, e)
+        return handle_error(
+            "pages/upload.html",
+            {"request": request, "user_type": current_user.is_superuser},
+            e,
+        )
 
 
 # Route to delete a file from the back end

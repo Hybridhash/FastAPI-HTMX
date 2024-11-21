@@ -1,7 +1,10 @@
 {% extends "base/auth_base.html" %} {% block title %} Group | FastAPI HTMX {%
 endblock %} {% block content %}
 <li>
-  {{user_profile.profile.first_name}} {{user_profile.profile.last_name}} |
-  {{user_profile.role.role_name}}
+  {% if user_profile.profile and user_profile.profile.first_name %}
+  {{user_profile.profile.first_name}} {{user_profile.profile.last_name}} | Role:
+  {{user_profile.role.role_name}} {% else %}
+  <span class="text-red-500">Allocated user has missing profile</span>
+  {% endif %}
 </li>
 {% endblock %}

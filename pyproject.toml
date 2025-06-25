@@ -4,9 +4,12 @@ version = "0.1"
 description = "Software to manage between geographical spread teams"
 authors = ["Ahmad"]
 readme = "README.md"
+packages = [
+    { include = "app" }
+]
 
 [tool.poetry.dependencies]
-python = "3.11.1"
+python = "3.12"
 fastapi = "0.112.1"
 sqlalchemy = "^2.0.21"
 uvicorn = {extras = ["standard"], version = "^0.23.2"}
@@ -75,8 +78,8 @@ line-length = 88
 # Allow unused variables when underscore-prefixed.
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
-# Assume Python 3.11.1
-target-version = "py311"
+# Assume Python 3.12
+target-version = "py312"
 
 [tool.ruff.mccabe]
 # Unlike Flake8, default to a complexity level of 10.

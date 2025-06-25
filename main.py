@@ -1,7 +1,8 @@
 from loguru import logger
+import uvicorn
 
 if __name__ == "__main__":
-    import uvicorn
+    
 
     logger.info("Starting uvicorn in reload mode")
     uvicorn.run(

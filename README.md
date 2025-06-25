@@ -46,10 +46,10 @@ This project leverages several external libraries to provide a robust and effici
 - ✅ 🛡️ Implement CSRF protection to enhance security **[Completed]**
 - 💾 Integrate Neon database (SQLite) for production use **[In Progress]**
 - ✅ 🎨 Replace HyperScript code with Alpine JS **[Completed]**
-- 🚀 Upgrading the boilerplate code to work with Python 12 and HTMX 2 **[In Progress]**
+- ✅ 🚀 Boilerplate code to work with Python 12 and HTMX 2 **[Completed]**
 - ✅ 📱 Fixing the GUI issues appearing in mobile view **[Completed]**
 - 🧪 Add more tests
-- 🔧 Wrapper to handle the pydantic models inputs efficiently from front end
+- 🔧 Wrapper to handle the pydantic models inputs efficiently from front end **[In Progress]**
 
 ## Demo
 
@@ -144,7 +144,7 @@ Replace `your_secret_key` with a strong secret key for your application.
    If you are using `poetry`, run:
 
    ```sh
-   poetry run uvicorn main:app --reload
+   poetry run python main.py
    ```
 
    If you are using `uvicorn` directly, run:

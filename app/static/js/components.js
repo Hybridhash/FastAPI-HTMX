@@ -120,7 +120,7 @@ document.addEventListener("alpine:init", () => {
     },
     setCookie() {
       const formData = new URLSearchParams();
-      formData.append("grant_type", "");
+      formData.append("grant_type", "password");
       formData.append("username", this.username);
       formData.append("password", this.password);
       formData.append("scope", "");

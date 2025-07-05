@@ -12,16 +12,16 @@
 
 This project leverages several external libraries to provide a robust and efficient solution. Below is a brief description of each library along with a link to their documentation:
 
-- [FastAPI](https://fastapi.tiangolo.com/) (v0.112.1): A modern, fast (high-performance), web framework for building APIs and serving HTML templates with Python 3.6+ based on standard Python type hints.
-- [SQLAlchemy](https://www.sqlalchemy.org/) (v2.0.36): The Python SQL toolkit and Object Relational Mapper that gives application developers the full power and flexibility of SQL.
-- [FastAPI Users](https://fastapi-users.github.io/fastapi-users/) (v13.0.0): Ready-to-use and customizable users management for FastAPI.
-- [Uvicorn](https://www.uvicorn.org/) (v0.23.2): A lightning-fast ASGI server implementation, using `uvloop` and `httptools`.
-- [Jinja2](https://palletsprojects.com/p/jinja/) (v3.1.4): A modern and designer-friendly templating language for Python.
-- [NH3](https://github.com/Th3Whit3Wolf/nh3) (v0.2.18): A Python binding to the HTML sanitizer `h3`.
-- [Alembic](https://alembic.sqlalchemy.org/en/latest/) (v1.14.0): A lightweight database migration tool for usage with the SQLAlchemy Database Toolkit.
+- [FastAPI](https://fastapi.tiangolo.com/) (^0.115.14): A modern, fast (high-performance), web framework for building APIs and serving HTML templates with Python 3.6+ based on standard Python type hints.
+- [SQLAlchemy](https://www.sqlalchemy.org/) (^2.0.41): The Python SQL toolkit and Object Relational Mapper that gives application developers the full power and flexibility of SQL.
+- [FastAPI Users](https://fastapi-users.github.io/fastapi-users/) (^14.0.1): Ready-to-use and customizable users management for FastAPI.
+- [Uvicorn](https://www.uvicorn.org/) (^0.35.0): A lightning-fast ASGI server implementation, using `uvloop` and `httptools`.
+- [Jinja2](https://palletsprojects.com/p/jinja/) (^3.1.6): A modern and designer-friendly templating language for Python.
+- [NH3](https://github.com/Th3Whit3Wolf/nh3) (^0.2.21): A Python binding to the HTML sanitizer `h3`.
+- [Alembic](https://alembic.sqlalchemy.org/en/latest/) (^1.16.2): A lightweight database migration tool for usage with the SQLAlchemy Database Toolkit.
 - [AlpineJS](https://alpinejs.dev/) (loaded from CDN): A rugged, minimal framework for composing JavaScript behavior in your HTML templates.
 - [Flowbite](https://flowbite.com/) (loaded from CDN): A component library built on top of Tailwind CSS for building modern web interfaces.
-- [Pydantic](https://docs.pydantic.dev/2.0/) (v2.10.0): Data validation and settings management using Python type annotations.
+- [Pydantic](https://docs.pydantic.dev/2.0/) (^2.11.7): Data validation and settings management using Python type annotations.
 
 ## Features Implemented
 
@@ -62,7 +62,45 @@ This project leverages several external libraries to provide a robust and effici
 - **email:** superuser@admin.com
 - **password:** password123
 
-## Setting Up the Project
+## Quick Setup Using PowerShell Script
+
+For Windows users, you can use the provided `setup.ps1` script to automate the setup and management of your FastAPI-HTMX project. This script covers all essential project operations.
+
+### Available Commands
+
+| Command     | Description                         |
+| ----------- | ----------------------------------- |
+| setup       | Complete project setup              |
+| install     | Install dependencies only           |
+| env         | Create .env file                    |
+| migrate     | Run database migrations             |
+| init-db     | Initialize database with migrations |
+| run         | Start the application               |
+| run-dev     | Start in development mode           |
+| credentials | Show admin login credentials        |
+| status      | Show project status                 |
+| clean       | Clean up generated files            |
+
+### Usage
+
+1. **Open PowerShell** and navigate to your project directory:
+   ```powershell
+   cd "C:\Users\mahmad\Desktop\Coding\FastAPI-HTMX"
+   ```
+2. **Run a command** (for example, to set up the project):
+   ```powershell
+   .\setup.ps1 setup
+   ```
+   Or to start the application:
+   ```powershell
+   .\setup.ps1 run
+   ```
+
+---
+
+## Manual Setup Procedure
+
+You can also set up and manage the project manually using the following steps:
 
 ### Creating the `.env` File
 
@@ -131,7 +169,6 @@ Replace `your_secret_key` with a strong secret key for your application.
    ```sh
    import fastapi_users_db_sqlalchemy.generics
    import app.models.groups
-
    ```
 
 6. **Apply the changes:**
@@ -154,7 +191,7 @@ Replace `your_secret_key` with a strong secret key for your application.
    ```
 
 8. **Access the application:**
-   Open your web browser and navigate to `http://127.0.0.1:8000`.
+   Open your web browser and navigate to `http://127.0.0.1:8080`.
 
 ## Updating Model References in `init_models`
 
